@@ -13,11 +13,12 @@ export async function POST(req: Request, res: Response) {
   try {
     const body = await req.json();
     const { file_key, file_name } = body;
-    console.log(file_key, file_name);
+
     await loadS3IntoPinecode(file_key);
     const chat_id = await db
       .insert(chats)
       .values({
+        id: crypto.randomUUID(),
         fileKey: file_key,
         pdfName: file_name,
         pdfUrl: getS3Url(file_key),
