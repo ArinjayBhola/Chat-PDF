@@ -2,7 +2,7 @@ export const runtime = "nodejs"; // allows local ONNX execution; ignored by Verc
 
 import { pipeline } from "@huggingface/transformers";
 
-let localPipe: ((text: string) => Promise<any>) | null = null;
+let localPipe: ((text: string) => Promise<unknown>) | null = null;
 
 /**
  * getEmbeddings(text)
@@ -18,7 +18,7 @@ export async function getEmbeddings(text: string) {
     if (mode === "local") {
       // -------- LOCAL DEV MODE (Node.js + ONNX) --------
       if (!localPipe) {
-        localPipe = (await pipeline("feature-extraction", model)) as any;
+        localPipe = (await pipeline("feature-extraction", model)) as unknown as ((text: string) => Promise<unknown>);
       }
 
       if (!localPipe) {
