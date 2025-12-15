@@ -6,6 +6,7 @@ import { auth } from "@clerk/nextjs/server";
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import React from "react";
+import ChatComponent from "@/components/ChatComponent";
 
 type Props = {
   params: Promise<{ chatId: string }>;
@@ -46,7 +47,7 @@ const page = async ({ params }: Props) => {
         </div>
         {/* Chat Component */}
         <div className="flex-[3] border-l-4 border-l-slate-200 h-full overflow-hidden">
-          {/* <ChatComponent /> */}
+          <ChatComponent />
         </div>
       </div>
     </div>
