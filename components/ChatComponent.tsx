@@ -6,11 +6,25 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Send } from "lucide-react";
 import MessageList from "./MessageList";
+import { DefaultChatTransport } from "ai";
 
-export default function ChatComponent() {
+type Props = { chatId: string };
+
+export default function ChatComponent({ chatId }: Props) {
   const [input, setInput] = useState("");
 
-  const { messages, sendMessage, status, error } = useChat();
+  const { messages, sendMessage, status, error } = useChat({
+    transport: new DefaultChatTransport({
+      prepareSendMessagesRequest: ({ id, messages }) => {
+        return {
+          body: {
+            chatId,
+            messages,
+          },
+        };
+      },
+    }),
+  });
 
   const isLoading = status !== "ready";
 
@@ -25,7 +39,15 @@ export default function ChatComponent() {
     });
     setInput("");
   };
-
+  React.useEffect(() => {
+    const messageContainer = document.getElementById("message-container");
+    if (messageContainer) {
+      messageContainer.scrollTo({
+        top: messageContainer.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+  }, [messages]);
   return (
     <div className="relative h-screen flex flex-col bg-white">
       {/* Header */}
@@ -34,7 +56,9 @@ export default function ChatComponent() {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-2">
+      <div
+        className="flex-1 overflow-y-auto px-2"
+        id="message-container">
         <MessageList messages={messages} />
       </div>
 
