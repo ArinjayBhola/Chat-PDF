@@ -15,7 +15,6 @@ type PDFPgae = {
 
 export async function loadS3IntoPinecode(file_key: string) {
   // 1. Obtain the pdf from S3 using the file_key => download and read from pdf
-  console.log("Downloading s3 into file system");
   const file_name = await downloadFromS3(file_key);
   if (!file_name) {
     throw new Error("Failed to download file from S3");
@@ -59,7 +58,6 @@ export async function loadS3IntoPinecode(file_key: string) {
       BATCH_SIZE = Math.max(1, batch.length - 1);
       batch = vectors.slice(i, i + BATCH_SIZE);
       batchSize = estimateBatchSize(batch);
-      console.log(`Batch too large, reducing to ${batch.length} vectors`);
     }
 
     try {
@@ -83,8 +81,6 @@ export async function loadS3IntoPinecode(file_key: string) {
       throw error;
     }
   }
-
-  console.log("Vectors successfully uploaded to Pinecone");
 }
 
 // ---------- Helper functions ----------

@@ -1,53 +1,78 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useChat } from "@ai-sdk/react";
+import { DefaultChatTransport } from "ai";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Send } from "lucide-react";
 import MessageList from "./MessageList";
-import { DefaultChatTransport } from "ai";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import { dbMessageToUIMessage } from "@/lib/message-mapper";
 
-type Props = { chatId: string };
+type Props = {
+  chatId: string;
+};
 
 export default function ChatComponent({ chatId }: Props) {
   const [input, setInput] = useState("");
 
-  const { messages, sendMessage, status, error } = useChat({
+  const { data, isLoading: isLoadingMessages } = useQuery({
+    queryKey: ["chat-messages", chatId],
+    queryFn: async () => {
+      const res = await axios.post("/api/get-messages", { chatId });
+      return res.data;
+    },
+    staleTime: 0,
+  });
+
+  const { messages, setMessages, sendMessage, status, error } = useChat({
     transport: new DefaultChatTransport({
-      prepareSendMessagesRequest: ({ id, messages }) => {
-        return {
-          body: {
-            chatId,
-            messages,
-          },
-        };
-      },
+      prepareSendMessagesRequest: ({ messages }) => ({
+        body: {
+          chatId,
+          messages,
+        },
+      }),
     }),
   });
 
-  const isLoading = status !== "ready";
+  useEffect(() => {
+    if (data?.messages) {
+      setMessages(data.messages);
+    }
+  }, [data, setMessages]);
+
+  useEffect(() => {
+    const container = document.getElementById("message-container");
+    if (container) {
+      container.scrollTop = container.scrollHeight;
+    }
+  }, [messages]);
+
+  const isStreaming = status !== "ready";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!input.trim() || isLoading) return;
+    if (!input.trim() || isStreaming) return;
 
     await sendMessage({
       role: "user",
       parts: [{ type: "text", text: input }],
     });
+
     setInput("");
   };
-  React.useEffect(() => {
-    const messageContainer = document.getElementById("message-container");
-    if (messageContainer) {
-      messageContainer.scrollTo({
-        top: messageContainer.scrollHeight,
-        behavior: "smooth",
-      });
+
+  useEffect(() => {
+    if (data?.messages) {
+      const uiMessages = data.messages.map(dbMessageToUIMessage);
+      setMessages(uiMessages);
     }
-  }, [messages]);
+  }, [data, setMessages]);
+
   return (
     <div className="relative h-screen flex flex-col bg-white">
       {/* Header */}
@@ -57,8 +82,8 @@ export default function ChatComponent({ chatId }: Props) {
 
       {/* Messages */}
       <div
-        className="flex-1 overflow-y-auto px-2"
-        id="message-container">
+        id="message-container"
+        className="flex-1 overflow-y-auto px-2">
         <MessageList messages={messages} />
       </div>
 
@@ -70,17 +95,18 @@ export default function ChatComponent({ chatId }: Props) {
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask any question…"
-            disabled={isLoading}
+            placeholder="Ask anything…"
+            disabled={isStreaming || isLoadingMessages}
           />
           <Button
             type="submit"
-            disabled={isLoading}>
+            disabled={isStreaming}>
             <Send className="h-4 w-4" />
           </Button>
         </div>
       </form>
 
+      {/* Error */}
       {error && <p className="text-red-500 text-sm px-3 py-1">{error.message}</p>}
     </div>
   );

@@ -1,8 +1,8 @@
 import { getContext } from "@/lib/context";
 import { db } from "@/lib/db";
-import { chats } from "@/lib/db/schema";
+import { chats, messages as _messages } from "@/lib/db/schema";
 import { google } from "@ai-sdk/google";
-import { streamText, convertToModelMessages } from "ai";
+import { streamText, convertToModelMessages, ModelMessage, smoothStream, UIMessage } from "ai";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 
@@ -16,7 +16,16 @@ export async function POST(req: Request) {
   }
   const fileKey = _chats[0].fileKey;
   const lastMessage = messages[messages.length - 1];
-  const context = await getContext((lastMessage.content || "").replace(/\n/g, " "), fileKey);
+
+  await db.insert(_messages).values({
+    id: crypto.randomUUID(),
+    chatsId: chatId,
+    content: lastMessage.parts[0].text,
+    createdAt: new Date(),
+    role: "user",
+  });
+
+  const context = await getContext(lastMessage.parts[0].text.replace(/\n/g, " "), fileKey);
 
   const prompt = {
     role: "system",
@@ -36,14 +45,33 @@ export async function POST(req: Request) {
       `,
   };
 
+  const userMessages: UIMessage[] = messages
+    .filter((m: any) => m.role === "user")
+    .map((m: any) => {
+      if (m.parts) return m;
+
+      return {
+        role: "user",
+        id: m.id,
+        parts: [{ type: "text", text: m.content }],
+      };
+    });
+
   const result = streamText({
     model: google("gemini-2.5-flash-preview-09-2025"),
-    messages: [
-      prompt as any,
-      ...convertToModelMessages(messages),
-    ],
+    messages: [prompt as ModelMessage, ...convertToModelMessages(userMessages)],
+    experimental_transform: smoothStream(),
+    async onFinish({ text }) {
+      // save assistant message into db
+      await db.insert(_messages).values({
+        id: crypto.randomUUID(),
+        chatsId: chatId,
+        content: text,
+        createdAt: new Date(),
+        role: "system",
+      });
+    },
   });
 
   return result.toUIMessageStreamResponse();
 }
-

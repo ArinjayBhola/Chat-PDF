@@ -41,8 +41,6 @@ export async function getEmbeddings(text: string) {
         const dims = tensor.dims || tensor.size || tensor.shape;
         const dataArray = Array.isArray(tensor.data) ? tensor.data : Array.from(tensor.data);
 
-        console.log(`Tensor dims: ${dims ? JSON.stringify(dims) : "unknown"}, data length: ${dataArray.length}`);
-
         // If we have shape/dims info, use it to extract the correct slice
         if (dims && dims.length >= 2) {
           const embeddingDim = dims[dims.length - 1];
@@ -105,8 +103,6 @@ export async function getEmbeddings(text: string) {
       });
 
       // Log embedding dimension for debugging
-      console.log(`Embedding dimension: ${flatEmbedding.length}`);
-
       return flatEmbedding;
     }
 
