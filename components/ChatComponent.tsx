@@ -17,6 +17,7 @@ type Props = {
 
 export default function ChatComponent({ chatId }: Props) {
   const [input, setInput] = useState("");
+  const containerRef = React.useRef<HTMLDivElement>(null);
 
   const { data, isLoading: isLoadingMessages } = useQuery({
     queryKey: ["chat-messages", chatId],
@@ -45,10 +46,10 @@ export default function ChatComponent({ chatId }: Props) {
   }, [data, setMessages]);
 
   useEffect(() => {
-    const container = document.getElementById("message-container");
-    if (container) {
-      container.scrollTop = container.scrollHeight;
-    }
+    containerRef.current?.scrollTo({
+      top: containerRef.current.scrollHeight,
+      behavior: "smooth",
+    });
   }, [messages]);
 
   const isStreaming = status !== "ready";
@@ -82,7 +83,7 @@ export default function ChatComponent({ chatId }: Props) {
 
       {/* Messages */}
       <div
-        id="message-container"
+        ref={containerRef}
         className="flex-1 overflow-y-auto px-2">
         <MessageList messages={messages} />
       </div>
