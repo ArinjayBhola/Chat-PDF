@@ -23,6 +23,7 @@
     "ai": "^5.0.113",
     "aws-sdk": "^2.1692.0",
     "axios": "^1.12.2",
+    "bytez.js": "^3.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dotenv": "^16.6.1",
