@@ -1,4 +1,3 @@
-import ChatSidebar from "@/components/ChatSidebar";
 import PDFViewer from "@/components/PDFViewer";
 import { db } from "@/lib/db";
 import { chats } from "@/lib/db/schema";
@@ -20,35 +19,25 @@ const page = async ({ params }: Props) => {
     return redirect("/sign-in");
   }
 
+  // Fetch only the specific chat for checking ownership and getting PDF URL
   const _chats = await db.select().from(chats).where(eq(chats.userId, userId));
-  if (!_chats) {
-    return redirect("/");
-  }
-  if (!_chats.find((chat) => chat.id === chatId)) {
-    return redirect("/");
-  }
 
-  const currentChats = _chats.find((chat) => chat.id === chatId);
+  // Verify chat exists and belongs to user
+  const currentChat = _chats.find((chat) => chat.id === chatId);
+
+  if (!currentChat) {
+    return redirect("/");
+  }
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      <div className="flex w-full h-full">
-        {/* Chat Sidebar */}
-        <div className="flex-[1] max-w-xs">
-          <ChatSidebar
-            chats={_chats}
-            chatId={chatId}
-          />
-        </div>
-
-        {/* Main PDF Viewer */}
-        <div className="flex-[5] h-full p-4 overflow-hidden">
-          <PDFViewer pdf_url={currentChats?.pdfUrl || ""} />
-        </div>
-        {/* Chat Component */}
-        <div className="flex-[3] border-l-4 border-l-slate-200 h-full overflow-hidden">
-          <ChatComponent chatId={chatId} />
-        </div>
+    <div className="flex w-full h-full">
+      {/* Main PDF Viewer */}
+      <div className="flex-[5] h-full p-4 overflow-hidden">
+        <PDFViewer pdf_url={currentChat.pdfUrl || ""} />
+      </div>
+      {/* Chat Component */}
+      <div className="flex-[3] border-l-4 border-l-slate-200 h-full overflow-hidden">
+        <ChatComponent chatId={chatId} />
       </div>
     </div>
   );

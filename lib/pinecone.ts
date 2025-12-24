@@ -1,4 +1,4 @@
-import { Pinecone } from "@pinecone-database/pinecone";
+import { Pinecone, PineconeRecord, RecordMetadata } from "@pinecone-database/pinecone";
 import { downloadFromS3 } from "./s3-server";
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { RecursiveCharacterTextSplitter, Document } from "@pinecone-database/doc-splitter";
@@ -26,7 +26,12 @@ export async function loadS3IntoPinecode(file_key: string) {
   const documents = await Promise.all(pages.map(preapareDocument));
 
   // 3. Vectorize and embed the documents
-  const vectors = await Promise.all(documents.flat().map(embedDocument));
+  const vectors: PineconeRecord<RecordMetadata>[] = [];
+  for (const doc of documents.flat()) {
+    vectors.push(await embedDocument(doc));
+    // Small delay to be safe with rate limits
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
 
   // 4. Use chunked upsert to upload the vectors in chunks (to avoid hitting rate limits)
   const pc = new Pinecone({
