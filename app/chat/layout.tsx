@@ -20,15 +20,15 @@ const ChatLayout = async ({ children }: Props) => {
   const _chats = await db.select().from(chats).where(eq(chats.userId, userId));
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      <div className="flex w-full h-full">
-        {/* Chat Sidebar */}
-        <div className="flex-[1] max-w-xs block">
-          <ChatSidebar chats={_chats} />
-        </div>
+    <div className="flex h-screen overflow-hidden bg-white">
+      {/* Chat Sidebar - Fixed Width */}
+      <div className="w-[280px] h-full flex-shrink-0 hidden md:block">
+        <ChatSidebar chats={_chats} />
+      </div>
 
-        {/* Main Content */}
-        <div className="flex-[8] h-full overflow-hidden">{children}</div>
+      {/* Main Content */}
+      <div className="flex-1 h-full overflow-hidden">
+        {children}
       </div>
     </div>
   );

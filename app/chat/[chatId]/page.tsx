@@ -30,13 +30,14 @@ const page = async ({ params }: Props) => {
   }
 
   return (
-    <div className="flex w-full h-full">
+    <div className="flex w-full h-full max-h-[100vh] overflow-hidden">
       {/* Main PDF Viewer */}
-      <div className="flex-[5] h-full p-4 overflow-hidden">
+      <div className="w-1/2 h-full p-0 border-r border-slate-200">
         <PDFViewer pdf_url={currentChat.pdfUrl || ""} />
       </div>
+      
       {/* Chat Component */}
-      <div className="flex-[3] border-l-4 border-l-slate-200 h-full overflow-hidden">
+      <div className="w-1/2 h-full bg-white border-l border-slate-100 shadow-[-5px_0_15px_rgba(0,0,0,0.02)] z-10">
         <ChatComponent chatId={chatId} />
       </div>
     </div>
