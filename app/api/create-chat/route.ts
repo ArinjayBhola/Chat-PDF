@@ -2,14 +2,17 @@ import { db } from "@/lib/db";
 import { chats } from "@/lib/db/schema";
 import { loadS3IntoPinecode } from "@/lib/pinecone";
 import { getS3Url } from "@/lib/s3";
-import { auth } from "@clerk/nextjs/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth-options";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request, res: Response) {
-  const { userId } = await auth();
-  if (!userId) {
+  const session = await getServerSession(authOptions);
+  
+  if (!session?.user?.id) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
+  
   try {
     const body = await req.json();
     const { file_key, file_name } = body;
@@ -22,7 +25,7 @@ export async function POST(req: Request, res: Response) {
         fileKey: file_key,
         pdfName: file_name,
         pdfUrl: getS3Url(file_key),
-        userId,
+        userId: session.user.id,
       })
       .returning({
         insertedId: chats.id,

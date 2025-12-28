@@ -1,48 +1,60 @@
 import { Button } from "@/components/ui/button";
-import { UserButton } from "@clerk/nextjs";
 import { LogIn } from "lucide-react";
 import Link from "next/link";
-import { currentUser } from "@clerk/nextjs/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth-options";
 import FileUpload from "@/components/FileUpload";
+import UserMenu from "@/components/UserMenu";
 
 export default async function Home() {
-  const user = await currentUser();
-  const isAuth = !!user?.emailAddresses[0].id;
+  const session = await getServerSession(authOptions);
+  const isAuth = !!session?.user;
+  
   return (
-    <div className="w-screen min-h-screen bg-gradient-to-r from-rose-100 to-teal-100">
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-        <div className="flex flex-col items-center text-center">
-          <div className="flex items-center">
-            <h1 className="mr-3 text-5xl font-semibold">Chat with any PDF</h1>
-            <UserButton />
-          </div>
+    <div className="relative isolate min-h-screen bg-slate-50">
+      {/* Subtle background pattern */}
+      <div className="absolute inset-0 -z-10 h-full w-full bg-white">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
+      </div>
+      
+      <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
+        <div className="mx-auto max-w-2xl text-center">
+          <div className="flex flex-col items-center">
+            <div className="flex items-center gap-4 mb-8">
+              <h1 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-6xl">Chat with any PDF</h1>
+              {isAuth && <UserMenu user={session.user} />}
+            </div>
 
-          <div className="flex mt-2">
-            {isAuth && (
-              <Link href="/chat">
-                <Button>Go to chats</Button>
-              </Link>
-            )}
+            <div className="flex gap-x-6 mb-8">
+              {isAuth && (
+                <Link href="/chat">
+                  <Button size="lg" className="rounded-xl px-8 shadow-md hover:shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98]">
+                    Go to chats
+                  </Button>
+                </Link>
+              )}
+            </div>
+
+            <p className="text-lg leading-8 text-slate-600 mb-10">
+              Join millions of students, researchers, and professionals to instantly answer questions and understand
+              research with AI. Clean, powerful, and distraction-free.
+            </p>
+
+            <div className="w-full max-w-md mx-auto">
+              {isAuth ? (
+                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-lg ring-1 ring-slate-900/5">
+                  <FileUpload />
+                </div>
+              ) : (
+                <Link href={"/sign-in"}>
+                  <Button size="lg" className="rounded-xl px-8 shadow-md hover:shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98]">
+                    Login to get started
+                    <LogIn className="w-4 h-4 ml-2" />
+                  </Button>
+                </Link>
+              )}
+            </div>
           </div>
-          <p className="max-w-xl mt-2 text-lg text-slate-600">
-            Join millions of students, researches, and professionals to instantly answer questions and understand
-            research with AI.
-          </p>
-          <div className="w-full mt-4">
-            {isAuth ? (
-              <h1>
-                <FileUpload />
-              </h1>
-            ) : (
-              <Link href={"/sign-in"}>
-                <Button>
-                  Login to get started
-                  <LogIn className="w-4 h-4 ml-2" />
-                </Button>
-              </Link>
-            )}
-          </div>
-          {/* Add Image of App */}
         </div>
       </div>
     </div>

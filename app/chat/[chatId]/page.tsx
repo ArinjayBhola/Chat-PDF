@@ -1,7 +1,8 @@
 import PDFViewer from "@/components/PDFViewer";
 import { db } from "@/lib/db";
 import { chats } from "@/lib/db/schema";
-import { auth } from "@clerk/nextjs/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth-options";
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import React from "react";
@@ -13,14 +14,14 @@ type Props = {
 
 const page = async ({ params }: Props) => {
   const { chatId } = await params;
-  const { userId } = await auth();
+  const session = await getServerSession(authOptions);
 
-  if (!userId) {
+  if (!session?.user?.id) {
     return redirect("/sign-in");
   }
 
   // Fetch only the specific chat for checking ownership and getting PDF URL
-  const _chats = await db.select().from(chats).where(eq(chats.userId, userId));
+  const _chats = await db.select().from(chats).where(eq(chats.userId, session.user.id));
 
   // Verify chat exists and belongs to user
   const currentChat = _chats.find((chat) => chat.id === chatId);
@@ -30,14 +31,14 @@ const page = async ({ params }: Props) => {
   }
 
   return (
-    <div className="flex w-full h-full max-h-[100vh] overflow-hidden">
-      {/* Main PDF Viewer */}
-      <div className="w-1/2 h-full p-0 border-r border-slate-200">
+    <div className="flex w-full h-screen overflow-hidden bg-white">
+      {/* Main PDF Viewer Area */}
+      <div className="flex-1 min-w-0 h-screen overflow-hidden border-r border-slate-200 bg-slate-50">
         <PDFViewer pdf_url={currentChat.pdfUrl || ""} />
       </div>
       
-      {/* Chat Component */}
-      <div className="w-1/2 h-full bg-white border-l border-slate-100 shadow-[-5px_0_15px_rgba(0,0,0,0.02)] z-10">
+      {/* Chat Component Area */}
+      <div className="w-[650px] h-screen bg-white border-l border-slate-200 shadow-lg z-10 flex-shrink-0">
         <ChatComponent chatId={chatId} />
       </div>
     </div>

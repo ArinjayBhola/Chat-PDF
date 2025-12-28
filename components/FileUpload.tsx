@@ -59,23 +59,26 @@ const FileUpload = () => {
     },
   });
   return (
-    <div className="p-2 bg-white rounded-xl">
+    <div className="w-full">
       <div
         {...getRootProps({
           className:
-            "border-2 border-dashed border-gray-50 rounded-xl py-8 cursor-pointer hover:bg-gray-100 flex justify-center items-center flex-col",
+            "group relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 py-10 transition-all hover:border-blue-400 hover:bg-blue-50/30 cursor-pointer",
         })}>
         <input {...getInputProps()} />
         {uploading || isPending ? (
-          <>
-            <Loader2 className="h-10 w-10 text-blue-500 animate-spin" />
-            <p className="mt-2 text-sm text-slate-400">Spilling Tea to GPT...</p>
-          </>
+          <div className="flex flex-col items-center">
+            <Loader2 className="h-10 w-10 text-blue-600 animate-spin" />
+            <p className="mt-4 text-sm font-medium text-slate-600">Processing your PDF...</p>
+          </div>
         ) : (
-          <>
-            <Inbox className="w-10 h-10 text-blue-500" />
-            <p className="m-2 text-md text-slate-400">Drop PDF here</p>
-          </>
+          <div className="flex flex-col items-center">
+            <div className="rounded-full bg-white p-4 shadow-md border border-slate-200 transition-transform group-hover:scale-110 group-hover:shadow-lg">
+              <Inbox className="h-8 w-8 text-blue-600" />
+            </div>
+            <p className="mt-4 text-sm font-semibold text-slate-900">Drop PDF here</p>
+            <p className="mt-1 text-xs text-slate-500">PDF up to 10MB</p>
+          </div>
         )}
       </div>
     </div>

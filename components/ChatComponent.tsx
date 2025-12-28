@@ -73,7 +73,7 @@ export default function ChatComponent({ chatId }: Props) {
   const isStreaming = status === "streaming"; // Receiving response
 
   return (
-    <div className="relative h-full flex flex-col bg-slate-50/50">
+    <div className="relative h-full flex flex-col bg-white">
       {/* Messages Area */}
       <div
         ref={containerRef}
@@ -83,9 +83,9 @@ export default function ChatComponent({ chatId }: Props) {
         {/* Loadbar / Thinking State */}
         {isScanning && (
           <div className="flex justify-start px-4 mt-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <div className="bg-white border border-slate-100 rounded-2xl rounded-tl-none px-6 py-4 shadow-sm flex items-center gap-3">
-              <Loader2 className="h-4 w-4 text-blue-500 animate-spin" />
-              <span className="text-[15px] text-slate-600 font-medium">AI is thinking...</span>
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl rounded-tl-none px-6 py-4 shadow-sm flex items-center gap-3">
+              <Loader2 className="h-4 w-4 text-blue-600 animate-spin" />
+              <span className="text-[15px] text-slate-700 font-medium">AI is thinking...</span>
             </div>
           </div>
         )}
@@ -96,7 +96,7 @@ export default function ChatComponent({ chatId }: Props) {
         <div className="max-w-4xl mx-auto">
           <form
             onSubmit={handleSubmit}
-            className="flex items-center gap-2 bg-white p-2 rounded-2xl border border-slate-200 shadow-xl shadow-slate-200/50 focus-within:ring-2 focus-within:ring-blue-100/50 transition-all hover:border-slate-300">
+            className="flex items-center gap-2 bg-white p-2 rounded-2xl border border-slate-200 shadow-lg focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500/50 transition-all hover:border-slate-300">
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -113,7 +113,7 @@ export default function ChatComponent({ chatId }: Props) {
                 "h-11 w-11 rounded-xl transition-all duration-200 mr-1",
                 status !== "ready"
                   ? "bg-slate-100 text-slate-400 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/30 hover:shadow-blue-500/40 hover:scale-105 active:scale-95",
+                  : "bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg hover:scale-105 active:scale-95",
               )}>
               {isStreaming ? (
                 <Loader2 className="h-5 w-5 animate-spin" />
@@ -125,7 +125,7 @@ export default function ChatComponent({ chatId }: Props) {
 
           {/* Helper footer text */}
           <div className="text-center mt-3">
-            <p className="text-[11px] font-medium text-slate-400 tracking-wide uppercase opacity-70">
+            <p className="text-[11px] font-medium text-slate-400 tracking-wide uppercase">
               AI Generated content may be inaccurate
             </p>
           </div>

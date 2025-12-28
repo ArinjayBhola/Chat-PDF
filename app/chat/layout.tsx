@@ -1,7 +1,8 @@
 import ChatSidebar from "@/components/ChatSidebar";
 import { db } from "@/lib/db";
 import { chats } from "@/lib/db/schema";
-import { auth } from "@clerk/nextjs/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth-options";
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import React from "react";
@@ -11,13 +12,13 @@ type Props = {
 };
 
 const ChatLayout = async ({ children }: Props) => {
-  const { userId } = await auth();
+  const session = await getServerSession(authOptions);
 
-  if (!userId) {
+  if (!session?.user?.id) {
     return redirect("/sign-in");
   }
 
-  const _chats = await db.select().from(chats).where(eq(chats.userId, userId));
+  const _chats = await db.select().from(chats).where(eq(chats.userId, session.user.id));
 
   return (
     <div className="flex h-screen overflow-hidden bg-white">

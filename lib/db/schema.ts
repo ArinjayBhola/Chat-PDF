@@ -1,5 +1,8 @@
 import { pgTable, text, timestamp, varchar, integer, pgEnum, uuid } from "drizzle-orm/pg-core";
 
+// Export auth schema
+export * from "./auth-schema";
+
 export const userSystemEnum = pgEnum("user_system_enum", ["system", "user"]);
 
 export const chats = pgTable("chats", {
@@ -7,7 +10,7 @@ export const chats = pgTable("chats", {
   pdfName: text("pdf_name").notNull(),
   pdfUrl: text("pdf_url").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-  userId: varchar("user_id", { length: 256 }).notNull(),
+  userId: text("user_id").notNull(), // Changed from varchar to text to match users.id
   fileKey: text("file_key").notNull(),
 });
 
