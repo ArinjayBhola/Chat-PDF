@@ -2,12 +2,13 @@
 
 import { uploadToS3 } from "@/lib/s3";
 import { useMutation } from "@tanstack/react-query";
-import { Inbox, Loader2 } from "lucide-react";
 import React, { useState } from "react";
 import { useDropzone } from "react-dropzone";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { FaInbox } from "react-icons/fa";
+import { RiLoader2Fill } from "react-icons/ri";
 
 const FileUpload = () => {
   const [uploading, setUploading] = useState(false);
@@ -68,13 +69,13 @@ const FileUpload = () => {
         <input {...getInputProps()} />
         {uploading || isPending ? (
           <div className="flex flex-col items-center">
-            <Loader2 className="h-10 w-10 text-blue-600 animate-spin" />
+            <RiLoader2Fill className="h-10 w-10 text-blue-600 animate-spin" />
             <p className="mt-4 text-sm font-medium text-slate-600">Processing your PDF...</p>
           </div>
         ) : (
           <div className="flex flex-col items-center">
             <div className="rounded-full bg-white p-4 shadow-md border border-slate-200 transition-transform group-hover:scale-110 group-hover:shadow-lg">
-              <Inbox className="h-8 w-8 text-blue-600" />
+              <FaInbox className="h-8 w-8 text-blue-600" />
             </div>
             <p className="mt-4 text-sm font-semibold text-slate-900">Drop PDF here</p>
             <p className="mt-1 text-xs text-slate-500">PDF up to 10MB</p>

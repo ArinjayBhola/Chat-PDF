@@ -5,12 +5,13 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { Loader2, ArrowUp } from "lucide-react";
 import MessageList from "./MessageList";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { dbMessageToUIMessage } from "@/lib/message-mapper";
 import { cn } from "@/lib/utils";
+import { FiLoader } from "react-icons/fi";
+import { FaArrowUp } from "react-icons/fa";
 
 type Props = {
   chatId: string;
@@ -84,7 +85,7 @@ export default function ChatComponent({ chatId }: Props) {
         {isScanning && (
           <div className="flex justify-start px-4 mt-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
             <div className="bg-slate-50 border border-slate-200 rounded-2xl rounded-tl-none px-6 py-4 shadow-sm flex items-center gap-3">
-              <Loader2 className="h-4 w-4 text-blue-600 animate-spin" />
+              <FiLoader className="h-4 w-4 text-blue-600 animate-spin" />
               <span className="text-[15px] text-slate-700 font-medium">AI is thinking...</span>
             </div>
           </div>
@@ -116,9 +117,9 @@ export default function ChatComponent({ chatId }: Props) {
                   : "bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg hover:scale-105 active:scale-95",
               )}>
               {isStreaming ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
+                <FiLoader className="h-5 w-5 animate-spin" />
               ) : (
-                <ArrowUp className="h-5 w-5 stroke-[2.5px]" />
+                <FaArrowUp className="h-5 w-5 stroke-[2.5px]" />
               )}
             </Button>
           </form>

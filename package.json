@@ -29,7 +29,6 @@
     "dotenv": "^16.6.1",
     "drizzle-orm": "^0.44.5",
     "langchain": "^0.3.35",
-    "lucide-react": "^0.544.0",
     "md5": "^2.3.0",
     "next": "^15.1.11",
     "next-auth": "^4.24.11",
@@ -41,6 +40,7 @@
     "react-dom": "^19.1.2",
     "react-dropzone": "^14.3.8",
     "react-hot-toast": "^2.6.0",
+    "react-icons": "^5.5.0",
     "tailwind-merge": "^3.3.1"
   },
   "devDependencies": {

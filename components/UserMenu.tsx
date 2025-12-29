@@ -1,9 +1,10 @@
 "use client";
 
 import { signOut } from "next-auth/react";
-import { LogOut, User as UserIcon } from "lucide-react";
 import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
+import { CiUser } from "react-icons/ci";
+import { MdLogout } from "react-icons/md";
 
 interface UserMenuProps {
   user: {
@@ -29,11 +30,12 @@ export default function UserMenu({ user }: UserMenuProps) {
   }, []);
 
   return (
-    <div className="relative" ref={menuRef}>
+    <div
+      className="relative"
+      ref={menuRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-center w-10 h-10 rounded-full bg-slate-900 hover:bg-slate-800 transition-all shadow-md hover:shadow-lg ring-2 ring-slate-200 hover:ring-slate-300"
-      >
+        className="flex items-center justify-center w-10 h-10 rounded-full bg-slate-900 hover:bg-slate-800 transition-all shadow-md hover:shadow-lg ring-2 ring-slate-200 hover:ring-slate-300">
         {user.image ? (
           <Image
             src={user.image}
@@ -43,7 +45,7 @@ export default function UserMenu({ user }: UserMenuProps) {
             className="rounded-full"
           />
         ) : (
-          <UserIcon className="w-5 h-5 text-white" />
+          <CiUser className="w-5 h-5 text-white" />
         )}
       </button>
 
@@ -55,9 +57,8 @@ export default function UserMenu({ user }: UserMenuProps) {
           </div>
           <button
             onClick={() => signOut({ callbackUrl: "/" })}
-            className="w-full px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 transition-colors flex items-center gap-2.5 font-medium"
-          >
-            <LogOut className="w-4 h-4 text-slate-500" />
+            className="w-full px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 transition-colors flex items-center gap-2.5 font-medium">
+            <MdLogout className="w-4 h-4 text-slate-500" />
             Sign Out
           </button>
         </div>

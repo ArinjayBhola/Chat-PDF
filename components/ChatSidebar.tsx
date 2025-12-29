@@ -4,9 +4,11 @@ import { DrizzleChat } from "@/lib/db/schema";
 import Link from "next/link";
 import React from "react";
 import { Button } from "./ui/button";
-import { MessageSquare, Plus, Home } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useParams } from "next/navigation";
+import { IoMdHome } from "react-icons/io";
+import { FaPlus } from "react-icons/fa";
+import { FiMessageSquare } from "react-icons/fi";
 
 type Props = {
   chats: DrizzleChat[];
@@ -30,7 +32,7 @@ const ChatSidebar = ({ chats, chatId: propChatId }: Props) => {
         href={"/"}
         className="w-full">
         <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white border-none shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] h-10 rounded-lg justify-start px-4">
-          <Plus className="mr-2 w-4 h-4" />
+          <FaPlus className="mr-2 w-4 h-4" />
           <span className="font-semibold">New Chat</span>
         </Button>
       </Link>
@@ -52,13 +54,11 @@ const ChatSidebar = ({ chats, chatId: propChatId }: Props) => {
                   "text-slate-400 hover:text-white hover:bg-slate-800/50": chat.id !== chatId,
                 },
               )}>
-              <MessageSquare className="mr-3 w-4 h-4 flex-shrink-0" />
+              <FiMessageSquare className="mr-3 w-4 h-4 flex-shrink-0" />
               <p className="w-full overflow-hidden text-sm truncate whitespace-nowrap font-medium tracking-wide">
                 {chat.pdfName}
               </p>
-              {chat.id === chatId && (
-                <div className="absolute right-0 top-0 bottom-0 w-1 bg-blue-500 rounded-l" />
-              )}
+              {chat.id === chatId && <div className="absolute right-0 top-0 bottom-0 w-1 bg-blue-500 rounded-l" />}
             </div>
           </Link>
         ))}
@@ -69,7 +69,7 @@ const ChatSidebar = ({ chats, chatId: propChatId }: Props) => {
           <Link
             href="/"
             className="flex items-center p-2 rounded-md text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors text-sm">
-            <Home className="w-4 h-4 mr-3" />
+            <IoMdHome className="w-4 h-4 mr-3" />
             Home
           </Link>
           <p className="text-[10px] text-slate-500 px-2 mt-2">© 2025 PDF Chat AI</p>

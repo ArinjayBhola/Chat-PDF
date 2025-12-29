@@ -1,22 +1,23 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import { UIMessage } from "ai";
-import { User, Sparkles } from "lucide-react";
+import { CiUser } from "react-icons/ci";
+import { IoSparklesOutline } from "react-icons/io5";
 
 type Props = {
   messages: UIMessage[];
 };
 
 const MessageList = ({ messages }: Props) => {
-  if (!messages?.length) 
+  if (!messages?.length)
     return (
       <div className="flex flex-col items-center justify-center gap-4 h-full text-center text-slate-500 p-8">
         <div className="bg-blue-100 p-4 rounded-full border border-blue-200 shadow-sm">
-            <Sparkles className="h-8 w-8 text-blue-600" />
+          <IoSparklesOutline className="h-8 w-8 text-blue-600" />
         </div>
         <div>
-            <p className="text-lg font-semibold text-slate-800">No messages yet</p>
-            <p className="text-sm text-slate-600 mt-1">Start the conversation by asking a question about your PDF.</p>
+          <p className="text-lg font-semibold text-slate-800">No messages yet</p>
+          <p className="text-sm text-slate-600 mt-1">Start the conversation by asking a question about your PDF.</p>
         </div>
       </div>
     );
@@ -37,28 +38,21 @@ const MessageList = ({ messages }: Props) => {
             className={cn("flex w-full animate-in fade-in slide-in-from-bottom-2 duration-300", {
               "justify-end": isUser,
               "justify-start": !isUser,
-            })}
-          >
+            })}>
             <div
               className={cn("flex gap-3 max-w-[85%] lg:max-w-[75%]", {
                 "flex-row-reverse": isUser,
                 "flex-row": !isUser,
-              })}
-            >
+              })}>
               {/* Avatar */}
               <div
                 className={cn(
                   "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center shadow-sm select-none mt-1",
-                  isUser 
-                    ? "bg-blue-600 text-white ring-2 ring-blue-100" 
-                    : "bg-slate-100 border border-slate-200 text-slate-700"
-                )}
-              >
-                {isUser ? (
-                  <User className="h-4 w-4" />
-                ) : (
-                  <Sparkles className="h-4 w-4" />
-                )}
+                  isUser
+                    ? "bg-blue-600 text-white ring-2 ring-blue-100"
+                    : "bg-slate-100 border border-slate-200 text-slate-700",
+                )}>
+                {isUser ? <CiUser className="h-4 w-4" /> : <IoSparklesOutline className="h-4 w-4" />}
               </div>
 
               {/* Message Bubble */}
@@ -66,11 +60,8 @@ const MessageList = ({ messages }: Props) => {
                 className={cn("rounded-2xl px-5 py-2.5 shadow-sm text-[15px] leading-relaxed tracking-wide", {
                   "bg-blue-600 text-white rounded-tr-sm shadow-md": isUser,
                   "bg-slate-50 text-slate-800 border border-slate-200 rounded-tl-sm": !isUser,
-                })}
-              >
-                <div className="markdown-prose whitespace-pre-wrap font-medium">
-                    {text}
-                </div>
+                })}>
+                <div className="markdown-prose whitespace-pre-wrap font-medium">{text}</div>
               </div>
             </div>
           </div>
