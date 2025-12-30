@@ -74,11 +74,11 @@ export default function ChatComponent({ chatId }: Props) {
   const isStreaming = status === "streaming"; // Receiving response
 
   return (
-    <div className="relative h-full flex flex-col bg-white">
+    <div className="relative h-full flex flex-col bg-white overflow-hidden">
       {/* Messages Area */}
       <div
         ref={containerRef}
-        className="flex-1 overflow-y-auto px-4 py-8 scroll-smooth custom-scrollbar pb-32">
+        className="flex-1 overflow-y-auto px-4 py-8 scroll-smooth custom-scrollbar">
         <MessageList messages={messages} />
 
         {/* Loadbar / Thinking State */}
@@ -92,18 +92,18 @@ export default function ChatComponent({ chatId }: Props) {
         )}
       </div>
 
-      {/* Input Area - Floating at bottom */}
-      <div className="absolute bottom-6 left-0 right-0 px-4">
-        <div className="max-w-4xl mx-auto">
+      {/* Input Area - Pinned at bottom */}
+      <div className="p-4 border-t border-slate-100 bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+        <div className="max-w-4xl mx-auto w-full">
           <form
             onSubmit={handleSubmit}
-            className="flex items-center gap-2 bg-white p-2 rounded-2xl border border-slate-200 shadow-lg focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500/50 transition-all hover:border-slate-300">
+            className="flex items-center gap-2 bg-slate-50 p-1.5 rounded-2xl border border-slate-200 focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500/50 transition-all hover:border-slate-300">
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask a question about your PDF..."
               disabled={status !== "ready"}
-              className="flex-1 bg-transparent border-none shadow-none focus-visible:ring-0 text-[15px] font-medium text-slate-800 placeholder:text-slate-400 px-4 py-4 h-auto"
+              className="flex-1 bg-transparent border-none shadow-none focus-visible:ring-0 text-[15px] font-medium text-slate-800 placeholder:text-slate-400 px-3 py-2.5 h-auto min-h-0"
             />
 
             <Button
@@ -111,10 +111,10 @@ export default function ChatComponent({ chatId }: Props) {
               disabled={!input.trim() || status !== "ready"}
               size="icon"
               className={cn(
-                "h-11 w-11 rounded-xl transition-all duration-200 mr-1",
+                "h-10 w-10 flex-shrink-0 rounded-xl transition-all duration-200",
                 status !== "ready"
-                  ? "bg-slate-100 text-slate-400 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg hover:scale-105 active:scale-95",
+                  ? "bg-slate-100 text-slate-300 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700 text-white shadow-sm hover:shadow-md active:scale-95",
               )}>
               {isStreaming ? (
                 <FiLoader className="h-5 w-5 animate-spin" />
@@ -125,8 +125,8 @@ export default function ChatComponent({ chatId }: Props) {
           </form>
 
           {/* Helper footer text */}
-          <div className="text-center mt-3">
-            <p className="text-[11px] font-medium text-slate-400 tracking-wide uppercase">
+          <div className="text-center mt-2">
+            <p className="text-[10px] font-semibold text-slate-400 tracking-wider uppercase">
               AI Generated content may be inaccurate
             </p>
           </div>

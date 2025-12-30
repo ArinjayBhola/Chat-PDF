@@ -13,14 +13,16 @@ import { FiMessageSquare } from "react-icons/fi";
 type Props = {
   chats: DrizzleChat[];
   chatId?: string;
+  className?: string;
 };
 
-const ChatSidebar = ({ chats, chatId: propChatId }: Props) => {
+const ChatSidebar = ({ chats, chatId: propChatId, className }: Props) => {
   const params = useParams();
   const chatId = propChatId || (params?.chatId as string);
 
   return (
-    <div className="w-full h-screen p-4 bg-slate-900 flex flex-col border-r border-slate-800 shadow-xl">
+    <div
+      className={cn("w-full h-screen p-4 bg-slate-900 flex flex-col border-r border-slate-800 shadow-xl", className)}>
       {/* Header / Logo Area */}
       <div className="mb-6 px-2">
         <h1 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">

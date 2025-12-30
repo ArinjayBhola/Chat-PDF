@@ -7,6 +7,7 @@ import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import React from "react";
 import ChatComponent from "@/components/ChatComponent";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type Props = {
   params: Promise<{ chatId: string }>;
@@ -20,10 +21,8 @@ const page = async ({ params }: Props) => {
     return redirect("/sign-in");
   }
 
-  // Fetch only the specific chat for checking ownership and getting PDF URL
   const _chats = await db.select().from(chats).where(eq(chats.userId, session.user.id));
 
-  // Verify chat exists and belongs to user
   const currentChat = _chats.find((chat) => chat.id === chatId);
 
   if (!currentChat) {
@@ -31,15 +30,41 @@ const page = async ({ params }: Props) => {
   }
 
   return (
-    <div className="flex w-full h-screen overflow-hidden bg-white">
-      {/* Main PDF Viewer Area */}
-      <div className="flex-1 min-w-0 h-screen overflow-hidden border-r border-slate-200 bg-slate-50">
-        <PDFViewer pdf_url={currentChat.pdfUrl || ""} />
+    <div className="flex flex-col lg:flex-row w-full h-full overflow-hidden bg-white">
+      <div className="lg:hidden flex-1 overflow-hidden flex flex-col h-full">
+        <Tabs
+          defaultValue="chat"
+          className="flex-1 flex flex-col h-full">
+          <div className="px-4 py-2 border-b border-slate-200 bg-slate-50">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="pdf">PDF Viewer</TabsTrigger>
+              <TabsTrigger value="chat">AI Chat</TabsTrigger>
+            </TabsList>
+          </div>
+          <TabsContent
+            value="pdf"
+            className="flex-1 min-h-0 m-0">
+            <div className="w-full h-full p-2 bg-slate-50">
+              <PDFViewer pdf_url={currentChat.pdfUrl || ""} />
+            </div>
+          </TabsContent>
+          <TabsContent
+            value="chat"
+            className="flex-1 min-h-0 m-0 overflow-hidden">
+            <ChatComponent chatId={chatId} />
+          </TabsContent>
+        </Tabs>
       </div>
-      
-      {/* Chat Component Area */}
-      <div className="w-[650px] h-screen bg-white border-l border-slate-200 shadow-lg z-10 flex-shrink-0">
-        <ChatComponent chatId={chatId} />
+
+      <div className="hidden lg:flex w-full h-full overflow-hidden">
+        {/* Main PDF Viewer Area */}
+        <div className="flex-[3] min-w-0 h-full overflow-hidden border-r border-slate-200 bg-slate-50">
+          <PDFViewer pdf_url={currentChat.pdfUrl || ""} />
+        </div>
+
+        <div className="flex-[2] h-full bg-white border-l border-slate-200 shadow-lg z-10 flex flex-col">
+          <ChatComponent chatId={chatId} />
+        </div>
       </div>
     </div>
   );
