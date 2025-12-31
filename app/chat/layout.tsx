@@ -10,6 +10,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { FaBars } from "react-icons/fa";
 import UserMenu from "@/components/UserMenu";
+import { checkSubscription } from "@/lib/subscription";
 
 type Props = {
   children: React.ReactNode;
@@ -23,6 +24,7 @@ const ChatLayout = async ({ children }: Props) => {
   }
 
   const _chats = await db.select().from(chats).where(eq(chats.userId, session.user.id));
+  const isPro = await checkSubscription();
 
   return (
     <div className="flex flex-col md:flex-row h-screen overflow-hidden bg-white">
@@ -42,6 +44,7 @@ const ChatLayout = async ({ children }: Props) => {
               className="p-0 w-[280px]">
               <ChatSidebar
                 chats={_chats}
+                isPro={isPro}
                 className="border-none"
               />
             </SheetContent>
@@ -54,7 +57,7 @@ const ChatLayout = async ({ children }: Props) => {
       </div>
 
       <div className="w-[280px] h-full flex-shrink-0 hidden md:block">
-        <ChatSidebar chats={_chats} />
+        <ChatSidebar chats={_chats} isPro={isPro} />
       </div>
 
       <div className="flex-1 h-full overflow-hidden flex flex-col">{children}</div>

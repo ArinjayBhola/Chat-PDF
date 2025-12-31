@@ -25,3 +25,12 @@ export const messages = pgTable("messages", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   role: userSystemEnum("role").notNull(),
 });
+
+export const userSubscriptions = pgTable("user_subscriptions", {
+  id: uuid("id").primaryKey(),
+  userId: text("user_id").notNull().unique(),
+  razorpayCustomerId: text("razorpay_customer_id").notNull().unique(),
+  razorpaySubscriptionId: text("razorpay_subscription_id").unique(),
+  razorpayPriceId: text("razorpay_price_id"),
+  razorpayCurrentPeriodEnd: timestamp("razorpay_current_period_end"),
+});

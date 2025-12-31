@@ -47,8 +47,12 @@ const FileUpload = () => {
             toast.success("Chat Created");
             router.push(`/chat/${chat_id}`);
           },
-          onError: (error) => {
-            toast.error("Error creating chat");
+          onError: (error: any) => {
+            if (error.response?.status === 403) {
+                toast.error("Free limit reached! Upgrade to Pro to upload more.");
+            } else {
+                toast.error("Error creating chat");
+            }
             console.error(error);
           },
         });

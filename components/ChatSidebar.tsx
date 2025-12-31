@@ -9,14 +9,16 @@ import { useParams } from "next/navigation";
 import { IoMdHome } from "react-icons/io";
 import { FaPlus } from "react-icons/fa";
 import { FiMessageSquare } from "react-icons/fi";
+import UpgradeButton from "./UpgradeButton";
 
 type Props = {
   chats: DrizzleChat[];
   chatId?: string;
   className?: string;
+  isPro: boolean;
 };
 
-const ChatSidebar = ({ chats, chatId: propChatId, className }: Props) => {
+const ChatSidebar = ({ chats, chatId: propChatId, className, isPro }: Props) => {
   const params = useParams();
   const chatId = propChatId || (params?.chatId as string);
 
@@ -66,7 +68,13 @@ const ChatSidebar = ({ chats, chatId: propChatId, className }: Props) => {
         ))}
       </div>
 
-      <div className="mt-4 pt-4 border-t border-slate-800">
+      <div className="mt-4 pt-4 border-t border-slate-800 flex flex-col gap-4">
+        <div className="px-2">
+            <p className="text-xs text-slate-400 mb-2">
+                {isPro ? "Pro Plan" : `${chats.length} / 3 Free PDFs used`}
+            </p>
+            <UpgradeButton isPro={isPro} />
+        </div>
         <div className="flex flex-col gap-1">
           <Link
             href="/"

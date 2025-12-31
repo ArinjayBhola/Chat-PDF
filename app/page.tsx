@@ -5,10 +5,43 @@ import { authOptions } from "@/lib/auth-options";
 import FileUpload from "@/components/FileUpload";
 import UserMenu from "@/components/UserMenu";
 import { MdLogin } from "react-icons/md";
+import { checkSubscription } from "@/lib/subscription";
+import UpgradeButton from "@/components/UpgradeButton";
+import { userSubscriptions } from "@/lib/db/schema";
+import { razorpay } from "@/lib/razorpay";
+import { eq } from "drizzle-orm";
+import { db } from "@/lib/db";
+import PricingSection from "@/components/PricingSection";
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
   const session = await getServerSession(authOptions);
   const isAuth = !!session?.user;
+  
+  const resolvedSearchParams = await searchParams;
+  const razorpay_payment_link_status = resolvedSearchParams.razorpay_payment_link_status;
+  const razorpay_payment_link_id = resolvedSearchParams.razorpay_payment_link_id;
+
+  if (isAuth && razorpay_payment_link_status === "paid" && razorpay_payment_link_id) {
+    // Fallback: Update DB if redirected back with success params
+    await db.insert(userSubscriptions).values({
+        id: crypto.randomUUID(),
+        userId: session.user.id,
+        razorpayCustomerId: "fallback_cust_id",
+        razorpayPriceId: "pro_plan",
+        razorpayCurrentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    }).onConflictDoUpdate({
+        target: userSubscriptions.userId,
+        set: {
+            razorpayCurrentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        }
+    });
+  }
+
+  const isPro = await checkSubscription();
 
   return (
     <div className="relative isolate min-h-screen bg-slate-50">
@@ -26,13 +59,25 @@ export default async function Home() {
 
             <div className="flex gap-x-6 mb-8">
               {isAuth && (
-                <Link href="/chat">
-                  <Button
-                    size="lg"
-                    className="rounded-xl px-8 shadow-md hover:shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98]">
-                    Go to chats
-                  </Button>
-                </Link>
+                <div className="flex flex-col items-center gap-4">
+                  <div className="flex items-center gap-4">
+                    <Link href="/chat">
+                      <Button
+                        size="lg"
+                        className="rounded-xl px-8 shadow-md hover:shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] bg-blue-600 hover:bg-blue-700 text-white h-10">
+                        Go to chats
+                      </Button>
+                    </Link>
+                    {!isPro && (
+                      <div className="w-[160px]">
+                        <UpgradeButton isPro={isPro} />
+                      </div>
+                    )}
+                  </div>
+                  <p className={`text-xs font-semibold px-4 py-1.5 rounded-full ${isPro ? "bg-green-100 text-green-700" : "bg-slate-200 text-slate-700"} shadow-sm ring-1 ring-slate-200/50`}>
+                    Tier: {isPro ? "Pro" : "Free"}
+                  </p>
+                </div>
               )}
             </div>
 
@@ -60,6 +105,9 @@ export default async function Home() {
           </div>
         </div>
       </div>
+      {
+        isPro ? <></> : <PricingSection isPro={isPro} />
+      }
     </div>
   );
 }
