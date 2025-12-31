@@ -1,56 +1,35 @@
 import { db } from "@/lib/db";
 import { userSubscriptions } from "@/lib/db/schema";
-import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import crypto from "crypto";
+import { eq } from "drizzle-orm";
 
 export async function POST(req: Request) {
-  const body = await req.text();
-  const signature = (await headers()).get("x-razorpay-signature") as string;
-
-  console.log("WEBHOOK_DEBUG: signature", signature);
-  console.log("WEBHOOK_DEBUG: body", body);
-
-  const secret = process.env.RAZORPAY_WEBHOOK_SECRET!;
-
-  if (!secret) {
-    console.log("WEBHOOK_DEBUG: RAZORPAY_WEBHOOK_SECRET is not set");
-  }
-
-  const expectedSignature = crypto
-    .createHmac("sha256", secret || "")
-    .update(body)
-    .digest("hex");
-
-  if (expectedSignature !== signature) {
-    console.log("WEBHOOK_DEBUG: signature mismatch");
-    return new NextResponse("invalid signature", { status: 400 });
-  }
-
-  const event = JSON.parse(body);
-  console.log("WEBHOOK_DEBUG: event", event.event);
-
-  // Handle payment.captured or payment_link.paid
-  if (event.event === "payment_link.paid") {
-    const paymentLink = event.payload.payment_link.entity;
-    const userId = paymentLink.notes.userId;
-
-    if (!userId) {
-      return new NextResponse("no user id in notes", { status: 400 });
+  const { resolvedSearchParams, userId } = await req.json();
+  try {
+    const isUserPresent = await db
+      .select()
+      .from(userSubscriptions)
+      .where(eq(userSubscriptions.userId, userId))
+      .limit(1);
+    if (isUserPresent.length > 0) {
+      return new NextResponse(null, { status: 200 });
     }
+  } catch (error) {
+    console.error("Error checking existing subscription:", error);
+  }
 
+  try {
     await db.insert(userSubscriptions).values({
-        id: crypto.randomUUID(),
-        userId: userId,
-        razorpayCustomerId: paymentLink.customer.id || "dummy_cust_id", // Razorpay might not always provide customer id in payment link payload
-        razorpayPriceId: "pro_plan", // Dummy price id for tracking
-        razorpayCurrentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
-    }).onConflictDoUpdate({
-        target: userSubscriptions.userId,
-        set: {
-            razorpayCurrentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        }
+      id: crypto.randomUUID(),
+      userId: userId,
+      razorpayPaymentId: resolvedSearchParams.razorpay_payment_id as string,
+      razorpayPaymentLinkId: resolvedSearchParams.razorpay_payment_link_id as string,
+      razorpayPaymentLinkStatus: resolvedSearchParams.razorpay_payment_link_status as string,
+      razorpaySignature: resolvedSearchParams.razorpay_signature as string,
     });
+  } catch (error) {
+    console.error("Failed to update subscription status:", error);
   }
 
   return new NextResponse(null, { status: 200 });

@@ -4,8 +4,6 @@ import { eq } from "drizzle-orm";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 
-const DAY_IN_MS = 86_400_000;
-
 export const checkSubscription = async () => {
   const session = await getServerSession(authOptions);
 
@@ -24,10 +22,7 @@ export const checkSubscription = async () => {
 
   const userSubscription = _userSubscriptions[0];
 
-  const isValid =
-    userSubscription.razorpayPriceId &&
-    userSubscription.razorpayCurrentPeriodEnd?.getTime()! + DAY_IN_MS >
-      Date.now();
+  const isValid = userSubscription.razorpayPaymentId;
 
   return !!isValid;
 };

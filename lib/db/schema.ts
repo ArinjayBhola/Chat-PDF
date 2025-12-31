@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, varchar, integer, pgEnum, uuid } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, pgEnum, uuid } from "drizzle-orm/pg-core";
 
 // Export auth schema
 export * from "./auth-schema";
@@ -29,8 +29,8 @@ export const messages = pgTable("messages", {
 export const userSubscriptions = pgTable("user_subscriptions", {
   id: uuid("id").primaryKey(),
   userId: text("user_id").notNull().unique(),
-  razorpayCustomerId: text("razorpay_customer_id").notNull().unique(),
-  razorpaySubscriptionId: text("razorpay_subscription_id").unique(),
-  razorpayPriceId: text("razorpay_price_id"),
-  razorpayCurrentPeriodEnd: timestamp("razorpay_current_period_end"),
+  razorpayPaymentId: text("razorpay_payment_id"),
+  razorpayPaymentLinkId: text("razorpay_payment_link_id"),
+  razorpayPaymentLinkStatus: text("razorpay_payment_link_status"),
+  razorpaySignature: text("razorpay_signature"),
 });
