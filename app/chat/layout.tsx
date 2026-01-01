@@ -56,7 +56,7 @@ const ChatLayout = async ({ children }: Props) => {
         <UserMenu user={session.user} />
       </div>
 
-      <div className="w-[280px] h-full flex-shrink-0 hidden md:block">
+      <div className="h-full flex-shrink-0 hidden md:block transition-all duration-300 ease-in-out">
         <ChatSidebar chats={_chats} isPro={isPro} />
       </div>
 

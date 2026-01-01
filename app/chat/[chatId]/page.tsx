@@ -8,6 +8,7 @@ import { redirect } from "next/navigation";
 import React from "react";
 import ChatComponent from "@/components/ChatComponent";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ResizableSplit from "@/components/ResizableSplit";
 
 type Props = {
   params: Promise<{ chatId: string }>;
@@ -57,14 +58,22 @@ const page = async ({ params }: Props) => {
       </div>
 
       <div className="hidden lg:flex w-full h-full overflow-hidden">
-        {/* Main PDF Viewer Area */}
-        <div className="flex-[3] min-w-0 h-full overflow-hidden border-r border-slate-200 bg-slate-50">
-          <PDFViewer pdf_url={currentChat.pdfUrl || ""} />
-        </div>
-
-        <div className="flex-[2] h-full bg-white border-l border-slate-200 shadow-lg z-10 flex flex-col">
-          <ChatComponent chatId={chatId} />
-        </div>
+        <ResizableSplit
+          leftPanel={
+            <div className="w-full h-full overflow-hidden border-r border-slate-200 bg-slate-50">
+              <PDFViewer pdf_url={currentChat.pdfUrl || ""} />
+            </div>
+          }
+          rightPanel={
+            <div className="w-full h-full bg-white border-l border-slate-200 shadow-lg z-10 flex flex-col">
+              <ChatComponent chatId={chatId} />
+            </div>
+          }
+          defaultLeftWidth={60}
+          minLeftWidth={30}
+          minRightWidth={30}
+          storageKey={`chat-split-${chatId}`}
+        />
       </div>
     </div>
   );
