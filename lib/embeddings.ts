@@ -7,7 +7,7 @@ export async function getEmbeddings(text: string): Promise<number[]> {
 
   const sdk = new Bytez(process.env.BYTEZ_API_KEY!);
   const model = sdk.model("nomic-ai/nomic-embed-text-v1.5");
-  
+
   const { output, error } = await model.run(text);
 
   if (error) {

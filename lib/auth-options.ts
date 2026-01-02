@@ -23,11 +23,7 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Invalid credentials");
         }
 
-        const user = await db
-          .select()
-          .from(users)
-          .where(eq(users.email, credentials.email))
-          .limit(1);
+        const user = await db.select().from(users).where(eq(users.email, credentials.email)).limit(1);
 
         if (!user || user.length === 0) {
           throw new Error("No user found");
@@ -39,10 +35,7 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Please sign in with Google");
         }
 
-        const isPasswordValid = await bcrypt.compare(
-          credentials.password,
-          foundUser.password
-        );
+        const isPasswordValid = await bcrypt.compare(credentials.password, foundUser.password);
 
         if (!isPasswordValid) {
           throw new Error("Invalid password");
@@ -61,11 +54,7 @@ export const authOptions: NextAuthOptions = {
     async signIn({ user, account, profile }) {
       if (account?.provider === "google") {
         // Check if user exists
-        const existingUser = await db
-          .select()
-          .from(users)
-          .where(eq(users.email, user.email!))
-          .limit(1);
+        const existingUser = await db.select().from(users).where(eq(users.email, user.email!)).limit(1);
 
         if (existingUser.length === 0) {
           // Create new user
@@ -97,7 +86,7 @@ export const authOptions: NextAuthOptions = {
           user.id = newUser[0].id;
         } else {
           user.id = existingUser[0].id;
-          
+
           // Check if account link exists
           const existingAccount = await db
             .select()

@@ -57,7 +57,10 @@ const ChatLayout = async ({ children }: Props) => {
       </div>
 
       <div className="h-full flex-shrink-0 hidden md:block transition-all duration-300 ease-in-out">
-        <ChatSidebar chats={_chats} isPro={isPro} />
+        <ChatSidebar
+          chats={_chats}
+          isPro={isPro}
+        />
       </div>
 
       <div className="flex-1 h-full overflow-hidden flex flex-col">{children}</div>

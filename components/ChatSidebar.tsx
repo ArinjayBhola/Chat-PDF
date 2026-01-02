@@ -20,16 +20,14 @@ type Props = {
 
 // Extracted ChatItem component for better performance
 const ChatItem = memo(({ chat, isActive }: { chat: DrizzleChat; isActive: boolean }) => (
-  <Link key={chat.id} href={`/chat/${chat.id}`}>
+  <Link
+    key={chat.id}
+    href={`/chat/${chat.id}`}>
     <div
-      className={cn(
-        "rounded-lg p-3 flex items-center transition-all duration-200 group relative overflow-hidden",
-        {
-          "bg-slate-800 text-white shadow-sm ring-1 ring-slate-700": isActive,
-          "text-slate-400 hover:text-white hover:bg-slate-800/50": !isActive,
-        }
-      )}
-    >
+      className={cn("rounded-lg p-3 flex items-center transition-all duration-200 group relative overflow-hidden", {
+        "bg-slate-800 text-white shadow-sm ring-1 ring-slate-700": isActive,
+        "text-slate-400 hover:text-white hover:bg-slate-800/50": !isActive,
+      })}>
       <FiMessageSquare className="mr-3 w-4 h-4 flex-shrink-0" />
       <p className="w-full overflow-hidden text-sm truncate whitespace-nowrap font-medium tracking-wide">
         {chat.pdfName}
@@ -42,13 +40,14 @@ ChatItem.displayName = "ChatItem";
 
 // Extracted CollapsedChatItem component
 const CollapsedChatItem = memo(({ chat, isActive }: { chat: DrizzleChat; isActive: boolean }) => (
-  <Link key={chat.id} href={`/chat/${chat.id}`}>
+  <Link
+    key={chat.id}
+    href={`/chat/${chat.id}`}>
     <div
       className={cn(
         "p-3 rounded-lg transition-colors",
-        isActive ? "bg-slate-800 text-white" : "text-slate-400 hover:bg-slate-800/50 hover:text-white"
-      )}
-    >
+        isActive ? "bg-slate-800 text-white" : "text-slate-400 hover:bg-slate-800/50 hover:text-white",
+      )}>
       <FiMessageSquare size={16} />
     </div>
   </Link>
@@ -64,9 +63,11 @@ const SidebarHeader = memo(({ onToggle }: { onToggle: () => void }) => (
     <button
       className="bg-slate-700 p-2 rounded-lg cursor-pointer hover:bg-slate-600 transition-colors"
       onClick={onToggle}
-      aria-label="Toggle sidebar"
-    >
-      <FaBars className="text-white" size={16} />
+      aria-label="Toggle sidebar">
+      <FaBars
+        className="text-white"
+        size={16}
+      />
     </button>
   </div>
 ));
@@ -76,16 +77,13 @@ SidebarHeader.displayName = "SidebarHeader";
 const SidebarFooter = memo(({ isPro, chatCount }: { isPro: boolean; chatCount: number }) => (
   <div className="mt-4 pt-4 border-t border-slate-800 flex flex-col gap-4">
     <div className="px-2">
-      <p className="text-xs text-slate-400 mb-2">
-        {isPro ? "Pro Plan" : `${chatCount} / 3 Free PDFs used`}
-      </p>
+      <p className="text-xs text-slate-400 mb-2">{isPro ? "Pro Plan" : `${chatCount} / 3 Free PDFs used`}</p>
       <UpgradeButton isPro={isPro} />
     </div>
     <div className="flex flex-col gap-1">
       <Link
         href="/"
-        className="flex items-center p-2 rounded-md text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors text-sm"
-      >
+        className="flex items-center p-2 rounded-md text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors text-sm">
         <IoMdHome className="w-4 h-4 mr-3" />
         Home
       </Link>
@@ -114,12 +112,13 @@ const ExpandedSidebar = memo(
       className={cn(
         "w-[280px] h-screen p-4 bg-slate-900 flex flex-col border-r border-slate-800 shadow-xl",
         "transition-all duration-300 ease-in-out",
-        className
-      )}
-    >
+        className,
+      )}>
       <SidebarHeader onToggle={onToggle} />
 
-      <Link href="/" className="w-full">
+      <Link
+        href="/"
+        className="w-full">
         <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white border-none shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] h-10 rounded-lg justify-start px-4">
           <FaPlus className="mr-2 w-4 h-4" />
           <span className="font-semibold">New Chat</span>
@@ -127,20 +126,27 @@ const ExpandedSidebar = memo(
       </Link>
 
       <div className="flex-1 overflow-y-auto mt-6 flex flex-col gap-2 pr-2 custom-scrollbar">
-        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider px-2 mb-2">
-          Your Chats
-        </p>
+        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider px-2 mb-2">Your Chats</p>
 
         {chats.length === 0 ? (
           <div className="px-2 text-slate-500 text-sm italic">No chats yet.</div>
         ) : (
-          chats.map((chat) => <ChatItem key={chat.id} chat={chat} isActive={chat.id === chatId} />)
+          chats.map((chat) => (
+            <ChatItem
+              key={chat.id}
+              chat={chat}
+              isActive={chat.id === chatId}
+            />
+          ))
         )}
       </div>
 
-      <SidebarFooter isPro={isPro} chatCount={chats.length} />
+      <SidebarFooter
+        isPro={isPro}
+        chatCount={chats.length}
+      />
     </div>
-  )
+  ),
 );
 ExpandedSidebar.displayName = "ExpandedSidebar";
 
@@ -161,34 +167,45 @@ const CollapsedSidebar = memo(
       className={cn(
         "h-screen w-[64px] bg-slate-900 border-r border-slate-800 shadow-xl flex flex-col items-center py-4 gap-6",
         "transition-all duration-300 ease-in-out",
-        className
-      )}
-    >
+        className,
+      )}>
       <button
         onClick={onToggle}
         className="bg-slate-700 p-2 rounded-lg cursor-pointer hover:bg-slate-600 transition-colors"
-        aria-label="Expand sidebar"
-      >
-        <FaBars className="text-white" size={14} />
+        aria-label="Expand sidebar">
+        <FaBars
+          className="text-white"
+          size={14}
+        />
       </button>
 
       <Link href="/">
         <div className="bg-blue-600 p-3 rounded-lg hover:bg-blue-700 transition">
-          <FaPlus className="text-white" size={16} />
+          <FaPlus
+            className="text-white"
+            size={16}
+          />
         </div>
       </Link>
 
       <div className="flex flex-col items-center gap-4 mt-4 flex-1">
         {chats.map((chat) => (
-          <CollapsedChatItem key={chat.id} chat={chat} isActive={chat.id === chatId} />
+          <CollapsedChatItem
+            key={chat.id}
+            chat={chat}
+            isActive={chat.id === chatId}
+          />
         ))}
       </div>
 
       <Link href="/">
-        <IoMdHome className="text-slate-400 hover:text-white transition" size={18} />
+        <IoMdHome
+          className="text-slate-400 hover:text-white transition"
+          size={18}
+        />
       </Link>
     </div>
-  )
+  ),
 );
 CollapsedSidebar.displayName = "CollapsedSidebar";
 
@@ -198,10 +215,7 @@ const ChatSidebar = ({ chats, chatId: propChatId, className, isPro }: Props) => 
   const [isOpen, setIsOpen] = useState(true);
 
   // Memoize chatId to prevent unnecessary recalculations
-  const chatId = useMemo(
-    () => propChatId || (params?.chatId as string),
-    [propChatId, params?.chatId]
-  );
+  const chatId = useMemo(() => propChatId || (params?.chatId as string), [propChatId, params?.chatId]);
 
   const toggleSidebar = () => setIsOpen((prev) => !prev);
 
@@ -214,7 +228,12 @@ const ChatSidebar = ({ chats, chatId: propChatId, className, isPro }: Props) => 
       isPro={isPro}
     />
   ) : (
-    <CollapsedSidebar className={className} onToggle={toggleSidebar} chats={chats} chatId={chatId} />
+    <CollapsedSidebar
+      className={className}
+      onToggle={toggleSidebar}
+      chats={chats}
+      chatId={chatId}
+    />
   );
 };
 
