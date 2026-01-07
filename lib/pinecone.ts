@@ -1,10 +1,12 @@
 import { Pinecone, PineconeRecord, RecordMetadata } from "@pinecone-database/pinecone";
 import { downloadFromS3 } from "./s3-server";
+import { createWorker } from "tesseract.js";
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { RecursiveCharacterTextSplitter, Document } from "@pinecone-database/doc-splitter";
 import { getEmbeddings } from "./embeddings";
 import md5 from "md5";
 import { convertToAscii } from "./utils";
+import { ocrPdfPage } from "./OCR";
 
 type PDFPgae = {
   pageContent: string;
@@ -22,15 +24,41 @@ export async function loadS3IntoPinecode(file_key: string) {
   const loader = new PDFLoader(file_name);
   const pages = (await loader.load()) as PDFPgae[];
 
-  // 2. Split the pdf into smailler chunks
-  const documents = await Promise.all(pages.map(preapareDocument));
+const processedPages: PDFPgae[] = [];
+let tesseractWorker: any = null; // using any to avoid type complexity with Worker type imports if strict
+
+for (let i = 0; i < pages.length; i++) {
+  const page = pages[i];
+  let text = page.pageContent;
+
+  // CRITICAL FIX: OCR fallback
+  if (needsOCR(text)) {
+    console.log(`OCR fallback → page ${i + 1}`);
+    if (!tesseractWorker) {
+      tesseractWorker = await createWorker("eng");
+    }
+    text = await ocrPdfPage(file_name, i + 1, tesseractWorker);
+  }
+
+  processedPages.push({
+    ...page,
+    pageContent: text,
+  });
+}
+
+if (tesseractWorker) {
+  await tesseractWorker.terminate();
+}
+
+// NOW split
+const documents = await Promise.all(
+  processedPages.map(preapareDocument),
+);
 
   // 3. Vectorize and embed the documents
   const vectors: PineconeRecord<RecordMetadata>[] = [];
   for (const doc of documents.flat()) {
     vectors.push(await embedDocument(doc));
-    // Small delay to be safe with rate limits
-    await new Promise((resolve) => setTimeout(resolve, 100));
   }
 
   // 4. Use chunked upsert to upload the vectors in chunks (to avoid hitting rate limits)
@@ -141,7 +169,10 @@ export const truncateStringByBytes = (str: string, bytes: number) => {
 
 async function preapareDocument(page: PDFPgae) {
   const { metadata } = page;
-  const pageContent = page.pageContent.replace(/\n/g, "");
+  const pageContent = page.pageContent
+    .replace(/\n/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 
   // spit the docs
   const spitter = new RecursiveCharacterTextSplitter();
@@ -155,4 +186,10 @@ async function preapareDocument(page: PDFPgae) {
     }),
   ]);
   return docs;
+}
+
+
+function needsOCR(text: string) {
+  if (!text) return true;
+  return text.replace(/\s+/g, "").length < 50;
 }
