@@ -24,36 +24,34 @@ export async function loadS3IntoPinecode(file_key: string) {
   const loader = new PDFLoader(file_name);
   const pages = (await loader.load()) as PDFPgae[];
 
-const processedPages: PDFPgae[] = [];
-let tesseractWorker: any = null; // using any to avoid type complexity with Worker type imports if strict
+  const processedPages: PDFPgae[] = [];
+  let tesseractWorker: any = null; // using any to avoid type complexity with Worker type imports if strict
 
-for (let i = 0; i < pages.length; i++) {
-  const page = pages[i];
-  let text = page.pageContent;
+  for (let i = 0; i < pages.length; i++) {
+    const page = pages[i];
+    let text = page.pageContent;
 
-  // CRITICAL FIX: OCR fallback
-  if (needsOCR(text)) {
-    console.log(`OCR fallback → page ${i + 1}`);
-    if (!tesseractWorker) {
-      tesseractWorker = await createWorker("eng");
+    // CRITICAL FIX: OCR fallback
+    if (needsOCR(text)) {
+      console.log(`OCR fallback → page ${i + 1}`);
+      if (!tesseractWorker) {
+        tesseractWorker = await createWorker("eng");
+      }
+      text = await ocrPdfPage(file_name, i + 1, tesseractWorker);
     }
-    text = await ocrPdfPage(file_name, i + 1, tesseractWorker);
+
+    processedPages.push({
+      ...page,
+      pageContent: text,
+    });
   }
 
-  processedPages.push({
-    ...page,
-    pageContent: text,
-  });
-}
+  if (tesseractWorker) {
+    await tesseractWorker.terminate();
+  }
 
-if (tesseractWorker) {
-  await tesseractWorker.terminate();
-}
-
-// NOW split
-const documents = await Promise.all(
-  processedPages.map(preapareDocument),
-);
+  // NOW split
+  const documents = await Promise.all(processedPages.map(preapareDocument));
 
   // 3. Vectorize and embed the documents
   const vectors: PineconeRecord<RecordMetadata>[] = [];
@@ -66,8 +64,10 @@ const documents = await Promise.all(
     apiKey: process.env.PINECONE_API_KEY || "",
   });
 
+  const indexName = process.env.PINECONE_INDEX_NAME || "chatpdf";
+
   const namespace = convertToAscii(file_key);
-  const pineconeIndex = pc.index("chat-pdf");
+  const pineconeIndex = pc.index(indexName);
   const index = pineconeIndex.namespace(namespace);
 
   let BATCH_SIZE = 10; // Reduced from 100 to avoid 2MB limit
@@ -169,10 +169,7 @@ export const truncateStringByBytes = (str: string, bytes: number) => {
 
 async function preapareDocument(page: PDFPgae) {
   const { metadata } = page;
-  const pageContent = page.pageContent
-    .replace(/\n/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+  const pageContent = page.pageContent.replace(/\n/g, " ").replace(/\s+/g, " ").trim();
 
   // spit the docs
   const spitter = new RecursiveCharacterTextSplitter();
@@ -187,7 +184,6 @@ async function preapareDocument(page: PDFPgae) {
   ]);
   return docs;
 }
-
 
 function needsOCR(text: string) {
   if (!text) return true;

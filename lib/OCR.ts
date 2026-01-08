@@ -2,13 +2,8 @@ import { fromPath } from "pdf2pic";
 import { createWorker, Worker } from "tesseract.js";
 import fs from "fs/promises";
 import os from "os";
-import path from "path";
 
-export async function ocrPdfPage(
-  pdfPath: string,
-  pageNumber: number,
-  worker?: Worker,
-): Promise<string> {
+export async function ocrPdfPage(pdfPath: string, pageNumber: number, worker?: Worker): Promise<string> {
   const tempDir = os.tmpdir();
   const options = {
     density: 200,
