@@ -9,6 +9,9 @@ import { checkSubscription } from "@/lib/subscription";
 import UpgradeButton from "@/components/UpgradeButton";
 import PricingSection from "@/components/PricingSection";
 import PaymentSuccessHandler from "@/components/PaymentSuccessHandler";
+import { db } from "@/lib/db";
+import { chats } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 
 export default async function Home({
   searchParams,
@@ -23,6 +26,12 @@ export default async function Home({
   const razorpay_payment_link_id = resolvedSearchParams.razorpay_payment_link_id;
 
   const isPro = await checkSubscription();
+  
+  let chatCount = 0;
+  if (session?.user?.id) {
+    const _chats = await db.select().from(chats).where(eq(chats.userId, session.user.id));
+    chatCount = _chats.length;
+  }
 
   return (
     <div className="relative isolate min-h-screen bg-slate-50">
@@ -80,7 +89,7 @@ export default async function Home({
             <div className="w-full max-w-md mx-auto">
               {isAuth ? (
                 <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-lg ring-1 ring-slate-900/5">
-                  <FileUpload />
+                  <FileUpload isPro={isPro} chatCount={chatCount} />
                 </div>
               ) : (
                 <Link href={"/sign-in"}>

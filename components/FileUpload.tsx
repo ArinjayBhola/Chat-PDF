@@ -10,7 +10,12 @@ import { useRouter } from "next/navigation";
 import { FaInbox } from "react-icons/fa";
 import { RiLoader2Fill } from "react-icons/ri";
 
-const FileUpload = () => {
+type Props = {
+  isPro: boolean;
+  chatCount: number;
+};
+
+const FileUpload = ({ isPro, chatCount }: Props) => {
   const [uploading, setUploading] = useState(false);
   const router = useRouter();
 
@@ -63,18 +68,38 @@ const FileUpload = () => {
       }
     },
   });
+
+  // Check upload limit
+  const isFreeLimitReached = !isPro && chatCount >= 3;
+
   return (
     <div className="w-full">
       <div
-        {...getRootProps({
-          className:
-            "group relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 py-10 transition-all hover:border-blue-400 hover:bg-blue-50/30 cursor-pointer",
-        })}>
-        <input {...getInputProps()} />
+        {...(isFreeLimitReached ? {} : getRootProps())}
+        className={`group relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed py-10 transition-all 
+          ${isFreeLimitReached 
+            ? "border-slate-300 bg-slate-50 cursor-default" 
+            : "border-slate-300 bg-slate-50 hover:border-blue-400 hover:bg-blue-50/30 cursor-pointer"
+          }`}
+      >
+        {!isFreeLimitReached && <input {...getInputProps()} />}
+        
         {uploading || isPending ? (
           <div className="flex flex-col items-center">
             <RiLoader2Fill className="h-10 w-10 text-blue-600 animate-spin" />
             <p className="mt-4 text-sm font-medium text-slate-600">Processing your PDF...</p>
+          </div>
+        ) : isFreeLimitReached ? (
+           <div className="flex flex-col items-center">
+            <div className="rounded-full bg-slate-100 p-4 shadow-sm border border-slate-200">
+               <FaInbox className="h-8 w-8 text-slate-400" />
+            </div>
+            <p className="mt-4 text-sm font-semibold text-slate-900">Free limit reached</p>
+            <p className="mt-1 text-xs text-slate-500 max-w-[200px] text-center mb-4">You can only upload 3 PDFs on the free plan.</p>
+            
+            <p className="text-sm font-medium text-blue-600 hover:text-blue-500 hover:underline">
+                Upgrade to upload more
+            </p>
           </div>
         ) : (
           <div className="flex flex-col items-center">
