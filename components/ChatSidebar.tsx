@@ -5,11 +5,14 @@ import Link from "next/link";
 import React, { useState, useMemo, memo } from "react";
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { IoMdHome } from "react-icons/io";
 import { FaBars, FaPlus } from "react-icons/fa";
-import { FiMessageSquare } from "react-icons/fi";
+import { FiMessageSquare, FiTrash } from "react-icons/fi";
 import UpgradeButton from "./UpgradeButton";
+import DeleteChatModal from "./DeleteChatModal";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 type Props = {
   chats: DrizzleChat[];
@@ -19,23 +22,45 @@ type Props = {
 };
 
 // Extracted ChatItem component for better performance
-const ChatItem = memo(({ chat, isActive }: { chat: DrizzleChat; isActive: boolean }) => (
-  <Link
-    key={chat.id}
-    href={`/chat/${chat.id}`}>
-    <div
-      className={cn("rounded-lg p-3 flex items-center transition-all duration-200 group relative overflow-hidden", {
-        "bg-slate-800 text-white shadow-sm ring-1 ring-slate-700": isActive,
-        "text-slate-400 hover:text-white hover:bg-slate-800/50": !isActive,
-      })}>
-      <FiMessageSquare className="mr-3 w-4 h-4 flex-shrink-0" />
-      <p className="w-full overflow-hidden text-sm truncate whitespace-nowrap font-medium tracking-wide">
-        {chat.pdfName}
-      </p>
-      {isActive && <div className="absolute right-0 top-0 bottom-0 w-1 bg-blue-500 rounded-l" />}
+const ChatItem = memo(
+  ({
+    chat,
+    isActive,
+    onDelete,
+  }: {
+    chat: DrizzleChat;
+    isActive: boolean;
+    onDelete: (e: React.MouseEvent, chatId: string, chatName: string) => void;
+  }) => (
+    <div className="relative group">
+      <Link href={`/chat/${chat.id}`} className="block">
+        <div
+          className={cn("rounded-lg p-3 flex items-center transition-all duration-200 overflow-hidden", {
+            "bg-slate-800 text-white shadow-sm ring-1 ring-slate-700": isActive,
+            "text-slate-400 hover:text-white hover:bg-slate-800/50": !isActive,
+          })}>
+          <FiMessageSquare className="mr-3 w-4 h-4 flex-shrink-0" />
+          <p className="w-full overflow-hidden text-sm truncate whitespace-nowrap font-medium tracking-wide pr-6">
+            {chat.pdfName}
+          </p>
+          
+          {isActive && <div className="absolute right-0 top-0 bottom-0 w-1 bg-blue-500 rounded-l" />}
+        </div>
+      </Link>
+      
+      {/* Delete Button - visible on hover or if active */}
+      <div 
+        onClick={(e) => onDelete(e, chat.id, chat.pdfName)}
+        className={cn(
+          "absolute right-1 top-1/2 -translate-y-1/2 p-1.5 rounded-md transition-all duration-200 z-20 cursor-pointer opacity-0 group-hover:opacity-100 hover:bg-red-500/20 text-slate-400 hover:text-red-400",
+          { "opacity-100": isActive } 
+        )}
+      >
+        <FiTrash size={14} />
+      </div>
     </div>
-  </Link>
-));
+  ),
+);
 ChatItem.displayName = "ChatItem";
 
 // Extracted CollapsedChatItem component
@@ -101,12 +126,14 @@ const ExpandedSidebar = memo(
     chats,
     chatId,
     isPro,
+    onDeleteChat,
   }: {
     className?: string;
     onToggle: () => void;
     chats: DrizzleChat[];
     chatId: string;
     isPro: boolean;
+    onDeleteChat: (e: React.MouseEvent, chatId: string, chatName: string) => void;
   }) => (
     <div
       className={cn(
@@ -136,6 +163,7 @@ const ExpandedSidebar = memo(
               key={chat.id}
               chat={chat}
               isActive={chat.id === chatId}
+              onDelete={onDeleteChat}
             />
           ))
         )}
@@ -212,28 +240,82 @@ CollapsedSidebar.displayName = "CollapsedSidebar";
 // Main ChatSidebar Component
 const ChatSidebar = ({ chats, chatId: propChatId, className, isPro }: Props) => {
   const params = useParams();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(true);
+  
+  // Delete state
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleteName, setDeleteName] = useState<string>("");
 
   // Memoize chatId to prevent unnecessary recalculations
   const chatId = useMemo(() => propChatId || (params?.chatId as string), [propChatId, params?.chatId]);
 
   const toggleSidebar = () => setIsOpen((prev) => !prev);
 
-  return isOpen ? (
-    <ExpandedSidebar
-      className={className}
-      onToggle={toggleSidebar}
-      chats={chats}
-      chatId={chatId}
-      isPro={isPro}
-    />
-  ) : (
-    <CollapsedSidebar
-      className={className}
-      onToggle={toggleSidebar}
-      chats={chats}
-      chatId={chatId}
-    />
+  const confirmDelete = (e: React.MouseEvent, id: string, name: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDeleteId(id);
+    setDeleteName(name);
+  };
+
+  const handleDelete = async () => {
+    if (!deleteId) return;
+
+    try {
+      setIsDeleting(true);
+      const response = await axios.delete("/api/delete-chat", {
+        data: { chatId: deleteId },
+      });
+
+      if (response.status === 200) {
+        toast.success("Chat deleted!");
+        setDeleteId(null);
+        setDeleteName("");
+        router.refresh();
+        
+        // If we deleted the current chat, redirect to home
+        if (deleteId === chatId) {
+            router.push("/");
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Something went wrong");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  return (
+    <>
+      <DeleteChatModal 
+        isOpen={!!deleteId} 
+        onClose={() => setDeleteId(null)} 
+        onConfirm={handleDelete}
+        loading={isDeleting}
+        chatName={deleteName}
+      />
+      
+      {isOpen ? (
+        <ExpandedSidebar
+          className={className}
+          onToggle={toggleSidebar}
+          chats={chats}
+          chatId={chatId}
+          isPro={isPro}
+          onDeleteChat={confirmDelete}
+        />
+      ) : (
+        <CollapsedSidebar
+          className={className}
+          onToggle={toggleSidebar}
+          chats={chats}
+          chatId={chatId}
+        />
+      )}
+    </>
   );
 };
 
