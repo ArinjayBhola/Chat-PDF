@@ -6,10 +6,10 @@ import { cn } from "@/lib/utils";
 type Props = {
   leftPanel: React.ReactNode;
   rightPanel: React.ReactNode;
-  defaultLeftWidth?: number; // percentage (0-100)
-  minLeftWidth?: number; // percentage
-  minRightWidth?: number; // percentage
-  storageKey?: string; // for persisting split position
+  defaultLeftWidth?: number;
+  minLeftWidth?: number;
+  minRightWidth?: number;
+  storageKey?: string;
   className?: string;
 };
 
@@ -47,7 +47,7 @@ const ResizableSplit = ({
         localStorage.setItem(storageKey, width.toString());
       }
     },
-    [storageKey]
+    [storageKey],
   );
 
   const handleMouseMove = useCallback(
@@ -67,7 +67,7 @@ const ResizableSplit = ({
 
       setLeftWidth(newLeftWidth);
     },
-    [minLeftWidth, minRightWidth]
+    [minLeftWidth, minRightWidth],
   );
 
   const handleMouseUp = useCallback(() => {
@@ -107,33 +107,33 @@ const ResizableSplit = ({
   }, [isDragging, handleMouseMove, handleMouseUp]);
 
   return (
-    <div ref={containerRef} className={cn("flex w-full h-full overflow-hidden", className)}>
+    <div
+      ref={containerRef}
+      className={cn("flex w-full h-full overflow-hidden", className)}>
       {/* Left Panel */}
       <div
         className="h-full overflow-hidden transition-none"
-        style={{ width: `${leftWidth}%` }}
-      >
+        style={{ width: `${leftWidth}%` }}>
         {leftPanel}
       </div>
 
       {/* Draggable Divider */}
       <div
         className={cn(
-          "relative w-1 h-full bg-slate-300 cursor-col-resize flex-shrink-0 group",
-          "hover:bg-blue-500 transition-colors duration-200",
-          isDragging && "bg-blue-500"
+          "relative w-1 h-full bg-slate-300 dark:bg-slate-600 cursor-col-resize flex-shrink-0 group",
+          "hover:bg-blue-500 dark:hover:bg-blue-400 transition-colors duration-200",
+          isDragging && "bg-blue-500 dark:bg-blue-400",
         )}
-        onMouseDown={handleMouseDown}
-      >
+        onMouseDown={handleMouseDown}>
         {/* Visual indicator on hover */}
         <div
           className={cn(
             "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
-            "w-1 h-16 bg-slate-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity",
-            isDragging && "opacity-100 bg-blue-500"
+            "w-1 h-16 bg-slate-400 dark:bg-slate-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity",
+            isDragging && "opacity-100 bg-blue-500 dark:bg-blue-400",
           )}
         />
-        
+
         {/* Wider hit area for easier grabbing */}
         <div className="absolute inset-y-0 -left-2 -right-2 cursor-col-resize" />
       </div>
@@ -141,8 +141,7 @@ const ResizableSplit = ({
       {/* Right Panel */}
       <div
         className="h-full overflow-hidden transition-none"
-        style={{ width: `${100 - leftWidth}%` }}
-      >
+        style={{ width: `${100 - leftWidth}%` }}>
         {rightPanel}
       </div>
     </div>

@@ -31,12 +31,12 @@ const page = async ({ params }: Props) => {
   }
 
   return (
-    <div className="flex flex-col lg:flex-row w-full h-full overflow-hidden bg-white">
+    <div className="flex flex-col lg:flex-row w-full h-full overflow-hidden bg-white dark:bg-slate-900">
       <div className="lg:hidden flex-1 overflow-hidden flex flex-col h-full">
         <Tabs
           defaultValue="chat"
           className="flex-1 flex flex-col h-full">
-          <div className="px-4 py-2 border-b border-slate-200 bg-slate-50">
+          <div className="px-4 py-2 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="pdf">PDF Viewer</TabsTrigger>
               <TabsTrigger value="chat">AI Chat</TabsTrigger>
@@ -45,7 +45,7 @@ const page = async ({ params }: Props) => {
           <TabsContent
             value="pdf"
             className="flex-1 min-h-0 m-0">
-            <div className="w-full h-full p-2 bg-slate-50">
+            <div className="w-full h-full p-2 bg-slate-50 dark:bg-slate-900">
               <PDFViewer pdf_url={currentChat.pdfUrl || ""} />
             </div>
           </TabsContent>
@@ -60,12 +60,12 @@ const page = async ({ params }: Props) => {
       <div className="hidden lg:flex w-full h-full overflow-hidden">
         <ResizableSplit
           leftPanel={
-            <div className="w-full h-full overflow-hidden border-r border-slate-200 bg-slate-50">
+            <div className="w-full h-full overflow-hidden border-r border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">
               <PDFViewer pdf_url={currentChat.pdfUrl || ""} />
             </div>
           }
           rightPanel={
-            <div className="w-full h-full bg-white border-l border-slate-200 shadow-lg z-10 flex flex-col">
+            <div className="w-full h-full bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-700 shadow-lg z-10 flex flex-col">
               <ChatComponent chatId={chatId} />
             </div>
           }

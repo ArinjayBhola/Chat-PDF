@@ -7,6 +7,7 @@ import NextTopLoader from "nextjs-toploader";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import SessionProvider from "@/components/SessionProvider";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,15 +32,22 @@ export default async function RootLayout({
   const session = await getServerSession(authOptions);
 
   return (
-    <html lang="en">
+    <html
+      lang="en"
+      suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <SessionProvider session={session}>
-          <Provider>
-            <NextTopLoader />
-            {children}
-            <Toaster />
-          </Provider>
-        </SessionProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem>
+          <SessionProvider session={session}>
+            <Provider>
+              <NextTopLoader />
+              {children}
+              <Toaster />
+            </Provider>
+          </SessionProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

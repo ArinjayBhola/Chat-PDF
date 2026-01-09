@@ -24,7 +24,11 @@ const UpgradeButton = ({ isPro }: { isPro: boolean }) => {
     <Button
       onClick={handleUpgrade}
       disabled={isPro}
-      className={`w-full ${isPro ? "bg-green-600 hover:bg-green-700" : "bg-purple-600 hover:bg-purple-700"} text-white border-none shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] h-10 rounded-lg justify-center font-bold`}>
+      className={`w-full ${
+        isPro
+          ? "bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600"
+          : "bg-purple-600 hover:bg-purple-700 dark:bg-white dark:hover:bg-slate-100 dark:text-slate-900 dark:font-extrabold dark:shadow-lg dark:shadow-white/20"
+      } text-white border-none shadow-lg dark:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] h-10 rounded-lg justify-center font-bold`}>
       {isPro ? "Pro Plan Active" : "Upgrade to Pro"}
     </Button>
   );

@@ -26,7 +26,7 @@ export default async function Home({
   const razorpay_payment_link_id = resolvedSearchParams.razorpay_payment_link_id;
 
   const isPro = await checkSubscription();
-  
+
   let chatCount = 0;
   if (session?.user?.id) {
     const _chats = await db.select().from(chats).where(eq(chats.userId, session.user.id));
@@ -34,7 +34,7 @@ export default async function Home({
   }
 
   return (
-    <div className="relative isolate min-h-screen bg-slate-50">
+    <div className="relative isolate min-h-screen bg-slate-50 dark:bg-slate-900">
       {isAuth && razorpay_payment_link_status === "paid" && razorpay_payment_link_id && (
         <PaymentSuccessHandler
           userId={session!.user.id}
@@ -42,15 +42,17 @@ export default async function Home({
         />
       )}
 
-      <div className="absolute inset-0 -z-10 h-full w-full bg-white">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
+      <div className="absolute inset-0 -z-10 h-full w-full bg-white dark:bg-slate-900">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#80808020_1px,transparent_1px),linear-gradient(to_bottom,#80808020_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
       </div>
 
       <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <div className="flex flex-col items-center">
             <div className="flex items-center gap-4 mb-8">
-              <h1 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-6xl">Chat with any PDF</h1>
+              <h1 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100 sm:text-6xl">
+                Chat with any PDF
+              </h1>
               {isAuth && <UserMenu user={session!.user} />}
             </div>
 
@@ -74,22 +76,27 @@ export default async function Home({
                   </div>
                   <p
                     className={`text-xs font-semibold px-4 py-1.5 rounded-full ${
-                      isPro ? "bg-green-100 text-green-700" : "bg-slate-200 text-slate-700"
-                    } shadow-sm ring-1 ring-slate-200/50`}>
+                      isPro
+                        ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+                        : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
+                    } shadow-sm ring-1 ring-slate-200/50 dark:ring-slate-700/50`}>
                     Tier: {isPro ? "Pro" : "Free"}
                   </p>
                 </div>
               )}
             </div>
 
-            <p className="text-lg leading-8 text-slate-600 mb-10">
+            <p className="text-lg leading-8 text-slate-600 dark:text-slate-400 mb-10">
               Clean, powerful, and distraction-free PDF chat with AI.
             </p>
 
             <div className="w-full max-w-md mx-auto">
               {isAuth ? (
-                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-lg ring-1 ring-slate-900/5">
-                  <FileUpload isPro={isPro} chatCount={chatCount} />
+                <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 shadow-lg ring-1 ring-slate-900/5 dark:ring-slate-700/50">
+                  <FileUpload
+                    isPro={isPro}
+                    chatCount={chatCount}
+                  />
                 </div>
               ) : (
                 <Link href={"/sign-in"}>

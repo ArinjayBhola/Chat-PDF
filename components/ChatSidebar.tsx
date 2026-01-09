@@ -13,6 +13,7 @@ import UpgradeButton from "./UpgradeButton";
 import DeleteChatModal from "./DeleteChatModal";
 import axios from "axios";
 import toast from "react-hot-toast";
+import ThemeToggle from "./ThemeToggle";
 
 type Props = {
   chats: DrizzleChat[];
@@ -33,7 +34,9 @@ const ChatItem = memo(
     onDelete: (e: React.MouseEvent, chatId: string, chatName: string) => void;
   }) => (
     <div className="relative group">
-      <Link href={`/chat/${chat.id}`} className="block">
+      <Link
+        href={`/chat/${chat.id}`}
+        className="block">
         <div
           className={cn("rounded-lg p-3 flex items-center transition-all duration-200 overflow-hidden", {
             "bg-slate-800 text-white shadow-sm ring-1 ring-slate-700": isActive,
@@ -43,19 +46,18 @@ const ChatItem = memo(
           <p className="w-full overflow-hidden text-sm truncate whitespace-nowrap font-medium tracking-wide pr-6">
             {chat.pdfName}
           </p>
-          
+
           {isActive && <div className="absolute right-0 top-0 bottom-0 w-1 bg-blue-500 rounded-l" />}
         </div>
       </Link>
-      
+
       {/* Delete Button - visible on hover or if active */}
-      <div 
+      <div
         onClick={(e) => onDelete(e, chat.id, chat.pdfName)}
         className={cn(
           "absolute right-1 top-1/2 -translate-y-1/2 p-1.5 rounded-md transition-all duration-200 z-20 cursor-pointer opacity-0 group-hover:opacity-100 hover:bg-red-500/20 text-slate-400 hover:text-red-400",
-          { "opacity-100": isActive } 
-        )}
-      >
+          { "opacity-100": isActive },
+        )}>
         <FiTrash size={14} />
       </div>
     </div>
@@ -100,19 +102,25 @@ SidebarHeader.displayName = "SidebarHeader";
 
 // Extracted Footer component
 const SidebarFooter = memo(({ isPro, chatCount }: { isPro: boolean; chatCount: number }) => (
-  <div className="mt-4 pt-4 border-t border-slate-800 flex flex-col gap-4">
+  <div className="mt-4 pt-4 border-t border-slate-800 dark:border-slate-700 flex flex-col gap-4">
     <div className="px-2">
-      <p className="text-xs text-slate-400 mb-2">{isPro ? "Pro Plan" : `${chatCount} / 3 Free PDFs used`}</p>
+      <p className="text-xs text-slate-400 dark:text-slate-500 mb-2">
+        {isPro ? "Pro Plan" : `${chatCount} / 3 Free PDFs used`}
+      </p>
       <UpgradeButton isPro={isPro} />
     </div>
     <div className="flex flex-col gap-1">
       <Link
         href="/"
-        className="flex items-center p-2 rounded-md text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors text-sm">
+        className="flex items-center p-2 rounded-md text-slate-400 dark:text-slate-500 hover:text-white dark:hover:text-slate-200 hover:bg-slate-800/50 dark:hover:bg-slate-700/50 transition-colors text-sm">
         <IoMdHome className="w-4 h-4 mr-3" />
         Home
       </Link>
-      <p className="text-[10px] text-slate-500 px-2 mt-2">© 2025 PDF Chat AI</p>
+      <div className="flex items-center justify-between px-2 py-2 rounded-md hover:bg-slate-800/50 dark:hover:bg-slate-700/50 transition-colors">
+        <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">Theme</span>
+        <ThemeToggle variant="sidebar" />
+      </div>
+      <p className="text-[10px] text-slate-500 dark:text-slate-600 px-2 mt-2">© 2025 PDF Chat AI</p>
     </div>
   </div>
 ));
@@ -226,12 +234,15 @@ const CollapsedSidebar = memo(
         ))}
       </div>
 
-      <Link href="/">
-        <IoMdHome
-          className="text-slate-400 hover:text-white transition"
-          size={18}
-        />
-      </Link>
+      <div className="flex flex-col items-center gap-4">
+        <ThemeToggle variant="sidebar" />
+        <Link href="/">
+          <IoMdHome
+            className="text-slate-400 dark:text-slate-500 hover:text-white dark:hover:text-slate-200 transition"
+            size={18}
+          />
+        </Link>
+      </div>
     </div>
   ),
 );
@@ -242,7 +253,7 @@ const ChatSidebar = ({ chats, chatId: propChatId, className, isPro }: Props) => 
   const params = useParams();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(true);
-  
+
   // Delete state
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -274,10 +285,10 @@ const ChatSidebar = ({ chats, chatId: propChatId, className, isPro }: Props) => 
         setDeleteId(null);
         setDeleteName("");
         router.refresh();
-        
+
         // If we deleted the current chat, redirect to home
         if (deleteId === chatId) {
-            router.push("/");
+          router.push("/");
         }
       }
     } catch (error) {
@@ -290,14 +301,14 @@ const ChatSidebar = ({ chats, chatId: propChatId, className, isPro }: Props) => 
 
   return (
     <>
-      <DeleteChatModal 
-        isOpen={!!deleteId} 
-        onClose={() => setDeleteId(null)} 
+      <DeleteChatModal
+        isOpen={!!deleteId}
+        onClose={() => setDeleteId(null)}
         onConfirm={handleDelete}
         loading={isDeleting}
         chatName={deleteName}
       />
-      
+
       {isOpen ? (
         <ExpandedSidebar
           className={className}

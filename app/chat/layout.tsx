@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { FaBars } from "react-icons/fa";
 import UserMenu from "@/components/UserMenu";
 import { checkSubscription } from "@/lib/subscription";
+import ThemeToggle from "@/components/ThemeToggle";
 
 type Props = {
   children: React.ReactNode;
@@ -27,8 +28,8 @@ const ChatLayout = async ({ children }: Props) => {
   const isPro = await checkSubscription();
 
   return (
-    <div className="flex flex-col md:flex-row h-screen overflow-hidden bg-white">
-      <div className="md:hidden flex items-center justify-between p-4 border-b border-slate-200 bg-white z-20">
+    <div className="flex flex-col md:flex-row h-screen overflow-hidden bg-white dark:bg-slate-900">
+      <div className="md:hidden flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 z-20">
         <div className="flex items-center gap-3">
           <Sheet>
             <SheetTrigger asChild>
@@ -49,11 +50,14 @@ const ChatLayout = async ({ children }: Props) => {
               />
             </SheetContent>
           </Sheet>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-            <span className="text-blue-500">PDF</span> Chat.ai
+          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+            <span className="text-blue-500 dark:text-blue-400">PDF</span> Chat.ai
           </h1>
         </div>
-        <UserMenu user={session.user} />
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <UserMenu user={session.user} />
+        </div>
       </div>
 
       <div className="h-full flex-shrink-0 hidden md:block transition-all duration-300 ease-in-out">
