@@ -5,11 +5,14 @@ import { google } from "@ai-sdk/google";
 import { streamText, convertToModelMessages, ModelMessage, smoothStream, UIMessage } from "ai";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
+import Exa from "exa-js";
 
 export const runtime = "nodejs";
 
+const exa = new Exa(process.env.EXA_API_KEY as string);
+
 export async function POST(req: Request) {
-  const { messages, chatId } = await req.json();
+  const { messages, chatId, webSearch } = await req.json();
   const _chats = await db.select().from(chats).where(eq(chats.id, chatId));
   if (_chats.length != 1) {
     return NextResponse.json({ error: "chat not found" }, { status: 404 });
@@ -25,7 +28,19 @@ export async function POST(req: Request) {
     role: "user",
   });
 
-  const context = await getContext(lastMessage.parts[0].text.replace(/\n/g, " "), fileKey);
+  let context = "";
+
+  if (webSearch) {
+    const result = await exa.searchAndContents(lastMessage.parts[0].text, {
+      type: "neural",
+      useAutoprompt: true,
+      numResults: 3,
+      text: true,
+    });
+    context = result.results.map((r: any) => `Title: ${r.title}\nURL: ${r.url}\nContent: ${r.text}`).join("\n\n");
+  } else {
+    context = await getContext(lastMessage.parts[0].text.replace(/\n/g, " "), fileKey);
+  }
 
   const prompt = {
     role: "system",

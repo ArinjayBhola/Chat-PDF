@@ -10,7 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { dbMessageToUIMessage } from "@/lib/message-mapper";
 import { cn } from "@/lib/utils";
-import { FiLoader } from "react-icons/fi";
+import { FiLoader, FiGlobe } from "react-icons/fi";
 import { FaArrowUp } from "react-icons/fa";
 
 type Props = {
@@ -19,6 +19,7 @@ type Props = {
 
 export default function ChatComponent({ chatId }: Props) {
   const [input, setInput] = useState("");
+  const [webSearch, setWebSearch] = useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
 
   const { data, isLoading: isLoadingMessages } = useQuery({
@@ -36,6 +37,7 @@ export default function ChatComponent({ chatId }: Props) {
         body: {
           chatId,
           messages,
+          webSearch,
         },
       }),
     }),
@@ -98,6 +100,20 @@ export default function ChatComponent({ chatId }: Props) {
           <form
             onSubmit={handleSubmit}
             className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 focus-within:ring-2 focus-within:ring-blue-500/20 dark:focus-within:ring-blue-400/20 focus-within:border-blue-500/50 dark:focus-within:border-blue-400/50 transition-all hover:border-slate-300 dark:hover:border-slate-600">
+            
+            <button
+              type="button"
+              onClick={() => setWebSearch(!webSearch)}
+              className={`flex items-center justify-center h-10 w-10 rounded-xl transition-all duration-200 ${
+                webSearch
+                  ? "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
+                  : "text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300"
+              }`}
+              title="Web Search"
+            >
+              <FiGlobe className="h-5 w-5" />
+            </button>
+
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
