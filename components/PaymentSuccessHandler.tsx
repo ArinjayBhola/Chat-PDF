@@ -19,7 +19,7 @@ export default function PaymentSuccessHandler({ userId, searchParams }: Props) {
           userId,
         }),
       })
-        .then(() => toast.success("Subscription activated successfully!"))
+        .then(() => toast.success("Subscription activated. Refresh to see updates."))
         .catch(() => toast.error("Failed to activate subscription."));
     }
   }, [searchParams, userId]);
