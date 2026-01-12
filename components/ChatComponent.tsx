@@ -12,6 +12,7 @@ import { dbMessageToUIMessage } from "@/lib/message-mapper";
 import { cn } from "@/lib/utils";
 import { FiLoader, FiGlobe } from "react-icons/fi";
 import { FaArrowUp } from "react-icons/fa";
+import { LuLoaderCircle } from "react-icons/lu";
 
 type Props = {
   chatId: string;
@@ -22,7 +23,8 @@ export default function ChatComponent({ chatId }: Props) {
   const [webSearch, setWebSearch] = useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
 
-  const { data, isLoading: isLoadingMessages } = useQuery({
+  /* Load messages */
+  const { data } = useQuery({
     queryKey: ["chat-messages", chatId],
     queryFn: async () => {
       const res = await axios.post("/api/get-messages", { chatId });
@@ -31,33 +33,31 @@ export default function ChatComponent({ chatId }: Props) {
     staleTime: 0,
   });
 
-  const { messages, setMessages, sendMessage, status, stop, error } = useChat({
+  const { messages, setMessages, sendMessage, status } = useChat({
     transport: new DefaultChatTransport({
-      prepareSendMessagesRequest: ({ messages }) => ({
+      prepareSendMessagesRequest: ({ messages, ...data }) => ({
         body: {
           chatId,
           messages,
-          webSearch,
+          ...data,
         },
       }),
     }),
   });
 
-  // Scroll to bottom when new messages arrive
+  /* Auto scroll */
   useEffect(() => {
-    if (containerRef.current) {
-      containerRef.current.scrollTo({
-        top: containerRef.current.scrollHeight,
-        behavior: "smooth",
-      });
-    }
-  }, [messages, status]); // specific dependency on status to scroll when "thinking" starts
+    if (!containerRef.current) return;
+    containerRef.current.scrollTo({
+      top: containerRef.current.scrollHeight,
+      behavior: "smooth",
+    });
+  }, [messages, status]);
 
-  // Sync initial messages
+  /* Sync DB messages */
   useEffect(() => {
     if (data?.messages) {
-      const uiMessages = data.messages.map(dbMessageToUIMessage);
-      setMessages(uiMessages);
+      setMessages(data.messages.map(dbMessageToUIMessage));
     }
   }, [data, setMessages]);
 
@@ -65,87 +65,92 @@ export default function ChatComponent({ chatId }: Props) {
     e.preventDefault();
     if (!input.trim() || status !== "ready") return;
 
-    await sendMessage({
-      role: "user",
-      parts: [{ type: "text", text: input }],
-    });
+    await sendMessage(
+      {
+        role: "user",
+        parts: [{ type: "text", text: input }],
+      },
+      {
+        body: { webSearch },
+      },
+    );
+
     setInput("");
   };
 
-  const isScanning = status === "submitted"; // Waiting for response
-  const isStreaming = status === "streaming"; // Receiving response
+  const isBusy = status === "submitted" || status === "streaming";
 
   return (
     <div className="relative h-full flex flex-col bg-white dark:bg-slate-900 overflow-hidden">
-      {/* Messages Area */}
+      {/* Messages */}
       <div
         ref={containerRef}
-        className="flex-1 overflow-y-auto px-4 py-8 scroll-smooth custom-scrollbar">
+        className="flex-1 overflow-y-auto px-4 py-8 custom-scrollbar">
         <MessageList messages={messages} />
 
-        {/* Loadbar / Thinking State */}
-        {isScanning && (
-          <div className="flex justify-start px-4 mt-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <div className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl rounded-tl-none px-6 py-4 shadow-sm flex items-center gap-3">
-              <FiLoader className="h-4 w-4 text-blue-600 dark:text-blue-400 animate-spin" />
-              <span className="text-[15px] text-slate-700 dark:text-slate-300 font-medium">AI is thinking...</span>
+        {status === "submitted" && (
+          <div className="flex justify-start px-4 mt-4">
+            <div className="max-w-[70%] rounded-2xl rounded-tl-none px-4 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-medium">
+              <span className="inline-block animate-spin">
+                <LuLoaderCircle />
+              </span>
             </div>
           </div>
         )}
       </div>
 
-      {/* Input Area - Pinned at bottom */}
-      <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] dark:shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.3)]">
-        <div className="max-w-4xl mx-auto w-full">
+      {/* Input */}
+      <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
+        <div className="max-w-4xl mx-auto w-full space-y-2">
+          {/* Mode indicator */}
+          {webSearch && (
+            <div className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400">
+              <FiGlobe className="h-4 w-4" />
+              <span className="font-medium">Web search enabled - using live internet data</span>
+            </div>
+          )}
+
           <form
             onSubmit={handleSubmit}
-            className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 focus-within:ring-2 focus-within:ring-blue-500/20 dark:focus-within:ring-blue-400/20 focus-within:border-blue-500/50 dark:focus-within:border-blue-400/50 transition-all hover:border-slate-300 dark:hover:border-slate-600">
-            
+            className={cn(
+              "flex items-center gap-2 bg-slate-50 dark:bg-slate-800 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 transition-all",
+              isBusy && "opacity-90",
+            )}>
+            {/* Web search toggle */}
             <button
               type="button"
-              onClick={() => setWebSearch(!webSearch)}
-              className={`flex items-center justify-center h-10 w-10 rounded-xl transition-all duration-200 ${
+              onClick={() => setWebSearch((v) => !v)}
+              disabled={isBusy}
+              className={cn(
+                "flex items-center gap-2 px-3 h-10 rounded-xl border text-sm font-medium transition-all",
                 webSearch
-                  ? "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
-                  : "text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300"
-              }`}
-              title="Web Search"
-            >
-              <FiGlobe className="h-5 w-5" />
+                  ? "bg-blue-100 border-blue-300 text-blue-700 dark:bg-blue-900/30 dark:border-blue-700 dark:text-blue-300"
+                  : "bg-transparent border-transparent text-slate-400 hover:text-slate-600 dark:text-slate-500",
+              )}>
+              <FiGlobe className="h-4 w-4" />
+              <span className="hidden sm:inline">{webSearch ? "Web Search ON" : "Web Search"}</span>
             </button>
 
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask a question about your PDF..."
-              disabled={status !== "ready"}
-              className="flex-1 bg-transparent border-none shadow-none focus-visible:ring-0 text-[15px] font-medium text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 px-3 py-2.5 h-auto min-h-0"
+              disabled={isBusy}
+              placeholder={webSearch ? "Ask using live web data…" : "Ask a question about your PDF…"}
+              className="flex-1 bg-transparent border-none focus-visible:ring-0 text-sm"
             />
 
+            {/* Send button morph */}
             <Button
               type="submit"
-              disabled={!input.trim() || status !== "ready"}
               size="icon"
+              disabled={isBusy || !input.trim()}
               className={cn(
-                "h-10 w-10 flex-shrink-0 rounded-xl transition-all duration-200",
-                status !== "ready"
-                  ? "bg-slate-100 dark:bg-slate-700 text-slate-300 dark:text-slate-500 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white shadow-sm hover:shadow-md active:scale-95",
+                "h-10 w-10 rounded-xl transition-all",
+                isBusy ? "bg-blue-600 text-white" : "bg-blue-600 hover:bg-blue-700 text-white",
               )}>
-              {isStreaming ? (
-                <FiLoader className="h-5 w-5 animate-spin" />
-              ) : (
-                <FaArrowUp className="h-5 w-5 stroke-[2.5px]" />
-              )}
+              {isBusy ? <FiLoader className="h-5 w-5 animate-spin opacity-80" /> : <FaArrowUp className="h-5 w-5" />}
             </Button>
           </form>
-
-          {/* Helper footer text */}
-          <div className="text-center mt-2">
-            <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 tracking-wider uppercase">
-              AI Generated content may be inaccurate
-            </p>
-          </div>
         </div>
       </div>
     </div>

@@ -12,7 +12,8 @@ export const runtime = "nodejs";
 const exa = new Exa(process.env.EXA_API_KEY as string);
 
 export async function POST(req: Request) {
-  const { messages, chatId, webSearch } = await req.json();
+  const { messages, chatId, body } = await req.json();
+  const { webSearch } = body;
   const _chats = await db.select().from(chats).where(eq(chats.id, chatId));
   if (_chats.length != 1) {
     return NextResponse.json({ error: "chat not found" }, { status: 404 });
@@ -37,8 +38,13 @@ export async function POST(req: Request) {
       numResults: 3,
       text: true,
     });
-    const searchContext = result.results.map((r: any) => `Title: ${r.title}\nURL: ${r.url}\nContent: ${r.text}`).join("\n\n");
-    
+
+    console.log("Web search results:", result.results);
+
+    const searchContext = result.results
+      .map((r: any) => `Title: ${r.title}\nURL: ${r.url}\nContent: ${r.text}`)
+      .join("\n\n");
+
     promptContent = `You are a helpful and knowledgeable AI assistant.
       You have access to real-time information from the web.
       Use the following search results to answer the user's question comprehensively.
@@ -51,7 +57,7 @@ export async function POST(req: Request) {
       `;
   } else {
     const context = await getContext(lastMessage.parts[0].text.replace(/\n/g, " "), fileKey);
-    
+
     promptContent = `AI assistant is a brand new, powerful, human-like artificial intelligence.
       The traits of AI include expert knowledge, helpfulness, cleverness, and articulateness.
       AI is a well-behaved and well-mannered individual.
