@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth-options";
 import FileUpload from "@/components/FileUpload";
 import UserMenu from "@/components/UserMenu";
 import { MdLogin } from "react-icons/md";
+import { FaGithub } from "react-icons/fa";
 import { checkSubscription } from "@/lib/subscription";
 import UpgradeButton from "@/components/UpgradeButton";
 import PricingSection from "@/components/PricingSection";
@@ -114,6 +115,16 @@ export default async function Home({
       </div>
 
       {isAuth && !isPro && <PricingSection isPro={isPro} />}
+
+      <footer className="py-8 text-center text-slate-600 dark:text-slate-400">
+        <Link
+          target="_blank"
+          href="https://github.com/ArinjayBhola/Chat-PDF"
+          className="inline-flex items-center gap-2 hover:text-slate-900 dark:hover:text-slate-200 transition-colors">
+          <FaGithub className="w-5 h-5" />
+          <span className="text-sm font-medium">View on GitHub</span>
+        </Link>
+      </footer>
     </div>
   );
 }
