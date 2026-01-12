@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     role: "user",
   });
 
-  let context = "";
+  let promptContent = "";
 
   if (webSearch) {
     const result = await exa.searchAndContents(lastMessage.parts[0].text, {
@@ -37,14 +37,22 @@ export async function POST(req: Request) {
       numResults: 3,
       text: true,
     });
-    context = result.results.map((r: any) => `Title: ${r.title}\nURL: ${r.url}\nContent: ${r.text}`).join("\n\n");
-  } else {
-    context = await getContext(lastMessage.parts[0].text.replace(/\n/g, " "), fileKey);
-  }
+    const searchContext = result.results.map((r: any) => `Title: ${r.title}\nURL: ${r.url}\nContent: ${r.text}`).join("\n\n");
+    
+    promptContent = `You are a helpful and knowledgeable AI assistant.
+      You have access to real-time information from the web.
+      Use the following search results to answer the user's question comprehensively.
+      If the search results are not sufficient, you may use your general knowledge to supplement the answer, but prioritize the provided results.
+      Always cite your sources if possible based on the provided URL links.
 
-  const prompt = {
-    role: "system",
-    content: `AI assistant is a brand new, powerful, human-like artificial intelligence.
+      START WEB SEARCH RESULTS
+      ${searchContext}
+      END WEB SEARCH RESULTS
+      `;
+  } else {
+    const context = await getContext(lastMessage.parts[0].text.replace(/\n/g, " "), fileKey);
+    
+    promptContent = `AI assistant is a brand new, powerful, human-like artificial intelligence.
       The traits of AI include expert knowledge, helpfulness, cleverness, and articulateness.
       AI is a well-behaved and well-mannered individual.
       AI is always friendly, kind, and inspiring, and he is eager to provide vivid and thoughtful responses to the user.
@@ -57,7 +65,12 @@ export async function POST(req: Request) {
       If the context does not provide the answer to question, the AI assistant will say, "I'm sorry, but I don't know the answer to that question".
       AI assistant will not apologize for previous responses, but instead will indicated new information was gained.
       AI assistant will not invent anything that is not drawn directly from the context.
-      `,
+      `;
+  }
+
+  const prompt = {
+    role: "system",
+    content: promptContent,
   };
 
   const userMessages: UIMessage[] = messages
