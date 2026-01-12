@@ -13,6 +13,8 @@ A powerful, AI-powered SaaS application that allows users to upload PDF document
 - **PDF Upload & Processing**: Upload PDF files (up to 10MB) with drag-and-drop support
 - **AI-Powered Chat**: Engage in intelligent conversations about your PDF content using Google's Gemini AI
 - **Vector Search**: Leverages Pinecone vector database for semantic search and context retrieval
+- **OCR Support**: Automatic Optical Character Recognition (Tesseract.js) for scanned PDFs
+- **Web Search**: Integrated Exa.ai search for broader context beyond the PDF
 - **Real-time Streaming**: Get AI responses in real-time with smooth streaming
 - **Multi-Document Support**: Manage multiple PDF chats simultaneously
 
@@ -57,9 +59,11 @@ A powerful, AI-powered SaaS application that allows users to upload PDF document
 
 #### AI & ML
 - **LLM**: Google Gemini 2.5 Flash (via AI SDK)
-- **Embeddings**: Nomic Embed Text v1.5 (via Bytez.js)
+- **Embeddings**: Google Gemini text-embedding-004
 - **Vector Database**: Pinecone
 - **PDF Processing**: Langchain PDF Loader
+- **OCR**: Tesseract.js
+- **Web Search**: Exa.ai SDK
 - **Text Splitting**: Recursive Character Text Splitter
 
 #### Storage & Infrastructure
@@ -76,7 +80,7 @@ A powerful, AI-powered SaaS application that allows users to upload PDF document
 - Pinecone account and index
 - Google OAuth credentials
 - Razorpay account
-- Bytez API key
+- Exa.ai API key (for web search)
 
 ### Environment Variables
 
@@ -102,15 +106,15 @@ NEXT_PUBLIC_AWS_S3_BUCKET_NAME=your_bucket_name
 # Pinecone
 PINECONE_API_KEY=your_pinecone_api_key
 
-# Bytez (for embeddings)
-BYTEZ_API_KEY=your_bytez_api_key
-
 # Razorpay
 RAZORPAY_KEY_ID=your_razorpay_key_id
 RAZORPAY_KEY_SECRET=your_razorpay_key_secret
 
 # Google AI
 GOOGLE_GENERATIVE_AI_API_KEY=your_google_ai_api_key
+
+# Exa AI (Web Search)
+EXA_API_KEY=your_exa_api_key
 ```
 
 ### Installation
@@ -194,7 +198,7 @@ Chat-PDF/
 │   ├── razorpay.ts               # Razorpay client
 │   └── utils.ts                  # Helper functions
 ├── middleware.ts                 # Route protection middleware
-├── drizzle.config.ts             # Drizzle ORM configuration
+│   ├── drizzle.config.ts             # Drizzle ORM configuration
 ├── next.config.ts                # Next.js configuration
 ├── tailwind.config.ts            # TailwindCSS configuration
 └── package.json                  # Dependencies
@@ -208,7 +212,7 @@ Chat-PDF/
 2. **S3 Storage**: File is uploaded to AWS S3 with a unique key
 3. **PDF Parsing**: Server downloads PDF and extracts text using Langchain's PDFLoader
 4. **Text Chunking**: Document is split into smaller chunks using RecursiveCharacterTextSplitter
-5. **Embedding Generation**: Each chunk is converted to vector embeddings using Nomic Embed model
+5. **Embedding Generation**: Each chunk is converted to vector embeddings using Google Gemini `text-embedding-004`
 6. **Vector Storage**: Embeddings are stored in Pinecone with metadata (page numbers, text)
 7. **Chat Creation**: A new chat record is created in the database
 
@@ -282,7 +286,7 @@ Chat-PDF/
 
 - **File Size**: Maximum PDF size is 10MB
 - **Free Tier**: Limited to 3 PDF uploads
-- **Embedding Model**: Fixed to Nomic Embed (768 dimensions)
+- **Embedding Model**: Google Gemini text-embedding-004 (768 dimensions)
 - **Context Window**: Limited to 3000 characters of context
 - **Region**: S3 bucket hardcoded to ap-south-1
 
@@ -320,5 +324,3 @@ npx drizzle-kit studio
 - **Formatting**: Consistent code style across project
 - **Component Structure**: Functional components with hooks
 - **File Naming**: PascalCase for components, kebab-case for utilities
-
-**Built with ❤️ using Next.js and AI**
