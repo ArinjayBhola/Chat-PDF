@@ -67,7 +67,7 @@ A powerful, AI-powered SaaS application that allows users to upload PDF document
 - **Text Splitting**: Recursive Character Text Splitter
 
 #### Storage & Infrastructure
-- **File Storage**: AWS S3 (ap-south-1 region)
+- **File Storage**: AWS S3 (configurable region)
 - **Payment Gateway**: Razorpay
 - **Deployment**: Vercel-ready
 
@@ -102,6 +102,7 @@ GOOGLE_CLIENT_SECRET=your_google_client_secret
 NEXT_PUBLIC_AWS_S3_ACCESS_KEY_ID=your_aws_access_key
 NEXT_PUBLIC_AWS_S3_SECRET_ACCESS_KEY=your_aws_secret_key
 NEXT_PUBLIC_AWS_S3_BUCKET_NAME=your_bucket_name
+NEXT_PUBLIC_AWS_REGION=your_aws_region
 
 # Pinecone
 PINECONE_API_KEY=your_pinecone_api_key
@@ -288,7 +289,7 @@ Chat-PDF/
 - **Free Tier**: Limited to 3 PDF uploads
 - **Embedding Model**: Google Gemini text-embedding-004 (768 dimensions)
 - **Context Window**: Limited to 3000 characters of context
-- **Region**: S3 bucket hardcoded to ap-south-1
+
 
 ## 🛠️ Development
 

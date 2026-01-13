@@ -26,7 +26,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   const [confirmationText, setConfirmationText] = useState("");
 
   const handleDeleteAccount = async () => {
-    if (confirmationText !== "delete") return;
+    if (confirmationText !== "Delete") return;
     
     setIsDeleting(true);
     try {
@@ -73,18 +73,18 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
              
              <div className="mt-4 pt-4 border-t border-red-200 dark:border-red-900/20">
                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
-                     Type <strong>delete</strong> to confirm:
+                     Type <strong>Delete</strong> to confirm:
                  </p>
                  <Input 
                     value={confirmationText}
                     onChange={(e) => setConfirmationText(e.target.value)}
-                    placeholder="Type 'delete' to confirm"
+                    placeholder="Type 'Delete' to confirm"
                     className="bg-white dark:bg-slate-950"
                  />
                  <Button 
                     variant="destructive" 
                     className="w-full mt-4"
-                    disabled={confirmationText !== "delete" || isDeleting}
+                    disabled={confirmationText !== "Delete" || isDeleting}
                     onClick={handleDeleteAccount}
                  >
                     {isDeleting && <ImSpinner2 className="w-4 h-4 mr-2 animate-spin" />}

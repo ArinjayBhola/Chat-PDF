@@ -13,7 +13,7 @@ export async function downloadFromS3(file_key: string) {
       params: {
         Bucket: process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME,
       },
-      region: "ap-south-1",
+      region: process.env.NEXT_PUBLIC_AWS_REGION,
     });
     const params = {
       Bucket: process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME!,
@@ -46,7 +46,7 @@ export async function deleteFromS3(file_key: string) {
       params: {
         Bucket: process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME,
       },
-      region: "ap-south-1",
+      region: process.env.NEXT_PUBLIC_AWS_REGION,
     });
     const params = {
       Bucket: process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME!,

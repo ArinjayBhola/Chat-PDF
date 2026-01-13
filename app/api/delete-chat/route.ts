@@ -45,7 +45,7 @@ export async function DELETE(req: Request) {
           params: {
             Bucket: process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME,
           },
-          region: "ap-south-1",
+          region: process.env.NEXT_PUBLIC_AWS_REGION,
         });
         
         const params = {

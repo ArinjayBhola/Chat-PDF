@@ -1,5 +1,16 @@
-import React from "react";
-import { Button } from "./ui/button";
+"use client";
+
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { ImSpinner2 } from "react-icons/im";
+import { MdDelete } from "react-icons/md";
 
 type Props = {
   isOpen: boolean;
@@ -10,35 +21,46 @@ type Props = {
 };
 
 const DeleteChatModal = ({ isOpen, onClose, onConfirm, loading, chatName }: Props) => {
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="bg-slate-900 border border-slate-700 p-6 rounded-lg shadow-xl w-[90%] max-w-md animate-in fade-in zoom-in duration-200">
-        <h2 className="text-xl font-semibold text-white mb-2">Delete Chat?</h2>
-        <p className="text-slate-400 mb-6">
-          Are you sure you want to delete <span className="font-bold text-white">"{chatName}"</span>? This action cannot
-          be undone.
-        </p>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Delete Chat</DialogTitle>
+          <DialogDescription>
+            Are you sure you want to delete this chat?
+          </DialogDescription>
+        </DialogHeader>
 
-        <div className="flex justify-end gap-3">
-          <Button
-            variant="ghost"
-            onClick={onClose}
-            disabled={loading}
-            className="text-slate-300 hover:text-white hover:bg-slate-800">
-            Cancel
-          </Button>
-          <Button
-            variant="destructive"
-            onClick={onConfirm}
-            disabled={loading}
-            className="bg-red-600 hover:bg-red-700 text-white">
-            {loading ? "Deleting..." : "Delete"}
-          </Button>
+        <div className="py-2">
+          <div className="rounded-lg border border-red-200 bg-red-50 dark:bg-red-900/10 dark:border-red-900/20 p-4">
+            <div className="flex items-start gap-4">
+              <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-full">
+                <MdDelete className="w-5 h-5 text-red-600 dark:text-red-500" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-red-900 dark:text-red-200">
+                  Delete "{chatName}"
+                </h3>
+                <p className="text-sm text-red-700 dark:text-red-300 mt-1">
+                  Permanently delete this chat and all associated messages. This action cannot be undone.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-4 pt-4 border-t border-red-200 dark:border-red-900/20 flex gap-3 justify-end">
+              <Button
+                variant="destructive"
+                disabled={loading}
+                onClick={onConfirm}
+              >
+                {loading && <ImSpinner2 className="w-4 h-4 mr-2 animate-spin" />}
+                Delete Chat
+              </Button>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 
