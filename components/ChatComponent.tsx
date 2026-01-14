@@ -148,7 +148,7 @@ export default function ChatComponent({ chatId }: Props) {
                 "h-10 w-10 rounded-xl transition-all",
                 isBusy ? "bg-blue-600 text-white" : "bg-blue-600 hover:bg-blue-700 text-white",
               )}>
-              {isBusy ? <FiLoader className="h-5 w-5 animate-spin opacity-80" /> : <FaArrowUp className="h-5 w-5" />}
+              <FaArrowUp className="h-5 w-5" />
             </Button>
           </form>
         </div>

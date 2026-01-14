@@ -39,16 +39,13 @@ export async function POST(req: Request) {
       text: true,
     });
 
-    console.log("Web search results:", result.results);
-
     const searchContext = result.results
       .map((r: any) => `Title: ${r.title}\nURL: ${r.url}\nContent: ${r.text}`)
       .join("\n\n");
 
-    promptContent = `You are a helpful and knowledgeable AI assistant.
-      You have access to real-time information from the web.
-      Use the following search results to answer the user's question comprehensively.
-      If the search results are not sufficient, you may use your general knowledge to supplement the answer, but prioritize the provided results.
+    promptContent = `You are a direct and concise AI assistant.
+      Answer the user's question immediately without any conversational filler, greetings, or praise.
+      Only provide the requested information using the search results.
       Always cite your sources if possible based on the provided URL links.
 
       START WEB SEARCH RESULTS
@@ -58,19 +55,14 @@ export async function POST(req: Request) {
   } else {
     const context = await getContext(lastMessage.parts[0].text.replace(/\n/g, " "), fileKey);
 
-    promptContent = `AI assistant is a brand new, powerful, human-like artificial intelligence.
-      The traits of AI include expert knowledge, helpfulness, cleverness, and articulateness.
-      AI is a well-behaved and well-mannered individual.
-      AI is always friendly, kind, and inspiring, and he is eager to provide vivid and thoughtful responses to the user.
-      AI has the sum of all knowledge in their brain, and is able to accurately answer nearly any question about any topic in conversation.
-      AI assistant is a big fan of Pinecone and Vercel.
+    promptContent = `You are a direct and concise AI assistant.
+      Answer questions strictly based on the provided CONTEXT BLOCK.
+      Do not use conversational filler, greetings, or praise.
+      If the answer is not in the context, simply state "I cannot find the answer in the provided context."
+      Do not invent anything that is not drawn directly from the context.
       START CONTEXT BLOCK
       ${context}
       END OF CONTEXT BLOCK
-      AI assistant will take into account any CONTEXT BLOCK that is provided in a conversation.
-      If the context does not provide the answer to question, the AI assistant will say, "I'm sorry, but I don't know the answer to that question".
-      AI assistant will not apologize for previous responses, but instead will indicated new information was gained.
-      AI assistant will not invent anything that is not drawn directly from the context.
       `;
   }
 
@@ -79,21 +71,19 @@ export async function POST(req: Request) {
     content: promptContent,
   };
 
-  const userMessages: UIMessage[] = messages
-    .filter((m: any) => m.role === "user")
-    .map((m: any) => {
-      if (m.parts) return m;
+  const conversationMessages: UIMessage[] = messages.map((m: any) => {
+    if (m.parts) return m;
 
-      return {
-        role: "user",
-        id: m.id,
-        parts: [{ type: "text", text: m.content }],
-      };
-    });
+    return {
+      role: m.role,
+      id: m.id,
+      parts: [{ type: "text", text: m.content }],
+    };
+  });
 
   const result = streamText({
     model: google("gemini-2.5-flash-preview-09-2025"),
-    messages: [prompt as ModelMessage, ...convertToModelMessages(userMessages)],
+    messages: [prompt as ModelMessage, ...convertToModelMessages(conversationMessages)],
     experimental_transform: smoothStream(),
     async onFinish({ text }) {
       // save assistant message into db
