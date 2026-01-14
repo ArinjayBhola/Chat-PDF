@@ -27,6 +27,7 @@ export async function POST(req: Request) {
       razorpayPaymentLinkId: resolvedSearchParams.razorpay_payment_link_id as string,
       razorpayPaymentLinkStatus: resolvedSearchParams.razorpay_payment_link_status as string,
       razorpaySignature: resolvedSearchParams.razorpay_signature as string,
+      subscriptionEndDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
     });
   } catch (error) {
     console.error("Failed to update subscription status:", error);
