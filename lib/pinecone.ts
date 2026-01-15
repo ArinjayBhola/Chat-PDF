@@ -54,9 +54,16 @@ export async function loadS3IntoPinecode(file_key: string) {
   const documents = await Promise.all(processedPages.map(preapareDocument));
 
   // 3. Vectorize and embed the documents
+  const allDocuments = documents.flat();
   const vectors: PineconeRecord<RecordMetadata>[] = [];
-  for (const doc of documents.flat()) {
-    vectors.push(await embedDocument(doc));
+  
+  // Batch processing for embeddings to avoid rate limits
+  const EMBEDDING_BATCH_SIZE = 5;
+  for (let i = 0; i < allDocuments.length; i += EMBEDDING_BATCH_SIZE) {
+    const batch = allDocuments.slice(i, i + EMBEDDING_BATCH_SIZE);
+    const batchVectors = await Promise.all(batch.map(embedDocument));
+    vectors.push(...batchVectors);
+    console.log(`Embedded batch ${Math.floor(i / EMBEDDING_BATCH_SIZE) + 1}/${Math.ceil(allDocuments.length / EMBEDDING_BATCH_SIZE)}`);
   }
 
   // 4. Use chunked upsert to upload the vectors in chunks (to avoid hitting rate limits)
