@@ -35,7 +35,10 @@ export default function UserMenu({ user }: UserMenuProps) {
 
   return (
     <>
-      <SettingsDialog open={showSettings} onOpenChange={setShowSettings} />
+      <SettingsDialog
+        open={showSettings}
+        onOpenChange={setShowSettings}
+      />
       <div
         className="relative"
         ref={menuRef}>
@@ -88,14 +91,13 @@ export default function UserMenu({ user }: UserMenuProps) {
                 <span className="text-sm text-slate-700 dark:text-slate-300 font-medium">Theme</span>
                 <ThemeToggle />
               </div>
-              
+
               <button
                 onClick={() => {
                   setIsOpen(false);
                   setShowSettings(true);
                 }}
-                className="w-full flex items-center gap-2.5 px-2 py-2 text-left text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors rounded-md font-medium"
-              >
+                className="w-full flex items-center gap-2.5 px-2 py-2 text-left text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors rounded-md font-medium">
                 <MdSettings className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                 Settings
               </button>
