@@ -7,6 +7,7 @@ import { getEmbeddings } from "./embeddings";
 import md5 from "md5";
 import { convertToAscii } from "./utils";
 import { ocrPdfPage } from "./OCR";
+import pLimit from "p-limit";
 
 type PDFPgae = {
   pageContent: string;
@@ -24,31 +25,34 @@ export async function loadS3IntoPinecode(file_key: string) {
   const loader = new PDFLoader(file_name);
   const pages = (await loader.load()) as PDFPgae[];
 
-  const processedPages: PDFPgae[] = [];
-  let tesseractWorker: any = null; // using any to avoid type complexity with Worker type imports if strict
+  // 2. Process pages in parallel
+  const limit = pLimit(10); // Process up to 10 pages concurrently
 
-  for (let i = 0; i < pages.length; i++) {
-    const page = pages[i];
-    let text = page.pageContent;
+  const processedPages = await Promise.all(
+    pages.map((page, i) =>
+      limit(async () => {
+        let text = page.pageContent;
 
-    // CRITICAL FIX: OCR fallback
-    if (needsOCR(text)) {
-      console.log(`OCR fallback → page ${i + 1}`);
-      if (!tesseractWorker) {
-        tesseractWorker = await createWorker("eng");
-      }
-      text = await ocrPdfPage(file_name, i + 1, tesseractWorker);
-    }
+        // CRITICAL FIX: OCR fallback inside parallel execution
+        if (needsOCR(text)) {
+          console.log(`OCR fallback → page ${i + 1}`);
+          // Create a new worker for this specific task to avoid race conditions
+          const worker = await createWorker("eng");
+          try {
+            text = await ocrPdfPage(file_name, i + 1, worker);
+          } finally {
+            // Always terminate the worker after use to prevent memory leaks in parallel execution
+            await worker.terminate();
+          }
+        }
 
-    processedPages.push({
-      ...page,
-      pageContent: text,
-    });
-  }
-
-  if (tesseractWorker) {
-    await tesseractWorker.terminate();
-  }
+        return {
+          ...page,
+          pageContent: text,
+        };
+      }),
+    ),
+  );
 
   // NOW split
   const documents = await Promise.all(processedPages.map(preapareDocument));
@@ -56,14 +60,18 @@ export async function loadS3IntoPinecode(file_key: string) {
   // 3. Vectorize and embed the documents
   const allDocuments = documents.flat();
   const vectors: PineconeRecord<RecordMetadata>[] = [];
-  
+
   // Batch processing for embeddings to avoid rate limits
   const EMBEDDING_BATCH_SIZE = 5;
   for (let i = 0; i < allDocuments.length; i += EMBEDDING_BATCH_SIZE) {
     const batch = allDocuments.slice(i, i + EMBEDDING_BATCH_SIZE);
     const batchVectors = await Promise.all(batch.map(embedDocument));
     vectors.push(...batchVectors);
-    console.log(`Embedded batch ${Math.floor(i / EMBEDDING_BATCH_SIZE) + 1}/${Math.ceil(allDocuments.length / EMBEDDING_BATCH_SIZE)}`);
+    console.log(
+      `Embedded batch ${Math.floor(i / EMBEDDING_BATCH_SIZE) + 1}/${Math.ceil(
+        allDocuments.length / EMBEDDING_BATCH_SIZE,
+      )}`,
+    );
   }
 
   // 4. Use chunked upsert to upload the vectors in chunks (to avoid hitting rate limits)
