@@ -13,15 +13,19 @@ import { cn } from "@/lib/utils";
 import { FiLoader, FiGlobe } from "react-icons/fi";
 import { FaArrowUp } from "react-icons/fa";
 import { LuLoaderCircle } from "react-icons/lu";
+import { IoSparklesOutline } from "react-icons/io5";
 
 type Props = {
   chatId: string;
+  summary?: string;
+  suggestedQuestions?: string[];
 };
 
-export default function ChatComponent({ chatId }: Props) {
+export default function ChatComponent({ chatId, summary, suggestedQuestions }: Props) {
   const [input, setInput] = useState("");
   const [webSearch, setWebSearch] = useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
+  const [showSummary, setShowSummary] = useState(true);
 
   /* Load messages */
   const { data } = useQuery({
@@ -52,7 +56,7 @@ export default function ChatComponent({ chatId }: Props) {
       top: containerRef.current.scrollHeight,
       behavior: "smooth",
     });
-  }, [messages, status]);
+  }, [messages, status, showSummary]);
 
   /* Sync DB messages */
   useEffect(() => {
@@ -64,18 +68,33 @@ export default function ChatComponent({ chatId }: Props) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || status !== "ready") return;
+    
+    // Clear input first
+    const question = input;
+    setInput("");
 
     await sendMessage(
       {
         role: "user",
-        parts: [{ type: "text", text: input }],
+        parts: [{ type: "text", text: question }],
       },
       {
         body: { webSearch },
       },
     );
+  };
 
-    setInput("");
+  const handleQuestionClick = async (question: string) => {
+    setInput(""); // Clear input in case something was typed
+    await sendMessage(
+      {
+        role: "user",
+        parts: [{ type: "text", text: question }],
+      },
+      {
+        body: { webSearch },
+      },
+    );
   };
 
   const isBusy = status === "submitted" || status === "streaming";
@@ -86,17 +105,82 @@ export default function ChatComponent({ chatId }: Props) {
       <div
         ref={containerRef}
         className="flex-1 overflow-y-auto px-4 py-8 custom-scrollbar">
-        <MessageList messages={messages} />
-
-        {status === "submitted" && (
-          <div className="flex justify-start px-4 mt-4">
-            <div className="max-w-[70%] rounded-2xl rounded-tl-none px-4 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-medium">
-              <span className="inline-block animate-spin">
-                <LuLoaderCircle />
-              </span>
+        
+        <div className="min-h-full flex flex-col justify-end">
+          
+          {/* Empty State - No Messages Yet */}
+          {messages.length === 0 && (
+            <div className="flex flex-col items-center justify-center gap-4 text-center text-slate-500 dark:text-slate-400 p-8 mb-4">
+              <div className="bg-blue-100 dark:bg-blue-900/30 p-4 rounded-full border border-blue-200 dark:border-blue-800 shadow-sm">
+                <IoSparklesOutline className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div>
+                <p className="text-lg font-semibold text-slate-800 dark:text-slate-200">No messages yet</p>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                  Start the conversation by asking a question about your PDF.
+                </p>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+
+          {/* Summary Section */}
+          {summary && (
+            <div className="mb-6 mx-2 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-700">
+              <div 
+                 className="flex justify-between items-center cursor-pointer mb-2"
+                 onClick={() => setShowSummary(!showSummary)}
+              >
+                <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                  Document Summary
+                </h3>
+                <span className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
+                  {showSummary ? "Hide" : "Show"}
+                </span>
+              </div>
+              {showSummary && (
+                <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                  {summary}
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Empty State with Suggested Questions */}
+          {messages.length === 0 && suggestedQuestions && suggestedQuestions.length > 0 && (
+            <div className="mx-2 mb-8">
+              <p className="text-sm text-slate-500 mb-3 font-medium">Suggested Questions:</p>
+              <div className="flex flex-col gap-2">
+                {suggestedQuestions.map((q, i) => (
+                  <button
+                    key={i}
+                    onClick={() => handleQuestionClick(q)}
+                    disabled={isBusy}
+                    className="w-full text-left p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-blue-400 dark:hover:border-blue-500 transition-all text-sm text-slate-700 dark:text-slate-300 group"
+                  >
+                    <span className="flex items-center gap-2">
+                      <span className="bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 w-5 h-5 flex items-center justify-center rounded-full text-xs font-bold shrink-0">
+                        {i + 1}
+                      </span>
+                      {q}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <MessageList messages={messages} />
+
+          {status === "submitted" && (
+             <div className="flex justify-start px-4 mt-4">
+              <div className="max-w-[70%] rounded-2xl rounded-tl-none px-4 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-medium">
+                <span className="inline-block animate-spin">
+                  <LuLoaderCircle />
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Input */}

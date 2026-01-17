@@ -41,13 +41,14 @@ const CollapsedSidebar = memo(({ className, onToggle, chats, chatId }: Props) =>
     </Link>
 
     <div className="flex flex-col items-center gap-4 mt-4 flex-1">
-      {chats.map((chat) => (
+      {/* Chat list hidden in collapsed mode as per user request */}
+      {/* {chats.map((chat) => (
         <CollapsedChatItem
           key={chat.id}
           chat={chat}
           isActive={chat.id === chatId}
         />
-      ))}
+      ))} */}
     </div>
 
     <div className="flex flex-col items-center gap-4">

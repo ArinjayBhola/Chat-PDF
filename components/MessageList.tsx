@@ -9,20 +9,7 @@ type Props = {
 };
 
 const MessageList = ({ messages }: Props) => {
-  if (!messages?.length)
-    return (
-      <div className="flex flex-col items-center justify-center gap-4 h-full text-center text-slate-500 dark:text-slate-400 p-8">
-        <div className="bg-blue-100 dark:bg-blue-900/30 p-4 rounded-full border border-blue-200 dark:border-blue-800 shadow-sm">
-          <IoSparklesOutline className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-        </div>
-        <div>
-          <p className="text-lg font-semibold text-slate-800 dark:text-slate-200">No messages yet</p>
-          <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-            Start the conversation by asking a question about your PDF.
-          </p>
-        </div>
-      </div>
-    );
+  if (!messages?.length) return null;
 
   return (
     <div className="flex flex-col gap-4 px-2 sm:px-4 py-4">

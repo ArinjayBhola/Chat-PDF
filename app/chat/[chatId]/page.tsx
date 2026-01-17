@@ -52,7 +52,11 @@ const page = async ({ params }: Props) => {
           <TabsContent
             value="chat"
             className="flex-1 min-h-0 m-0 overflow-hidden">
-            <ChatComponent chatId={chatId} />
+            <ChatComponent 
+              chatId={chatId} 
+              summary={currentChat.summary || undefined}
+              suggestedQuestions={currentChat.suggestedQuestions || []}
+            />
           </TabsContent>
         </Tabs>
       </div>
@@ -66,7 +70,11 @@ const page = async ({ params }: Props) => {
           }
           rightPanel={
             <div className="w-full h-full bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-700 shadow-lg z-10 flex flex-col">
-              <ChatComponent chatId={chatId} />
+              <ChatComponent 
+                chatId={chatId} 
+                summary={currentChat.summary || undefined}
+                suggestedQuestions={currentChat.suggestedQuestions || []}
+              />
             </div>
           }
           defaultLeftWidth={60}
