@@ -10,8 +10,10 @@ export const chats = pgTable("chats", {
   pdfName: text("pdf_name").notNull(),
   pdfUrl: text("pdf_url").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-  userId: text("user_id").notNull(), // Changed from varchar to text to match users.id
+  userId: text("user_id").notNull(),
   fileKey: text("file_key").notNull(),
+  summary: text("summary"),
+  suggestedQuestions: text("suggested_questions").array(),
 });
 
 export type DrizzleChat = typeof chats.$inferSelect;

@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { generateSummaryAndQuestions } from "@/lib/summary-service";
 import { chats } from "@/lib/db/schema";
 import { loadS3IntoPinecode } from "@/lib/pinecone";
 import { getS3Url } from "@/lib/s3";
@@ -26,7 +27,22 @@ export async function POST(req: Request, res: Response) {
     const body = await req.json();
     const { file_key, file_name } = body;
 
-    await loadS3IntoPinecode(file_key);
+    // Run vector loading and summary generation concurrently
+    const [pineconeResult, summaryResult] = await Promise.allSettled([
+      loadS3IntoPinecode(file_key),
+      generateSummaryAndQuestions(file_key),
+    ]);
+
+    // If pinecone loading failed, throw error to abort chat creation
+    if (pineconeResult.status === "rejected") {
+      throw pineconeResult.reason;
+    }
+
+    const { summary, suggestedQuestions } =
+      summaryResult.status === "fulfilled" && summaryResult.value
+        ? summaryResult.value
+        : { summary: null, suggestedQuestions: [] };
+
     const chat_id = await db
       .insert(chats)
       .values({
@@ -35,6 +51,8 @@ export async function POST(req: Request, res: Response) {
         pdfName: file_name,
         pdfUrl: getS3Url(file_key),
         userId: session.user.id,
+        summary: summary,
+        suggestedQuestions: suggestedQuestions,
       })
       .returning({
         insertedId: chats.id,
