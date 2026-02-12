@@ -13,30 +13,35 @@ export async function ocrPdfPage(pdfPath: string, pageNumber: number, worker?: W
     height: 2000,
   };
 
-  const converter = fromPath(pdfPath, options);
-  const page = await converter(pageNumber);
-
-  let tempWorker: Worker | null = null;
-  const workerToUse = worker || (tempWorker = await createWorker("eng"));
-
   try {
-    if (!page.path) {
-      throw new Error("Failed to generate image from PDF page");
-    }
+    const converter = fromPath(pdfPath, options);
+    const page = await converter(pageNumber);
 
-    const {
-      data: { text },
-    } = await workerToUse.recognize(page.path);
+    let tempWorker: Worker | null = null;
+    const workerToUse = worker || (tempWorker = await createWorker("eng"));
 
-    // Cleanup the generated image
-    if (page.path) {
-      await fs.unlink(page.path).catch((e) => console.error("Failed to delete temp OCR image:", e));
-    }
+    try {
+      if (!page.path) {
+        throw new Error("Failed to generate image from PDF page");
+      }
 
-    return text;
-  } finally {
-    if (tempWorker) {
-      await tempWorker.terminate();
+      const {
+        data: { text },
+      } = await workerToUse.recognize(page.path);
+
+      // Cleanup the generated image
+      if (page.path) {
+        await fs.unlink(page.path).catch((e) => console.error("Failed to delete temp OCR image:", e));
+      }
+
+      return text;
+    } finally {
+      if (tempWorker) {
+        await tempWorker.terminate();
+      }
     }
+  } catch (error) {
+    console.error(`Error in ocrPdfPage for page ${pageNumber}:`, error);
+    return ""; // Return empty string so other pages can still be processed
   }
 }

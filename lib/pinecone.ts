@@ -202,5 +202,5 @@ async function preapareDocument(page: PDFPgae) {
 
 function needsOCR(text: string) {
   if (!text) return true;
-  return text.replace(/\s+/g, "").length < 50;
+  return text.replace(/\s+/g, "").length < 200;
 }

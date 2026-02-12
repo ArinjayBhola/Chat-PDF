@@ -3,6 +3,9 @@ import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { google } from "@ai-sdk/google";
 import { generateObject } from "ai";
 import { z } from "zod";
+import { ocrPdfPage } from "./OCR";
+import { createWorker } from "tesseract.js";
+import pLimit from "p-limit";
 
 // Schema for the structured output we want from Gemini
 const SummarySchema = z.object({
@@ -24,10 +27,32 @@ export async function generateSummaryAndQuestions(file_key: string) {
 
     // 2. Extract Text
     const loader = new PDFLoader(file_name);
-    const docs = await loader.load();
+    const pages = await loader.load();
+
+    // 2.5 Run OCR fallback for image-only pages
+    const limit = pLimit(5);
+    const processedPages = await Promise.all(
+      pages.map((page, i) =>
+        limit(async () => {
+          let text = page.pageContent;
+          if (needsOCR(text)) {
+            console.log(`Summary OCR fallback → page ${i + 1}`);
+            const worker = await createWorker("eng");
+            try {
+              text = await ocrPdfPage(file_name, i + 1, worker);
+            } catch (e) {
+              console.error(`OCR failed on page ${i + 1}`, e);
+            } finally {
+              await worker.terminate();
+            }
+          }
+          return text;
+        }),
+      ),
+    );
     
-    // Concatenate text from all pages, limiting to a reasonable context window (e.g., first 50k chars is usually enough for a summary)
-    let fullText = docs.map((doc) => doc.pageContent).join("\n");
+    // Concatenate text from all pages
+    let fullText = processedPages.join("\n");
     if (fullText.length > 50000) {
         fullText = fullText.substring(0, 50000) + "...(truncated)";
     }
@@ -55,4 +80,9 @@ export async function generateSummaryAndQuestions(file_key: string) {
     // Return nulls so we don't block the whole flow if this fails
     return { summary: null, suggestedQuestions: [] };
   }
+}
+
+function needsOCR(text: string) {
+  if (!text) return true;
+  return text.replace(/\s+/g, "").length < 200;
 }
