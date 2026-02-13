@@ -5,16 +5,18 @@ import { IoMdHome } from "react-icons/io";
 import { cn } from "@/lib/utils";
 import { DrizzleChat } from "@/lib/db/schema";
 import ThemeToggle from "../ThemeToggle";
-import { CollapsedChatItem } from "./ChatItem";
+import FileUpload from "../FileUpload";
+import { RiLoader2Fill } from "react-icons/ri";
 
 type Props = {
   className?: string;
   onToggle: () => void;
   chats: DrizzleChat[];
   chatId: string;
+  isPro: boolean;
 };
 
-const CollapsedSidebar = memo(({ className, onToggle, chats, chatId }: Props) => (
+const CollapsedSidebar = memo(({ className, onToggle, chats, chatId, isPro }: Props) => (
   <div
     className={cn(
       "h-screen w-[64px] bg-slate-900 border-r border-slate-800 shadow-xl flex flex-col items-center py-4 gap-6",
@@ -31,14 +33,25 @@ const CollapsedSidebar = memo(({ className, onToggle, chats, chatId }: Props) =>
       />
     </button>
 
-    <Link href="/">
-      <div className="bg-blue-600 p-3 rounded-lg hover:bg-blue-700 transition">
-        <FaPlus
-          className="text-white"
-          size={16}
-        />
-      </div>
-    </Link>
+    <FileUpload
+      isPro={isPro}
+      chatCount={chats.length}>
+      {({ isUploading }) => (
+        <div className={cn("bg-blue-600 p-3 rounded-lg hover:bg-blue-700 transition cursor-pointer", isUploading && "opacity-50 pointer-events-none")}>
+          {isUploading ? (
+            <RiLoader2Fill
+              className="text-white animate-spin"
+              size={16}
+            />
+          ) : (
+            <FaPlus
+              className="text-white"
+              size={16}
+            />
+          )}
+        </div>
+      )}
+    </FileUpload>
 
     <div className="flex flex-col items-center gap-4 mt-4 flex-1">
       {/* Chat list hidden in collapsed mode as per user request */}

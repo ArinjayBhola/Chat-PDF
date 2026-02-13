@@ -92,6 +92,7 @@ const ChatSidebar = ({ chats, chatId: propChatId, className, isPro }: Props) => 
           onToggle={toggleSidebar}
           chats={chats}
           chatId={chatId}
+          isPro={isPro}
         />
       )}
     </>

@@ -13,9 +13,10 @@ import { RiLoader2Fill } from "react-icons/ri";
 type Props = {
   isPro: boolean;
   chatCount: number;
+  children?: ({ isUploading }: { isUploading: boolean }) => React.ReactNode;
 };
 
-const FileUpload = ({ isPro, chatCount }: Props) => {
+const FileUpload = ({ isPro, chatCount, children }: Props) => {
   const [uploading, setUploading] = useState(false);
   const router = useRouter();
 
@@ -71,6 +72,16 @@ const FileUpload = ({ isPro, chatCount }: Props) => {
 
   // Check upload limit
   const isFreeLimitReached = !isPro && chatCount >= 3;
+  const isUploading = uploading || isPending;
+
+  if (children) {
+    return (
+      <div {...getRootProps()} className="w-full">
+        {!isFreeLimitReached && <input {...getInputProps()} />}
+        {children({ isUploading })}
+      </div>
+    );
+  }
 
   return (
     <div className="w-full">
@@ -84,7 +95,7 @@ const FileUpload = ({ isPro, chatCount }: Props) => {
           }`}>
         {!isFreeLimitReached && <input {...getInputProps()} />}
 
-        {uploading || isPending ? (
+        {isUploading ? (
           <div className="flex flex-col items-center">
             <RiLoader2Fill className="h-10 w-10 text-blue-600 animate-spin" />
             <p className="mt-4 text-sm font-medium text-slate-600">Processing your PDF...</p>

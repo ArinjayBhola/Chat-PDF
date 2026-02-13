@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { chats } from "@/lib/db/schema";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import React from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -24,7 +24,11 @@ const ChatLayout = async ({ children }: Props) => {
     return redirect("/sign-in");
   }
 
-  const _chats = await db.select().from(chats).where(eq(chats.userId, session.user.id));
+  const _chats = await db
+    .select()
+    .from(chats)
+    .where(eq(chats.userId, session.user.id))
+    .orderBy(desc(chats.createdAt));
   const isPro = await checkSubscription();
 
   return (
