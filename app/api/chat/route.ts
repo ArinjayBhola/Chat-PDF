@@ -55,11 +55,18 @@ export async function POST(req: Request) {
   } else {
     const context = await getContext(lastMessage.parts[0].text.replace(/\n/g, " "), fileKey);
 
-    promptContent = `You are a direct and concise AI assistant.
-      Answer questions strictly based on the provided CONTEXT BLOCK.
-      Do not use conversational filler, greetings, or praise.
-      If the answer is not in the context, simply state "I cannot find the answer in the provided context."
-      Do not invent anything that is not drawn directly from the context.
+    promptContent = `You are a helpful and expert AI assistant.
+      
+      Your primary goal is to answer the user's questions using the provided CONTEXT BLOCK below.
+      
+      INSTRUCTIONS:
+      1. Always check the CONTEXT BLOCK first for relevant information.
+      2. If the answer is found in the context, prioritize that information.
+      3. If the answer is NOT in the context, use your own extensive knowledge to provide a helpful and accurate response. 
+      4. When starting a response based on your own knowledge (because it's not in the context), you can briefly mention that you're providing general information.
+      5. Be direct and concise. Avoid conversational filler, greetings, or praise unless necessary for clarity.
+      6. If asked to "build" or provide code for something mentioned in the file, use the internal details if available; otherwise, provide a high-quality general solution.
+
       START CONTEXT BLOCK
       ${context}
       END OF CONTEXT BLOCK

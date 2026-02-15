@@ -12,7 +12,7 @@ export async function getMatchesFromEmbeddings(embeddings: number[], fileKey: st
   try {
     const namespace = convertToAscii(fileKey);
     const queryResult = await index.namespace(namespace).query({
-      topK: 5,
+      topK: 12,
       vector: embeddings,
       includeMetadata: true,
     });
@@ -27,13 +27,13 @@ export async function getContext(query: string, fileKey: string) {
   const queryEmbeddings = await getEmbeddings(query);
   const matches = await getMatchesFromEmbeddings(queryEmbeddings, fileKey);
 
-  const qualifyingDocs = matches.filter((match) => match.score && match.score > 0.7);
+  const qualifyingDocs = matches.filter((match) => match.score && match.score > 0.5);
 
   type Metadata = {
     text: string;
     pageNumber: number;
   };
 
-  const docs = matches.map((match) => (match.metadata as Metadata).text);
-  return docs.join("\n").substring(0, 3000);
+  const docs = qualifyingDocs.map((match) => (match.metadata as Metadata).text);
+  return docs.join("\n").substring(0, 12000);
 }
