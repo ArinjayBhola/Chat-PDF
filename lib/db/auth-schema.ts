@@ -35,3 +35,14 @@ export const accounts = pgTable(
     }),
   }),
 );
+
+export const otps = pgTable("otps", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  email: text("email").notNull(),
+  otp: text("otp").notNull(),
+  type: text("type").notNull(), // 'verification' or 'reset'
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
