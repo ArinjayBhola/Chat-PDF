@@ -89,7 +89,7 @@ export async function POST(req: Request) {
   });
 
   const result = streamText({
-    model: google("gemini-2.5-flash-preview-09-2025"),
+    model: google("gemini-2.5-flash"),
     messages: [prompt as ModelMessage, ...convertToModelMessages(conversationMessages)],
     experimental_transform: smoothStream(),
     async onFinish({ text }) {

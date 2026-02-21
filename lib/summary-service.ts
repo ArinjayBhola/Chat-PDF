@@ -59,7 +59,7 @@ export async function generateSummaryAndQuestions(file_key: string) {
 
     // 3. Generate Summary & Questions using Gemini
     const { object } = await generateObject({
-      model: google("gemini-2.5-flash-preview-09-2025"), // Using the same model as chat
+      model: google("gemini-2.5-flash"), // Using the same model as chat
       schema: SummarySchema,
       prompt: `
         You are an intelligent document assistant. 
