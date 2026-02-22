@@ -6,19 +6,33 @@ import { streamText, convertToModelMessages, ModelMessage, smoothStream, UIMessa
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import Exa from "exa-js";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth-options";
 
 export const runtime = "nodejs";
 
 const exa = new Exa(process.env.EXA_API_KEY as string);
 
 export async function POST(req: Request) {
+  const session = await getServerSession(authOptions);
   const { messages, chatId, body } = await req.json();
   const { webSearch } = body;
   const _chats = await db.select().from(chats).where(eq(chats.id, chatId));
   if (_chats.length != 1) {
     return NextResponse.json({ error: "chat not found" }, { status: 404 });
   }
-  const fileKey = _chats[0].fileKey;
+
+  const chat = _chats[0];
+
+  // Permission Check
+  const isOwner = session?.user?.id === chat.userId;
+  const isCollaborator = chat.isShared === "true" && chat.sharePermission === "edit" && !!session?.user?.id;
+
+  if (!isOwner && !isCollaborator) {
+    return NextResponse.json({ error: "Unauthorized to chat" }, { status: 403 });
+  }
+
+  const fileKey = chat.fileKey;
   const lastMessage = messages[messages.length - 1];
 
   await db.insert(_messages).values({
@@ -27,6 +41,8 @@ export async function POST(req: Request) {
     content: lastMessage.parts[0].text,
     createdAt: new Date(),
     role: "user",
+    senderId: session?.user?.id,
+    senderName: session?.user?.name || "Collaborator",
   });
 
   let promptContent = "";

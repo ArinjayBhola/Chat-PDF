@@ -20,14 +20,21 @@ const MessageList = ({ messages }: Props) => {
           .join("");
 
         const isUser = message.role === "user";
+        // @ts-ignore - senderName is added by our backend
+        const senderName = message.senderName;
 
         return (
           <div
             key={message.id}
-            className={cn("flex w-full animate-in fade-in slide-in-from-bottom-2 duration-300", {
-              "justify-end": isUser,
-              "justify-start": !isUser,
+            className={cn("flex flex-col w-full animate-in fade-in slide-in-from-bottom-2 duration-300", {
+              "items-end": isUser,
+              "items-start": !isUser,
             })}>
+            {isUser && senderName && (
+              <span className="text-[10px] text-slate-500 dark:text-slate-400 mb-1 mr-11">
+                {senderName}
+              </span>
+            )}
             <div
               className={cn("flex gap-3 max-w-[85%] lg:max-w-[75%]", {
                 "flex-row-reverse": isUser,

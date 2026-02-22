@@ -10,7 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { dbMessageToUIMessage } from "@/lib/message-mapper";
 import { cn } from "@/lib/utils";
-import { FiLoader, FiGlobe } from "react-icons/fi";
+import { FiGlobe } from "react-icons/fi";
 import { FaArrowUp } from "react-icons/fa";
 import { LuLoaderCircle } from "react-icons/lu";
 import { IoSparklesOutline } from "react-icons/io5";
@@ -19,9 +19,32 @@ type Props = {
   chatId: string;
   summary?: string;
   suggestedQuestions?: string[];
+  isOwner?: boolean;
+  isShared?: boolean;
+  sharePermission?: "view" | "edit";
 };
 
-export default function ChatComponent({ chatId, summary, suggestedQuestions }: Props) {
+export default function ChatComponent({ 
+  chatId, 
+  summary, 
+  suggestedQuestions,
+  isOwner,
+  isShared,
+  sharePermission,
+}: Props) {
+  const { data: sessionData } = useQuery({
+    queryKey: ["session"],
+    queryFn: async () => {
+      const res = await axios.get("/api/auth/session");
+      return res.data;
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false,
+  });
+
+  const canChat = isOwner || (isShared && sharePermission === "edit" && sessionData?.user);
+  const showLoginPrompt = isShared && !sessionData?.user && sharePermission === "edit";
+
   const [input, setInput] = useState("");
   const [webSearch, setWebSearch] = useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -34,7 +57,8 @@ export default function ChatComponent({ chatId, summary, suggestedQuestions }: P
       const res = await axios.post("/api/get-messages", { chatId });
       return res.data;
     },
-    staleTime: 0,
+    staleTime: 5 * 60 * 1000, // 5 minutes cache
+    refetchOnWindowFocus: false,
   });
 
   const { messages, setMessages, sendMessage, status } = useChat({
@@ -186,6 +210,24 @@ export default function ChatComponent({ chatId, summary, suggestedQuestions }: P
       {/* Input */}
       <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
         <div className="max-w-4xl mx-auto w-full space-y-2">
+          {showLoginPrompt && (
+            <div className="p-3 mb-2 rounded-lg bg-orange-50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-900/20 flex items-center justify-between">
+              <p className="text-xs text-orange-800 dark:text-orange-300">
+                You need to sign in to send messages to this shared chat.
+              </p>
+              <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => window.location.href = `/sign-in?callbackUrl=${window.location.pathname}`}>
+                Sign In
+              </Button>
+            </div>
+          )}
+          {!canChat && !showLoginPrompt && isShared && (
+             <div className="p-2 mb-2 rounded-md bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/20">
+                <p className="text-xs text-blue-800 dark:text-blue-300 text-center uppercase tracking-wider font-semibold">
+                  Read-Only Mode
+                </p>
+             </div>
+          )}
+
           {/* Mode indicator */}
           {webSearch && (
             <div className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400">
@@ -218,8 +260,8 @@ export default function ChatComponent({ chatId, summary, suggestedQuestions }: P
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              disabled={isBusy}
-              placeholder={webSearch ? "Ask using live web data…" : "Ask a question about your PDF…"}
+              disabled={isBusy || !canChat}
+              placeholder={!canChat ? "Chatting is disabled..." : (webSearch ? "Ask using live web data…" : "Ask a question about your PDF…")}
               className="flex-1 bg-transparent border-none focus-visible:ring-0 text-sm"
             />
 

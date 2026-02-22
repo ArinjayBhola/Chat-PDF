@@ -1,0 +1,186 @@
+"use client";
+
+import React, { useState } from "react";
+import PDFViewer from "@/components/PDFViewer";
+import ChatComponent from "@/components/ChatComponent";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ResizableSplit from "@/components/ResizableSplit";
+import { DrizzleChat } from "@/lib/db/schema";
+import { Session } from "next-auth";
+import { Button } from "@/components/ui/button";
+import { LuFileBox, LuFileX, LuShare2 } from "react-icons/lu";
+import { ShareDialog } from "./ShareDialog";
+import { cn } from "@/lib/utils";
+
+type Props = {
+  chat: DrizzleChat;
+  isOwner: boolean;
+  session: Session | null;
+};
+
+export default function ChatLayout({ chat, isOwner, session }: Props) {
+  const [hideDocument, setHideDocument] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
+  const [activeMobileTab, setActiveMobileTab] = useState<"pdf" | "chat">("chat");
+
+  const shareData = {
+    isShared: chat.isShared === "true",
+    sharePermission: (chat.sharePermission as "view" | "edit") || "view",
+    allowPublicView: chat.allowPublicView === "true",
+    shareToken: chat.shareToken || undefined,
+  };
+
+  const headerActions = (
+    <div className="flex items-center gap-3">
+      {isOwner && (
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={() => setIsShareOpen(true)}
+          className="flex items-center gap-2 h-9 px-4 border-slate-200 dark:border-slate-700 hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 bg-white dark:bg-slate-900 shadow-sm"
+        >
+          <LuShare2 className="w-4 h-4" />
+          <span className="text-xs font-semibold">Share</span>
+        </Button>
+      )}
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => setHideDocument(!hideDocument)}
+        className={cn(
+            "flex items-center gap-2 h-9 px-4 border-slate-200 dark:border-slate-700 transition-all duration-200 shadow-sm bg-white dark:bg-slate-900",
+            hideDocument 
+                ? "text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-900/50 bg-blue-50/50 dark:bg-blue-900/20" 
+                : "text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400"
+        )}
+        title={hideDocument ? "Show Document" : "Hide Document"}
+      >
+        {hideDocument ? <LuFileBox className="w-4 h-4" /> : <LuFileX className="w-4 h-4" />}
+        <span className="text-xs font-semibold">{hideDocument ? "Show PDF" : "Hide PDF"}</span>
+      </Button>
+    </div>
+  );
+
+  return (
+    <div className="flex flex-col w-full h-full overflow-hidden bg-[#fafafa] dark:bg-slate-950">
+      {/* Mobile Layout */}
+      <div className="lg:hidden flex-1 overflow-hidden flex flex-col h-full">
+        <div className="flex-1 flex flex-col h-full">
+          <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-30 flex justify-between items-center shadow-sm text-slate-800 dark:text-slate-100">
+            <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl w-40 h-9">
+              <button 
+                onClick={() => setActiveMobileTab("pdf")}
+                className={cn(
+                    "flex-1 rounded-lg text-xs font-semibold py-1.5 transition-all text-slate-700 dark:text-slate-200",
+                    activeMobileTab === "pdf" && "bg-white dark:bg-slate-700 shadow-sm"
+                )}
+              >
+                PDF
+              </button>
+              <button 
+                onClick={() => setActiveMobileTab("chat")}
+                className={cn(
+                    "flex-1 rounded-lg text-xs font-semibold py-1.5 transition-all text-slate-700 dark:text-slate-200",
+                    activeMobileTab === "chat" && "bg-white dark:bg-slate-700 shadow-sm"
+                )}
+              >
+                Chat
+              </button>
+            </div>
+            {headerActions}
+          </div>
+          
+          <div className="flex-1 relative overflow-hidden">
+            <div className={cn("absolute inset-0 transition-all duration-300", activeMobileTab === "pdf" ? "opacity-100 translate-x-0 z-10" : "opacity-0 -translate-x-full -z-10 pointer-events-none")}>
+              <div className="w-full h-full p-2 bg-white dark:bg-slate-950">
+                <PDFViewer pdf_url={chat.pdfUrl || ""} />
+              </div>
+            </div>
+            <div className={cn("absolute inset-0 transition-all duration-300", activeMobileTab === "chat" ? "opacity-100 translate-x-0 z-10" : "opacity-0 translate-x-full -z-10 pointer-events-none")}>
+              <ChatComponent
+                chatId={chat.id}
+                summary={chat.summary || undefined}
+                suggestedQuestions={chat.suggestedQuestions || []}
+                isOwner={isOwner}
+                isShared={chat.isShared === "true"}
+                sharePermission={chat.sharePermission as "view" | "edit"}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop Layout */}
+      <div className="hidden lg:flex w-full h-full overflow-hidden flex-col">
+        {/* Header with actions */}
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md flex justify-between items-center z-20 shadow-sm transition-all duration-300">
+            <div className="flex items-center gap-3 min-w-0">
+                <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg shrink-0">
+                    <LuFileBox className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div className="flex flex-col min-w-0">
+                    <h2 className="text-[13px] sm:text-[14px] font-bold text-slate-900 dark:text-white truncate tracking-tight leading-tight">
+                        {chat.pdfName}
+                    </h2>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                        <span className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]" />
+                        <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider truncate">Active Workspace</span>
+                    </div>
+                </div>
+            </div>
+            {headerActions}
+        </div>
+
+        <div className="flex-1 overflow-hidden pointer-events-auto">
+            <div className={cn("w-full h-full", hideDocument ? "block" : "hidden")}>
+                <div className="w-full h-full max-w-5xl mx-auto bg-white dark:bg-slate-900 border-x border-slate-100 dark:border-slate-800 shadow-xl overflow-hidden ring-1 ring-black/5 dark:ring-white/5">
+                    <ChatComponent
+                        chatId={chat.id}
+                        summary={chat.summary || undefined}
+                        suggestedQuestions={chat.suggestedQuestions || []}
+                        isOwner={isOwner}
+                        isShared={chat.isShared === "true"}
+                        sharePermission={chat.sharePermission as "view" | "edit"}
+                    />
+                </div>
+            </div>
+            
+            <div className={cn("w-full h-full", hideDocument ? "hidden" : "block")}>
+                <ResizableSplit
+                leftPanel={
+                  <div className="w-full h-full overflow-hidden border-r border-slate-200 dark:border-slate-700 bg-[#f8f9fa] dark:bg-slate-950">
+                    <PDFViewer pdf_url={chat.pdfUrl || ""} />
+                  </div>
+                }
+                rightPanel={
+                  <div className="w-full h-full bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-700 shadow-2xl z-10 flex flex-col">
+                    <ChatComponent
+                      chatId={chat.id}
+                      summary={chat.summary || undefined}
+                      suggestedQuestions={chat.suggestedQuestions || []}
+                      isOwner={isOwner}
+                      isShared={chat.isShared === "true"}
+                      sharePermission={chat.sharePermission as "view" | "edit"}
+                    />
+                  </div>
+                }
+                defaultLeftWidth={60}
+                minLeftWidth={30}
+                minRightWidth={30}
+                storageKey={`chat-split-${chat.id}`}
+              />
+            </div>
+        </div>
+      </div>
+
+      {isOwner && (
+        <ShareDialog 
+          open={isShareOpen}
+          onOpenChange={setIsShareOpen}
+          chatId={chat.id}
+          initialData={shareData}
+        />
+      )}
+    </div>
+  );
+}

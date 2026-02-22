@@ -14,6 +14,10 @@ export const chats = pgTable("chats", {
   fileKey: text("file_key").notNull(),
   summary: text("summary"),
   suggestedQuestions: text("suggested_questions").array(),
+  isShared: text("is_shared").notNull().default("false"), // Using text for boolean-like compatibility if needed, or boolean if preferred.
+  shareToken: text("share_token").unique(),
+  sharePermission: text("share_permission").notNull().default("view"), // 'view' | 'edit'
+  allowPublicView: text("allow_public_view").notNull().default("false"),
 });
 
 export type DrizzleChat = typeof chats.$inferSelect;
@@ -26,6 +30,8 @@ export const messages = pgTable("messages", {
   content: text("content").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   role: userSystemEnum("role").notNull(),
+  senderId: text("sender_id"),
+  senderName: text("sender_name"),
 });
 
 export const userSubscriptions = pgTable("user_subscriptions", {
