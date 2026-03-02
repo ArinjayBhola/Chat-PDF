@@ -33,6 +33,17 @@ const FileUpload = ({ isPro, chatCount, children }: Props) => {
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
       "application/pdf": [".pdf"],
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation": [".pptx"],
+      "text/plain": [".txt"],
+      "text/markdown": [".md"],
+      "text/csv": [".csv"],
+      "application/json": [".json"],
+      "image/png": [".png"],
+      "image/jpeg": [".jpg", ".jpeg"],
+      "image/gif": [".gif"],
+      "image/webp": [".webp"],
     },
     maxFiles: 1,
     onDrop: async (acceptedFiles) => {
@@ -98,7 +109,7 @@ const FileUpload = ({ isPro, chatCount, children }: Props) => {
         {isUploading ? (
           <div className="flex flex-col items-center">
             <RiLoader2Fill className="h-10 w-10 text-blue-600 animate-spin" />
-            <p className="mt-4 text-sm font-medium text-slate-600">Processing your PDF...</p>
+            <p className="mt-4 text-sm font-medium text-slate-600">Processing your file...</p>
           </div>
         ) : isFreeLimitReached ? (
           <div className="flex flex-col items-center">
@@ -107,7 +118,7 @@ const FileUpload = ({ isPro, chatCount, children }: Props) => {
             </div>
             <p className="mt-4 text-sm font-semibold text-slate-900">Free limit reached</p>
             <p className="mt-1 text-xs text-slate-500 max-w-[200px] text-center mb-4">
-              You can only upload 3 PDFs on the free plan.
+              You can only upload 3 files on the free plan.
             </p>
 
             <p className="text-sm font-medium text-blue-600 hover:text-blue-500 hover:underline">
@@ -119,8 +130,8 @@ const FileUpload = ({ isPro, chatCount, children }: Props) => {
             <div className="rounded-full bg-white p-4 shadow-md border border-slate-200 transition-transform group-hover:scale-110 group-hover:shadow-lg">
               <FaInbox className="h-8 w-8 text-blue-600" />
             </div>
-            <p className="mt-4 text-sm font-semibold text-slate-900">Drop PDF here</p>
-            <p className="mt-1 text-xs text-slate-500">PDF up to 10MB</p>
+            <p className="mt-4 text-sm font-semibold text-slate-900">Drop file here</p>
+            <p className="mt-1 text-xs text-slate-500">PDF, DOCX, TXT, images & more (up to 10MB)</p>
           </div>
         )}
       </div>

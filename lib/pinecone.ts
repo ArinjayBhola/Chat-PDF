@@ -1,61 +1,23 @@
 import { Pinecone, PineconeRecord, RecordMetadata } from "@pinecone-database/pinecone";
 import { downloadFromS3 } from "./s3-server";
-import { createWorker } from "tesseract.js";
-import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { RecursiveCharacterTextSplitter, Document } from "@pinecone-database/doc-splitter";
 import { getEmbeddings } from "./embeddings";
 import md5 from "md5";
 import { convertToAscii } from "./utils";
-import { ocrPdfPage } from "./OCR";
-import pLimit from "p-limit";
-
-type PDFPgae = {
-  pageContent: string;
-  metadata: {
-    loc: { pageNumber: number };
-  };
-};
+import { extractText, ExtractedPage } from "./text-extractor";
 
 export async function loadS3IntoPinecode(file_key: string) {
-  // 1. Obtain the pdf from S3 using the file_key => download and read from pdf
+  // 1. Download file from S3
   const file_name = await downloadFromS3(file_key);
   if (!file_name) {
     throw new Error("Failed to download file from S3");
   }
-  const loader = new PDFLoader(file_name);
-  const pages = (await loader.load()) as PDFPgae[];
 
-  // 2. Process pages in parallel
-  const limit = pLimit(10); // Process up to 10 pages concurrently
+  // 2. Extract text using unified extractor (handles PDF, DOCX, XLSX, images, etc.)
+  const pages = await extractText(file_name);
 
-  const processedPages = await Promise.all(
-    pages.map((page, i) =>
-      limit(async () => {
-        let text = page.pageContent;
-
-        // CRITICAL FIX: OCR fallback inside parallel execution
-        if (needsOCR(text)) {
-          console.log(`OCR fallback → page ${i + 1}`);
-          // Create a new worker for this specific task to avoid race conditions
-          const worker = await createWorker("eng");
-          try {
-            text = await ocrPdfPage(file_name, i + 1, worker);
-          } finally {
-            // Always terminate the worker after use to prevent memory leaks in parallel execution
-            await worker.terminate();
-          }
-        }
-
-        return {
-          ...page,
-          pageContent: text,
-        };
-      }),
-    ),
-  );
-
-  // NOW split
-  const documents = await Promise.all(processedPages.map(preapareDocument));
+  // 3. Split into documents
+  const documents = await Promise.all(pages.map(prepareDocument));
 
   // 3. Vectorize and embed the documents
   const allDocuments = documents.flat();
@@ -182,7 +144,7 @@ export const truncateStringByBytes = (str: string, bytes: number) => {
   return new TextDecoder("utf-8").decode(encoder.encode(str).slice(0, bytes));
 };
 
-async function preapareDocument(page: PDFPgae) {
+async function prepareDocument(page: ExtractedPage) {
   const { metadata } = page;
   const pageContent = page.pageContent.replace(/\n/g, " ").replace(/\s+/g, " ").trim();
 
@@ -198,9 +160,4 @@ async function preapareDocument(page: PDFPgae) {
     }),
   ]);
   return docs;
-}
-
-function needsOCR(text: string) {
-  if (!text) return true;
-  return text.replace(/\s+/g, "").length < 200;
 }

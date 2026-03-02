@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import PDFViewer from "@/components/PDFViewer";
+import FileViewer from "@/components/FileViewer";
 import ChatComponent from "@/components/ChatComponent";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ResizableSplit from "@/components/ResizableSplit";
@@ -56,7 +56,7 @@ export default function ChatLayout({ chat, isOwner, session }: Props) {
         title={hideDocument ? "Show Document" : "Hide Document"}
       >
         {hideDocument ? <LuFileBox className="w-4 h-4" /> : <LuFileX className="w-4 h-4" />}
-        <span className="text-xs font-semibold">{hideDocument ? "Show PDF" : "Hide PDF"}</span>
+        <span className="text-xs font-semibold">{hideDocument ? "Show File" : "Hide File"}</span>
       </Button>
     </div>
   );
@@ -68,14 +68,14 @@ export default function ChatLayout({ chat, isOwner, session }: Props) {
         <div className="flex-1 flex flex-col h-full">
           <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-30 flex justify-between items-center shadow-sm text-slate-800 dark:text-slate-100">
             <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl w-40 h-9">
-              <button 
+              <button
                 onClick={() => setActiveMobileTab("pdf")}
                 className={cn(
                     "flex-1 rounded-lg text-xs font-semibold py-1.5 transition-all text-slate-700 dark:text-slate-200",
                     activeMobileTab === "pdf" && "bg-white dark:bg-slate-700 shadow-sm"
                 )}
               >
-                PDF
+                File
               </button>
               <button 
                 onClick={() => setActiveMobileTab("chat")}
@@ -93,7 +93,7 @@ export default function ChatLayout({ chat, isOwner, session }: Props) {
           <div className="flex-1 relative overflow-hidden">
             <div className={cn("absolute inset-0 transition-all duration-300", activeMobileTab === "pdf" ? "opacity-100 translate-x-0 z-10" : "opacity-0 -translate-x-full -z-10 pointer-events-none")}>
               <div className="w-full h-full p-2 bg-white dark:bg-slate-950">
-                <PDFViewer pdf_url={chat.pdfUrl || ""} />
+                <FileViewer file_url={chat.pdfUrl || ""} file_name={chat.pdfName} />
               </div>
             </div>
             <div className={cn("absolute inset-0 transition-all duration-300", activeMobileTab === "chat" ? "opacity-100 translate-x-0 z-10" : "opacity-0 translate-x-full -z-10 pointer-events-none")}>
@@ -149,7 +149,7 @@ export default function ChatLayout({ chat, isOwner, session }: Props) {
                 <ResizableSplit
                 leftPanel={
                   <div className="w-full h-full overflow-hidden border-r border-slate-200 dark:border-slate-700 bg-[#f8f9fa] dark:bg-slate-950">
-                    <PDFViewer pdf_url={chat.pdfUrl || ""} />
+                    <FileViewer file_url={chat.pdfUrl || ""} file_name={chat.pdfName} />
                   </div>
                 }
                 rightPanel={

@@ -21,7 +21,8 @@ export async function downloadFromS3(file_key: string) {
     };
     const object = await s3.getObject(params).promise();
     const tmpDir = os.tmpdir();
-    const file_name = path.join(tmpDir, `pdf-${Date.now()}.pdf`);
+    const ext = path.extname(file_key) || ".pdf";
+    const file_name = path.join(tmpDir, `file-${Date.now()}${ext}`);
 
     // Ensure the directory exists
     if (!fs.existsSync(tmpDir)) {

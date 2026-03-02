@@ -1,8 +1,53 @@
 import React, { memo } from "react";
 import Link from "next/link";
-import { FiMessageSquare, FiTrash } from "react-icons/fi";
+import { FiFileText, FiImage, FiTrash } from "react-icons/fi";
+import { LuFileSpreadsheet, LuPresentation, LuFileText } from "react-icons/lu";
 import { cn } from "@/lib/utils";
 import { DrizzleChat } from "@/lib/db/schema";
+
+type FileCategory = "pdf" | "document" | "spreadsheet" | "presentation" | "text" | "image";
+
+const EXT_MAP: Record<string, FileCategory> = {
+  ".pdf": "pdf",
+  ".docx": "document",
+  ".doc": "document",
+  ".xlsx": "spreadsheet",
+  ".xls": "spreadsheet",
+  ".csv": "spreadsheet",
+  ".pptx": "presentation",
+  ".ppt": "presentation",
+  ".txt": "text",
+  ".md": "text",
+  ".json": "text",
+  ".png": "image",
+  ".jpg": "image",
+  ".jpeg": "image",
+  ".gif": "image",
+  ".webp": "image",
+};
+
+function getCategory(name: string): FileCategory {
+  const ext = name.slice(name.lastIndexOf(".")).toLowerCase();
+  return EXT_MAP[ext] || "text";
+}
+
+function FileIcon({ name, className }: { name: string; className?: string }) {
+  const cat = getCategory(name);
+  switch (cat) {
+    case "image":
+      return <FiImage className={cn("text-purple-400", className)} />;
+    case "spreadsheet":
+      return <LuFileSpreadsheet className={cn("text-green-400", className)} />;
+    case "presentation":
+      return <LuPresentation className={cn("text-orange-400", className)} />;
+    case "document":
+      return <LuFileText className={cn("text-blue-400", className)} />;
+    case "pdf":
+      return <FiFileText className={cn("text-red-400", className)} />;
+    default:
+      return <FiFileText className={cn("text-slate-400", className)} />;
+  }
+}
 
 export const ChatItem = memo(
   ({
@@ -23,7 +68,7 @@ export const ChatItem = memo(
             "bg-slate-800 text-white shadow-sm ring-1 ring-slate-700": isActive,
             "text-slate-400 hover:text-white hover:bg-slate-800/50": !isActive,
           })}>
-          <FiMessageSquare className="mr-3 w-4 h-4 flex-shrink-0" />
+          <FileIcon name={chat.pdfName} className="mr-3 w-4 h-4 flex-shrink-0" />
           <p className="w-full overflow-hidden text-sm truncate whitespace-nowrap font-medium tracking-wide pr-6">
             {chat.pdfName}
           </p>
@@ -55,7 +100,7 @@ export const CollapsedChatItem = memo(({ chat, isActive }: { chat: DrizzleChat; 
         "p-3 rounded-lg transition-colors",
         isActive ? "bg-slate-800 text-white" : "text-slate-400 hover:bg-slate-800/50 hover:text-white",
       )}>
-      <FiMessageSquare size={16} />
+      <FileIcon name={chat.pdfName} className="w-4 h-4" />
     </div>
   </Link>
 ));
