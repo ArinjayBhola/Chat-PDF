@@ -17,17 +17,13 @@ import { IoSparklesOutline } from "react-icons/io5";
 
 type Props = {
   chatId: string;
-  summary?: string;
-  suggestedQuestions?: string[];
   isOwner?: boolean;
   isShared?: boolean;
   sharePermission?: "view" | "edit";
 };
 
-export default function ChatComponent({ 
-  chatId, 
-  summary, 
-  suggestedQuestions,
+export default function ChatComponent({
+  chatId,
   isOwner,
   isShared,
   sharePermission,
@@ -48,7 +44,6 @@ export default function ChatComponent({
   const [input, setInput] = useState("");
   const [webSearch, setWebSearch] = useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
-  const [showSummary, setShowSummary] = useState(true);
 
   /* Load messages */
   const { data } = useQuery({
@@ -80,7 +75,7 @@ export default function ChatComponent({
       top: containerRef.current.scrollHeight,
       behavior: "smooth",
     });
-  }, [messages, status, showSummary]);
+  }, [messages, status]);
 
   /* Sync DB messages */
   useEffect(() => {
@@ -97,19 +92,6 @@ export default function ChatComponent({
     const question = input;
     setInput("");
 
-    await sendMessage(
-      {
-        role: "user",
-        parts: [{ type: "text", text: question }],
-      },
-      {
-        body: { webSearch },
-      },
-    );
-  };
-
-  const handleQuestionClick = async (question: string) => {
-    setInput(""); // Clear input in case something was typed
     await sendMessage(
       {
         role: "user",
@@ -143,52 +125,6 @@ export default function ChatComponent({
                 <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
                   Start the conversation by asking a question about your PDF.
                 </p>
-              </div>
-            </div>
-          )}
-
-          {/* Summary Section */}
-          {summary && (
-            <div className="mb-6 mx-2 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-700">
-              <div 
-                 className="flex justify-between items-center cursor-pointer mb-2"
-                 onClick={() => setShowSummary(!showSummary)}
-              >
-                <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">
-                  Document Summary
-                </h3>
-                <span className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
-                  {showSummary ? "Hide" : "Show"}
-                </span>
-              </div>
-              {showSummary && (
-                <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                  {summary}
-                </p>
-              )}
-            </div>
-          )}
-
-          {/* Empty State with Suggested Questions */}
-          {messages.length === 0 && suggestedQuestions && suggestedQuestions.length > 0 && (
-            <div className="mx-2 mb-8">
-              <p className="text-sm text-slate-500 mb-3 font-medium">Suggested Questions:</p>
-              <div className="flex flex-col gap-2">
-                {suggestedQuestions.map((q, i) => (
-                  <button
-                    key={i}
-                    onClick={() => handleQuestionClick(q)}
-                    disabled={isBusy}
-                    className="w-full text-left p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-blue-400 dark:hover:border-blue-500 transition-all text-sm text-slate-700 dark:text-slate-300 group"
-                  >
-                    <span className="flex items-center gap-2">
-                      <span className="bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 w-5 h-5 flex items-center justify-center rounded-full text-xs font-bold shrink-0">
-                        {i + 1}
-                      </span>
-                      {q}
-                    </span>
-                  </button>
-                ))}
               </div>
             </div>
           )}

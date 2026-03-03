@@ -99,8 +99,6 @@ export default function ChatLayout({ chat, isOwner, session }: Props) {
             <div className={cn("absolute inset-0 transition-all duration-300", activeMobileTab === "chat" ? "opacity-100 translate-x-0 z-10" : "opacity-0 translate-x-full -z-10 pointer-events-none")}>
               <ChatComponent
                 chatId={chat.id}
-                summary={chat.summary || undefined}
-                suggestedQuestions={chat.suggestedQuestions || []}
                 isOwner={isOwner}
                 isShared={chat.isShared === "true"}
                 sharePermission={chat.sharePermission as "view" | "edit"}
@@ -136,8 +134,6 @@ export default function ChatLayout({ chat, isOwner, session }: Props) {
                 <div className="w-full h-full max-w-5xl mx-auto bg-white dark:bg-slate-900 border-x border-slate-100 dark:border-slate-800 shadow-xl overflow-hidden ring-1 ring-black/5 dark:ring-white/5">
                     <ChatComponent
                         chatId={chat.id}
-                        summary={chat.summary || undefined}
-                        suggestedQuestions={chat.suggestedQuestions || []}
                         isOwner={isOwner}
                         isShared={chat.isShared === "true"}
                         sharePermission={chat.sharePermission as "view" | "edit"}
@@ -156,8 +152,6 @@ export default function ChatLayout({ chat, isOwner, session }: Props) {
                   <div className="w-full h-full bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-700 shadow-2xl z-10 flex flex-col">
                     <ChatComponent
                       chatId={chat.id}
-                      summary={chat.summary || undefined}
-                      suggestedQuestions={chat.suggestedQuestions || []}
                       isOwner={isOwner}
                       isShared={chat.isShared === "true"}
                       sharePermission={chat.sharePermission as "view" | "edit"}

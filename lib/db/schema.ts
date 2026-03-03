@@ -12,8 +12,6 @@ export const chats = pgTable("chats", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   userId: text("user_id").notNull(),
   fileKey: text("file_key").notNull(),
-  summary: text("summary"),
-  suggestedQuestions: text("suggested_questions").array(),
   isShared: text("is_shared").notNull().default("false"), // Using text for boolean-like compatibility if needed, or boolean if preferred.
   shareToken: text("share_token").unique(),
   sharePermission: text("share_permission").notNull().default("view"), // 'view' | 'edit'
