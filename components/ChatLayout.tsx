@@ -3,14 +3,14 @@
 import React, { useState } from "react";
 import FileViewer from "@/components/FileViewer";
 import ChatComponent from "@/components/ChatComponent";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ResizableSplit from "@/components/ResizableSplit";
 import { DrizzleChat } from "@/lib/db/schema";
 import { Session } from "next-auth";
 import { Button } from "@/components/ui/button";
-import { LuFileBox, LuFileX, LuShare2 } from "react-icons/lu";
 import { ShareDialog } from "./ShareDialog";
 import { cn } from "@/lib/utils";
+import { useViewer } from "./providers/ViewerContext";
+import { LuFileBox, LuFileX, LuShare2, LuRotateCcw } from "react-icons/lu";
 
 type Props = {
   chat: DrizzleChat;
@@ -30,17 +30,30 @@ export default function ChatLayout({ chat, isOwner, session }: Props) {
     shareToken: chat.shareToken || undefined,
   };
 
+  const { refreshViewer, refreshKeys } = useViewer();
+  const currentRefreshKey = refreshKeys[chat.id] || 0;
+
   const headerActions = (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-2 sm:gap-3">
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => refreshViewer(chat.id)}
+        className="flex items-center gap-2 h-9 px-3 sm:px-4 border-slate-200 dark:border-slate-700 hover:border-primary hover:text-primary transition-all duration-200 bg-white dark:bg-slate-900 shadow-sm"
+        title="Reload File"
+      >
+        <LuRotateCcw className="w-4 h-4" />
+        <span className="hidden sm:inline text-xs font-semibold">Reload</span>
+      </Button>
       {isOwner && (
         <Button 
           variant="outline" 
           size="sm" 
           onClick={() => setIsShareOpen(true)}
-          className="flex items-center gap-2 h-9 px-4 border-slate-200 dark:border-slate-700 hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 bg-white dark:bg-slate-900 shadow-sm"
+          className="flex items-center gap-2 h-9 px-3 sm:px-4 border-slate-200 dark:border-slate-700 hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 bg-white dark:bg-slate-900 shadow-sm"
         >
           <LuShare2 className="w-4 h-4" />
-          <span className="text-xs font-semibold">Share</span>
+          <span className="hidden sm:inline text-xs font-semibold">Share</span>
         </Button>
       )}
       <Button
@@ -48,7 +61,7 @@ export default function ChatLayout({ chat, isOwner, session }: Props) {
         size="sm"
         onClick={() => setHideDocument(!hideDocument)}
         className={cn(
-            "flex items-center gap-2 h-9 px-4 border-slate-200 dark:border-slate-700 transition-all duration-200 shadow-sm bg-white dark:bg-slate-900",
+            "flex items-center gap-2 h-9 px-3 sm:px-4 border-slate-200 dark:border-slate-700 transition-all duration-200 shadow-sm bg-white dark:bg-slate-900",
             hideDocument 
                 ? "text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-900/50 bg-blue-50/50 dark:bg-blue-900/20" 
                 : "text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400"
@@ -56,7 +69,7 @@ export default function ChatLayout({ chat, isOwner, session }: Props) {
         title={hideDocument ? "Show Document" : "Hide Document"}
       >
         {hideDocument ? <LuFileBox className="w-4 h-4" /> : <LuFileX className="w-4 h-4" />}
-        <span className="text-xs font-semibold">{hideDocument ? "Show File" : "Hide File"}</span>
+        <span className="hidden sm:inline text-xs font-semibold">{hideDocument ? "Show File" : "Hide File"}</span>
       </Button>
     </div>
   );
@@ -93,7 +106,11 @@ export default function ChatLayout({ chat, isOwner, session }: Props) {
           <div className="flex-1 relative overflow-hidden">
             <div className={cn("absolute inset-0 transition-all duration-300", activeMobileTab === "pdf" ? "opacity-100 translate-x-0 z-10" : "opacity-0 -translate-x-full -z-10 pointer-events-none")}>
               <div className="w-full h-full p-2 bg-white dark:bg-slate-950">
-                <FileViewer file_url={chat.pdfUrl || ""} file_name={chat.pdfName} />
+                <FileViewer 
+                  file_url={chat.pdfUrl || ""} 
+                  file_name={chat.pdfName} 
+                  refreshKey={currentRefreshKey}
+                />
               </div>
             </div>
             <div className={cn("absolute inset-0 transition-all duration-300", activeMobileTab === "chat" ? "opacity-100 translate-x-0 z-10" : "opacity-0 translate-x-full -z-10 pointer-events-none")}>
@@ -145,7 +162,11 @@ export default function ChatLayout({ chat, isOwner, session }: Props) {
                 <ResizableSplit
                 leftPanel={
                   <div className="w-full h-full overflow-hidden border-r border-slate-200 dark:border-slate-700 bg-[#f8f9fa] dark:bg-slate-950">
-                    <FileViewer file_url={chat.pdfUrl || ""} file_name={chat.pdfName} />
+                    <FileViewer 
+                      file_url={chat.pdfUrl || ""} 
+                      file_name={chat.pdfName} 
+                      refreshKey={currentRefreshKey}
+                    />
                   </div>
                 }
                 rightPanel={

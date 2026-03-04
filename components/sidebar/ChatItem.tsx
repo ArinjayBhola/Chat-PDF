@@ -1,9 +1,12 @@
 import React, { memo } from "react";
 import Link from "next/link";
-import { FiFileText, FiImage, FiTrash } from "react-icons/fi";
+import { useRouter } from "next/navigation";
+import { FiFileText, FiImage, FiTrash, FiEdit2 } from "react-icons/fi";
 import { LuFileSpreadsheet, LuPresentation, LuFileText } from "react-icons/lu";
 import { cn } from "@/lib/utils";
 import { DrizzleChat } from "@/lib/db/schema";
+import axios from "axios";
+import { toast } from "react-hot-toast";
 
 type FileCategory = "pdf" | "document" | "spreadsheet" | "presentation" | "text" | "image";
 
@@ -58,36 +61,106 @@ export const ChatItem = memo(
     chat: DrizzleChat;
     isActive: boolean;
     onDelete: (e: React.MouseEvent, chatId: string, chatName: string) => void;
-  }) => (
-    <div className="relative group">
-      <Link
-        href={`/chat/${chat.id}`}
-        className="block">
-        <div
-          className={cn("rounded-lg p-3 flex items-center transition-all duration-200", {
-            "bg-primary/10 text-primary shadow-sm font-semibold": isActive,
-            "text-muted-foreground hover:text-foreground hover:bg-muted/50 font-medium": !isActive,
-          })}>
-          <FileIcon name={chat.pdfName} className="mr-3 w-4 h-4 flex-shrink-0" />
-          <p className="w-full overflow-hidden text-sm truncate whitespace-nowrap tracking-wide pr-6">
-            {chat.pdfName}
-          </p>
+  }) => {
+    const router = useRouter();
+    const [isEditing, setIsEditing] = React.useState(false);
+    const [editName, setEditName] = React.useState(chat.pdfName);
+    const [isRenaming, setIsRenaming] = React.useState(false);
 
-          {isActive && <div className="absolute right-0 top-1 bottom-1 w-1 bg-primary rounded-l-full" />}
+    const handleRename = async () => {
+      if (editName === chat.pdfName || !editName.trim()) {
+        setIsEditing(false);
+        setEditName(chat.pdfName);
+        return;
+      }
+
+      try {
+        setIsRenaming(true);
+        await axios.post("/api/rename-chat", {
+          chatId: chat.id,
+          newName: editName,
+        });
+        toast.success("Chat renamed!");
+        router.refresh();
+      } catch (error) {
+        console.error(error);
+        toast.error("Failed to rename chat");
+        setEditName(chat.pdfName);
+      } finally {
+        setIsRenaming(false);
+        setIsEditing(false);
+      }
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+      if (e.key === "Enter") {
+        handleRename();
+      } else if (e.key === "Escape") {
+        setIsEditing(false);
+        setEditName(chat.pdfName);
+      }
+    };
+
+    return (
+      <div className="relative group">
+        <Link
+          href={isEditing ? "#" : `/chat/${chat.id}`}
+          onClick={(e) => isEditing && e.preventDefault()}
+          className="block">
+          <div
+            className={cn("rounded-lg p-3 flex items-center transition-all duration-200", {
+              "bg-primary/10 text-primary shadow-sm font-semibold": isActive,
+              "text-muted-foreground hover:text-foreground hover:bg-muted/50 font-medium": !isActive,
+            })}>
+            <FileIcon name={chat.pdfName} className="mr-3 w-4 h-4 flex-shrink-0" />
+            {isEditing ? (
+              <input
+                autoFocus
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                onBlur={handleRename}
+                onKeyDown={handleKeyDown}
+                disabled={isRenaming}
+                className="w-full bg-transparent text-sm outline-none border-b border-primary/50 pb-0.5 focus:border-primary transition-colors pr-6"
+              />
+            ) : (
+              <p className="w-full overflow-hidden text-sm truncate whitespace-nowrap tracking-wide pr-14">
+                {chat.pdfName}
+              </p>
+            )}
+
+            {isActive && <div className="absolute right-0 top-1 bottom-1 w-1 bg-primary rounded-l-full" />}
+          </div>
+        </Link>
+
+        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-20">
+          {!isEditing && (
+            <div
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsEditing(true);
+              }}
+              className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-primary transition-colors cursor-pointer"
+              title="Rename chat"
+            >
+              <FiEdit2 size={14} />
+            </div>
+          )}
+          <div
+            onClick={(e) => onDelete(e, chat.id, chat.pdfName)}
+            className={cn(
+              "p-1.5 rounded-md transition-all duration-200 cursor-pointer hover:bg-destructive/10 text-muted-foreground hover:text-destructive",
+              { "opacity-100": isActive },
+            )}
+            title="Delete chat"
+          >
+            <FiTrash size={14} />
+          </div>
         </div>
-      </Link>
-
-      {/* Delete Button - visible on hover or if active */}
-      <div
-        onClick={(e) => onDelete(e, chat.id, chat.pdfName)}
-        className={cn(
-          "absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md transition-all duration-200 z-20 cursor-pointer opacity-0 group-hover:opacity-100 hover:bg-destructive/10 text-muted-foreground hover:text-destructive",
-          { "opacity-100": isActive },
-        )}>
-        <FiTrash size={14} />
       </div>
-    </div>
-  ),
+    );
+  },
 );
 ChatItem.displayName = "ChatItem";
 

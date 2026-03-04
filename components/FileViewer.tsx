@@ -31,9 +31,10 @@ function getCategory(fileName: string): FileCategory {
 type Props = {
   file_url: string;
   file_name: string;
+  refreshKey?: number;
 };
 
-const FileViewer = ({ file_url, file_name }: Props) => {
+const FileViewer = ({ file_url, file_name, refreshKey = 0 }: Props) => {
   const validUrl = file_url.replace("https// ", "https://");
   const category = getCategory(file_name);
 
@@ -41,6 +42,7 @@ const FileViewer = ({ file_url, file_name }: Props) => {
     return (
       <div className="w-full h-full flex items-center justify-center bg-card/50 overflow-auto p-4 border-l border-border backdrop-blur-sm">
         <img
+          key={refreshKey}
           src={validUrl}
           alt={file_name}
           className="max-w-full max-h-full object-contain rounded-xl shadow-lg ring-1 ring-border"
@@ -52,7 +54,7 @@ const FileViewer = ({ file_url, file_name }: Props) => {
   if (category === "text") {
     return (
       <div className="w-full h-full border-l border-border bg-background">
-        <TextFileViewer url={validUrl} fileName={file_name} />
+        <TextFileViewer key={refreshKey} url={validUrl} fileName={file_name} />
       </div>
     );
   }
@@ -60,6 +62,7 @@ const FileViewer = ({ file_url, file_name }: Props) => {
   // PDF, DOCX, XLSX, PPTX — use Google Docs Viewer
   return (
     <iframe
+      key={refreshKey}
       src={`https://docs.google.com/gview?url=${validUrl}&embedded=true`}
       className="w-full h-full"
     />

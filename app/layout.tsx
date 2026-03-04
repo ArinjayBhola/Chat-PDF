@@ -9,6 +9,7 @@ import { authOptions } from "@/lib/auth-options";
 import SessionProvider from "@/components/SessionProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { PreferencesProvider } from "@/components/providers/PreferencesContext";
+import { ViewerProvider } from "@/components/providers/ViewerContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,13 +44,15 @@ export default async function RootLayout({
           enableSystem>
           <SessionProvider session={session}>
             <PreferencesProvider>
-              <Provider>
-              <NextTopLoader />
-              {children}
-              <Toaster />
-            </Provider>
-          </PreferencesProvider>
-        </SessionProvider>
+              <ViewerProvider>
+                <Provider>
+                  <NextTopLoader />
+                  {children}
+                  <Toaster />
+                </Provider>
+              </ViewerProvider>
+            </PreferencesProvider>
+          </SessionProvider>
       </ThemeProvider>
       </body>
     </html>
