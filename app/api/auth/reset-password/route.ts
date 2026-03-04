@@ -6,11 +6,18 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
-    const { email, otp, newPassword } = await req.json();
+    const { email, otp, newPassword, currentPassword, isChange } = await req.json();
 
     if (!email || !otp || !newPassword) {
       return NextResponse.json(
         { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    if (isChange && !currentPassword) {
+      return NextResponse.json(
+        { error: "Current password is required" },
         { status: 400 }
       );
     }
@@ -38,6 +45,29 @@ export async function POST(req: Request) {
         { error: "OTP has expired" },
         { status: 400 }
       );
+    }
+
+    // Verify current password if this is a password change request
+    if (isChange) {
+      const existingUser = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, email))
+        .limit(1);
+
+      if (existingUser.length === 0) {
+        return NextResponse.json({ error: "User not found" }, { status: 404 });
+      }
+
+      const user = existingUser[0];
+      if (!user.password) {
+        return NextResponse.json({ error: "Cannot change password for OAuth account" }, { status: 400 });
+      }
+
+      const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+      if (!isPasswordValid) {
+        return NextResponse.json({ error: "Incorrect current password" }, { status: 400 });
+      }
     }
 
     // Hash new password

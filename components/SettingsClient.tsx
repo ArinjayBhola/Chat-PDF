@@ -10,6 +10,7 @@ import UpgradeButton from "./UpgradeButton";
 import { Button } from "./ui/button";
 import { FiLoader } from "react-icons/fi";
 import { cn } from "@/lib/utils";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import {
   Dialog,
   DialogContent,
@@ -39,13 +40,18 @@ export default function SettingsClient({ email, isPro, expiryDate, chatCount }: 
     return `${day}${suffix} ${month} ${year}`;
   };
   const [activeTab, setActiveTab] = useState<"account" | "interface" | "subscription">("account");
-  const { interfaceSize, setInterfaceSize, themeColor, setThemeColor } = usePreferences();
+  const { interfaceSize, setInterfaceSize, themeColor, setThemeColor, chatAppearance, setChatAppearance, typography, setTypography } = usePreferences();
   const { theme, setTheme } = useTheme();
 
   const [isLoading, setIsLoading] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
   const [otp, setOtp] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [deleteInput, setDeleteInput] = useState("");
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
@@ -63,15 +69,28 @@ export default function SettingsClient({ email, isPro, expiryDate, chatCount }: 
   };
 
   const handleResetPasswordSubmit = async () => {
+    if (newPassword !== confirmPassword) {
+      toast.error("New passwords do not match");
+      return;
+    }
+
     try {
       setIsLoading(true);
-      await axios.post("/api/auth/reset-password", { email, otp, newPassword });
-      toast.success("Password reset successfully. Please log in again.");
+      await axios.post("/api/auth/reset-password", { 
+        email, 
+        otp, 
+        currentPassword, 
+        newPassword,
+        isChange: true
+      });
+      toast.success("Password changed successfully.");
       setOtp("");
+      setCurrentPassword("");
       setNewPassword("");
+      setConfirmPassword("");
       setOtpSent(false);
     } catch (error: any) {
-      toast.error(error.response?.data?.error || "Failed to reset password");
+      toast.error(error.response?.data?.error || "Failed to change password");
     } finally {
       setIsLoading(false);
     }
@@ -138,7 +157,7 @@ export default function SettingsClient({ email, isPro, expiryDate, chatCount }: 
         {activeTab === "account" && (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
             <div>
-              <h2 className="text-xl font-bold mb-4">Reset Password</h2>
+              <h2 className="text-xl font-bold mb-4">Change Password</h2>
               <p className="text-muted-foreground text-sm mb-6">
                 Change your password securely using an OTP sent to <span className="font-medium text-foreground">{email}</span>.
               </p>
@@ -156,22 +175,61 @@ export default function SettingsClient({ email, isPro, expiryDate, chatCount }: 
                       type="text"
                       value={otp}
                       onChange={(e) => setOtp(e.target.value)}
-                      className="w-full p-2 rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary outline-none"
-                      placeholder="123456"
+                      className="w-full p-2.5 rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary outline-none"
+                      placeholder="Enter 6-digit OTP"
                     />
                   </div>
-                  <div>
+                  <div className="relative">
+                    <label className="text-sm font-medium mb-1 block">Current Password</label>
+                    <input
+                      type={showCurrentPassword ? "text" : "password"}
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      className="w-full p-2.5 pr-10 rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary outline-none"
+                    />
+                    <button 
+                      type="button" 
+                      onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                      className="absolute bottom-3 right-3 text-muted-foreground hover:text-foreground"
+                    >
+                      {showCurrentPassword ? <FaEyeSlash /> : <FaEye />}
+                    </button>
+                  </div>
+                  <div className="relative">
                     <label className="text-sm font-medium mb-1 block">New Password</label>
                     <input
-                      type="password"
+                      type={showNewPassword ? "text" : "password"}
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      className="w-full p-2 rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary outline-none"
+                      className="w-full p-2.5 pr-10 rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary outline-none"
                     />
+                    <button 
+                      type="button" 
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      className="absolute bottom-3 right-3 text-muted-foreground hover:text-foreground"
+                    >
+                      {showNewPassword ? <FaEyeSlash /> : <FaEye />}
+                    </button>
                   </div>
-                  <Button onClick={handleResetPasswordSubmit} disabled={isLoading} className="w-full bg-primary hover:bg-primary/90">
+                  <div className="relative">
+                    <label className="text-sm font-medium mb-1 block">Confirm New Password</label>
+                    <input
+                      type={showConfirmPassword ? "text" : "password"}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="w-full p-2.5 pr-10 rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary outline-none"
+                    />
+                    <button 
+                      type="button" 
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute bottom-3 right-3 text-muted-foreground hover:text-foreground"
+                    >
+                      {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                    </button>
+                  </div>
+                  <Button onClick={handleResetPasswordSubmit} disabled={isLoading || newPassword !== confirmPassword || !newPassword} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground mt-2">
                     {isLoading && <FiLoader className="w-4 h-4 mr-2 animate-spin" />}
-                    Confirm Password Reset
+                    Confirm Password Change
                   </Button>
                 </div>
               )}
@@ -286,15 +344,49 @@ export default function SettingsClient({ email, isPro, expiryDate, chatCount }: 
               <h2 className="text-xl font-bold mb-4">Chat Appearance</h2>
               <p className="text-muted-foreground text-sm mb-6">Customize how chat bubbles look during your session.</p>
               <div className="flex gap-4">
-                <button className="flex-1 p-4 rounded-xl border-2 border-primary bg-primary/10 transition-all text-left">
+                <button 
+                  onClick={() => setChatAppearance("modern")}
+                  className={`flex-1 p-4 rounded-xl border-2 transition-all text-left ${chatAppearance === "modern" ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"}`}
+                >
                   <div className="w-full bg-primary text-primary-foreground py-2 px-4 rounded-2xl rounded-br-sm mb-3 text-sm">Hello, what can you do?</div>
                   <p className="font-semibold text-foreground">Modern</p>
                   <p className="text-xs text-muted-foreground mt-1">Rounded bubbles with a tail</p>
                 </button>
-                <button className="flex-1 p-4 rounded-xl border-2 border-border hover:border-primary/50 transition-all text-left opacity-60 cursor-not-allowed">
+                <button 
+                  onClick={() => setChatAppearance("classic")}
+                  className={`flex-1 p-4 rounded-xl border-2 transition-all text-left ${chatAppearance === "classic" ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"}`}
+                >
                   <div className="w-full bg-muted text-foreground py-2 px-4 rounded-md mb-3 text-sm border border-border">Hello, what can you do?</div>
-                  <p className="font-semibold text-foreground">Classic (Coming Soon)</p>
+                  <p className="font-semibold text-foreground">Classic</p>
                   <p className="text-xs text-muted-foreground mt-1">Squared off professional style</p>
+                </button>
+              </div>
+            </div>
+
+            <div className="pt-8 border-t border-border">
+              <h2 className="text-xl font-bold mb-4">Typography</h2>
+              <p className="text-muted-foreground text-sm mb-6">Choose a font style that makes reading comfortable for you.</p>
+              <div className="flex gap-4">
+                <button 
+                  onClick={() => setTypography("sans")}
+                  className={`flex-1 p-4 rounded-xl border-2 transition-all font-sans ${typography === "sans" ? "border-primary bg-primary/10 text-primary" : "border-border hover:border-primary/50 text-foreground"}`}
+                >
+                  <span className="text-lg font-bold block mb-1">Aa</span>
+                  <span className="text-sm font-medium">Sans Serif</span>
+                </button>
+                <button 
+                  onClick={() => setTypography("serif")}
+                  className={`flex-1 p-4 rounded-xl border-2 transition-all font-serif ${typography === "serif" ? "border-primary bg-primary/10 text-primary" : "border-border hover:border-primary/50 text-foreground"}`}
+                >
+                  <span className="text-lg font-bold block mb-1">Aa</span>
+                  <span className="text-sm font-medium">Serif</span>
+                </button>
+                <button 
+                  onClick={() => setTypography("mono")}
+                  className={`flex-1 p-4 rounded-xl border-2 transition-all font-mono ${typography === "mono" ? "border-primary bg-primary/10 text-primary" : "border-border hover:border-primary/50 text-foreground"}`}
+                >
+                  <span className="text-lg font-bold block mb-1">Aa</span>
+                  <span className="text-sm font-medium">Monospace</span>
                 </button>
               </div>
             </div>

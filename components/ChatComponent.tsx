@@ -103,6 +103,36 @@ export default function ChatComponent({
     );
   };
 
+  const handleRegenerate = async () => {
+    if (messages.length < 2 || status !== "ready") return;
+    // The last message is the AI's response, the one before is the user's prompt
+    const lastUserMessage = messages[messages.length - 2];
+    if (lastUserMessage.role !== "user") return;
+
+    // Remove the last AI response
+    setMessages(messages.slice(0, -1));
+
+    // Extract text from the custom parts structure used in this project
+    const previousQuestion = lastUserMessage.parts
+      ?.filter((part) => part.type === "text")
+      // @ts-ignore
+      .map((part) => part.text)
+      .join("") || "";
+
+    if (!previousQuestion) return;
+
+    // Resend the last user prompt manually
+    await sendMessage(
+      {
+        role: "user",
+        parts: [{ type: "text", text: previousQuestion }],
+      },
+      {
+        body: { webSearch },
+      }
+    );
+  };
+
   const isBusy = status === "submitted" || status === "streaming";
 
   return (
@@ -129,7 +159,7 @@ export default function ChatComponent({
             </div>
           )}
 
-          <MessageList messages={messages} />
+          <MessageList messages={messages} reload={handleRegenerate} status={status} />
 
           {status === "submitted" && (
              <div className="flex justify-start px-4 mt-4 animate-in fade-in slide-in-from-bottom-2">

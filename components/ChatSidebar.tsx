@@ -8,6 +8,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import ExpandedSidebar from "./sidebar/ExpandedSidebar";
 import CollapsedSidebar from "./sidebar/CollapsedSidebar";
+import { cn } from "@/lib/utils";
 
 type Props = {
   chats: DrizzleChat[];
@@ -77,24 +78,32 @@ const ChatSidebar = ({ chats, chatId: propChatId, className, isPro }: Props) => 
         chatName={deleteName}
       />
 
-      {isOpen ? (
-        <ExpandedSidebar
-          className={className}
-          onToggle={toggleSidebar}
-          chats={chats}
-          chatId={chatId}
-          isPro={isPro}
-          onDeleteChat={confirmDelete}
-        />
-      ) : (
-        <CollapsedSidebar
-          className={className}
-          onToggle={toggleSidebar}
-          chats={chats}
-          chatId={chatId}
-          isPro={isPro}
-        />
-      )}
+      <div 
+        className={cn(
+          "h-screen relative flex-shrink-0 transition-all duration-300 ease-in-out bg-sidebar border-r shadow-xl overflow-hidden",
+          isOpen ? "w-[280px] border-sidebar-border" : "w-[64px] border-sidebar-border"
+        )}
+      >
+        <div className={cn("absolute top-0 left-0 h-full w-[280px] transition-opacity duration-300", isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none")}>
+          <ExpandedSidebar
+            className={cn("border-none shadow-none bg-transparent", className)}
+            onToggle={toggleSidebar}
+            chats={chats}
+            chatId={chatId}
+            isPro={isPro}
+            onDeleteChat={confirmDelete}
+          />
+        </div>
+        <div className={cn("absolute top-0 left-0 h-full w-[64px] transition-opacity duration-300", !isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none")}>
+          <CollapsedSidebar
+            className={cn("border-none shadow-none bg-transparent", className)}
+            onToggle={toggleSidebar}
+            chats={chats}
+            chatId={chatId}
+            isPro={isPro}
+          />
+        </div>
+      </div>
     </>
   );
 };

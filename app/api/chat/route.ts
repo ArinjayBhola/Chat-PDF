@@ -2,7 +2,7 @@ import { getContext } from "@/lib/context";
 import { db } from "@/lib/db";
 import { chats, messages as _messages } from "@/lib/db/schema";
 import { google } from "@ai-sdk/google";
-import { streamText, convertToModelMessages, ModelMessage, smoothStream, UIMessage } from "ai";
+import { streamText, generateText, convertToModelMessages, ModelMessage, smoothStream, UIMessage } from "ai";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import Exa from "exa-js";
@@ -44,6 +44,24 @@ export async function POST(req: Request) {
     senderId: session?.user?.id,
     senderName: session?.user?.name || "Collaborator",
   });
+
+  // Auto-name chat on the very first message
+  if (messages.length === 1) {
+    try {
+      const { text: generatedTitle } = await generateText({
+        model: google("gemini-2.5-flash"),
+        prompt: `Generate a very short, concise title (3-5 words maximum) for a chat that starts with this user query: "${lastMessage.parts[0].text}". Return ONLY the title, no quotes or extra text.`,
+      });
+
+      if (generatedTitle) {
+        await db.update(chats)
+          .set({ pdfName: generatedTitle.trim() })
+          .where(eq(chats.id, chatId));
+      }
+    } catch (e) {
+      console.error("Failed to auto-name chat", e);
+    }
+  }
 
   let promptContent = "";
 

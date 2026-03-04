@@ -74,14 +74,7 @@ export default async function Home({
             <div className="mt-12 max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-8 duration-700">
               <div className="relative rounded-3xl border border-border bg-card/50 backdrop-blur-xl p-8 shadow-2xl ring-1 ring-black/5 dark:ring-white/10 group overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none" />
-                <h2 className="text-2xl font-bold mb-6 text-left">Upload a document</h2>
-                
-                <FileUpload
-                  isPro={isPro}
-                  chatCount={chatCount}
-                />
-
-                <div className="mt-8 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="mb-6 pb-6 border-b border-border flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <p className={`text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full ${isPro ? "bg-green-500/10 text-green-600" : "bg-primary/10 text-primary"}`}>
                       {isPro ? "Pro Plan" : "Free Plan"}
@@ -99,6 +92,13 @@ export default async function Home({
                     </Link>
                   </div>
                 </div>
+
+                <h2 className="text-2xl font-bold mb-6 text-left">Upload a document</h2>
+                
+                <FileUpload
+                  isPro={isPro}
+                  chatCount={chatCount}
+                />
               </div>
             </div>
           )}
@@ -109,7 +109,6 @@ export default async function Home({
 
       <footer className="py-12 border-t border-border mt-20">
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center text-sm font-medium text-muted-foreground">
-          <p>© {new Date().getFullYear()} Docs Chat.ai. All rights reserved.</p>
           <Link target="_blank" href="https://github.com/ArinjayBhola/Chat-PDF" className="flex items-center gap-2 hover:text-foreground transition-colors">
             <FaGithub className="w-5 h-5" />
             GitHub

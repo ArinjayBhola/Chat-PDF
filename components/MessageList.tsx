@@ -1,14 +1,23 @@
+"use client";
+
 import React from "react";
 import { cn } from "@/lib/utils";
 import { UIMessage } from "ai";
-import { CiUser } from "react-icons/ci";
-import { IoSparklesOutline } from "react-icons/io5";
+import { CiUser, CiRedo } from "react-icons/ci";
+import { IoSparklesOutline, IoCopyOutline, IoCheckmarkOutline } from "react-icons/io5";
+import { usePreferences } from "./providers/PreferencesContext";
+import toast from "react-hot-toast";
 
 type Props = {
   messages: UIMessage[];
+  reload?: () => void;
+  status?: string;
 };
 
-const MessageList = ({ messages }: Props) => {
+const MessageList = ({ messages, reload, status }: Props) => {
+  const { chatAppearance } = usePreferences();
+  const [copiedId, setCopiedId] = React.useState<string | null>(null);
+
   if (!messages?.length) return null;
 
   return (
@@ -51,14 +60,46 @@ const MessageList = ({ messages }: Props) => {
                 {isUser ? <CiUser className="h-4 w-4" /> : <IoSparklesOutline className="h-4 w-4" />}
               </div>
 
-              {/* Message Bubble */}
-              <div
-                className={cn("rounded-2xl px-5 py-2.5 shadow-sm text-[15px] leading-relaxed tracking-wide", {
-                  "bg-primary text-primary-foreground rounded-tr-sm shadow-md": isUser,
-                  "bg-card text-foreground border border-border rounded-tl-sm":
-                    !isUser,
-                })}>
-                <div className="markdown-prose whitespace-pre-wrap font-medium">{text}</div>
+              <div className="flex flex-col gap-1 w-full">
+                {/* Message Bubble */}
+                <div
+                  className={cn("px-5 py-2.5 shadow-sm text-[15px] leading-relaxed tracking-wide", {
+                    // Modern
+                    "bg-primary text-primary-foreground rounded-2xl rounded-tr-sm shadow-md": chatAppearance === "modern" && isUser,
+                    "bg-card text-foreground border border-border rounded-2xl rounded-tl-sm w-fit": chatAppearance === "modern" && !isUser,
+                    // Classic
+                    "bg-primary/10 text-foreground border border-primary/20 rounded-md w-fit": chatAppearance === "classic" && isUser,
+                    "bg-muted text-foreground border border-border rounded-md w-fit": chatAppearance === "classic" && !isUser,
+                  })}>
+                  <div className="markdown-prose whitespace-pre-wrap font-medium">{text}</div>
+                </div>
+                
+                {/* Message Actions (AI Only) */}
+                {!isUser && (
+                  <div className="flex items-center gap-2 mt-1 px-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200" style={{ opacity: 1 }}> {/* Forced opacity for visibility, remove style={{}} in next iteration if hover is preferred */}
+                    <button
+                      title="Copy message"
+                      onClick={() => {
+                        navigator.clipboard.writeText(text);
+                        setCopiedId(message.id);
+                        toast.success("Copied to clipboard");
+                        setTimeout(() => setCopiedId(null), 2000);
+                      }}
+                      className="p-1.5 text-muted-foreground hover:text-foreground rounded-md hover:bg-muted transition-colors"
+                    >
+                      {copiedId === message.id ? <IoCheckmarkOutline className="w-3.5 h-3.5 text-primary" /> : <IoCopyOutline className="w-3.5 h-3.5" />}
+                    </button>
+                    {reload && status !== "streaming" && message.id === messages[messages.length - 1].id && (
+                      <button
+                        title="Regenerate response"
+                        onClick={() => reload()}
+                        className="p-1.5 text-muted-foreground hover:text-foreground rounded-md hover:bg-muted transition-colors"
+                      >
+                         <CiRedo className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>

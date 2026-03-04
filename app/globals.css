@@ -160,6 +160,16 @@ html[data-size="compact"],
   font-size: 14px;
 }
 
+[data-typography="serif"],
+[data-typography="serif"] * {
+  font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+}
+
+[data-typography="mono"],
+[data-typography="mono"] * {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

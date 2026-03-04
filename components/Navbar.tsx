@@ -21,6 +21,9 @@ export default function Navbar({ isAuth, user, hideSettingsButton }: NavbarProps
       <div className="flex flex-1 justify-end items-center gap-4">
         {isAuth ? (
           <>
+            <Link href="/chat">
+              <Button variant="ghost" className="text-sm font-medium hidden sm:block">Go to Chats</Button>
+            </Link>
             {hideSettingsButton ? (
               <Link href="/">
                 <Button variant="ghost" className="text-sm font-medium hidden sm:block">Home</Button>
