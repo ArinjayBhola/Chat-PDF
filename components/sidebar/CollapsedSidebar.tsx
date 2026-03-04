@@ -37,7 +37,7 @@ const CollapsedSidebar = memo(({ className, onToggle, chats, chatId, isPro }: Pr
       isPro={isPro}
       chatCount={chats.length}>
       {({ isUploading }) => (
-        <div className={cn("bg-blue-600 p-3 rounded-lg hover:bg-blue-700 transition cursor-pointer", isUploading && "opacity-50 pointer-events-none")}>
+        <div className={cn("w-10 h-10 flex items-center justify-center bg-blue-600 rounded-lg hover:bg-blue-700 transition cursor-pointer mx-auto", isUploading && "opacity-50 pointer-events-none")}>
           {isUploading ? (
             <RiLoader2Fill
               className="text-white animate-spin"
