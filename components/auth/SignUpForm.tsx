@@ -96,11 +96,17 @@ export default function SignUpForm() {
 
   return (
     <div className="w-full max-w-[380px]">
+      <div className="lg:hidden mb-8 flex justify-center">
+        <div className="flex items-center gap-3">
+          <span className="text-2xl font-bold text-foreground tracking-tight">Docs Chat.ai</span>
+        </div>
+      </div>
+
       <div className="mb-6 text-center lg:text-left">
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-1">
+        <h2 className="text-2xl font-bold text-foreground mb-1">
           Create an account
         </h2>
-        <p className="text-slate-500 dark:text-slate-400 text-sm">
+        <p className="text-muted-foreground text-sm">
           Start analyzing documents instantly.
         </p>
       </div>
@@ -111,43 +117,43 @@ export default function SignUpForm() {
         onClick={handleGoogleSignIn}
         disabled={isLoading}
         variant="outline"
-        className="w-full h-11 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800 font-medium rounded-lg mb-6"
+        className="w-full h-11 bg-card border-border text-foreground hover:bg-muted font-medium rounded-lg mb-6 shadow-sm"
       >
-        <FaGoogle className="mr-2 w-4 h-4 text-slate-600 dark:text-slate-400" />
+        <FaGoogle className="mr-2 w-4 h-4 text-muted-foreground" />
         Continue with Google
       </Button>
 
       {/* DIVIDER */}
       <div className="flex items-center mb-6">
-        <div className="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
-        <span className="px-3 text-xs uppercase font-semibold text-slate-400">Or email</span>
-        <div className="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
+        <div className="flex-grow border-t border-border"></div>
+        <span className="px-3 text-xs uppercase font-semibold text-muted-foreground">Or email</span>
+        <div className="flex-grow border-t border-border"></div>
       </div>
 
       {/* FORM */}
       {step === 1 ? (
         <form onSubmit={handleCredentialsSignUp} className="space-y-4">
           {error && (
-            <div className="p-3 text-sm text-red-600 bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/50 rounded-lg">
+            <div className="p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg">
               {error}
             </div>
           )}
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-sm font-medium text-foreground mb-1.5">
               Full Name
             </label>
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              className="h-11 rounded-lg bg-white dark:bg-slate-900 transition focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+              className="h-11 rounded-lg bg-background border-border transition focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
               placeholder="Name"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-sm font-medium text-foreground mb-1.5">
               Email
             </label>
             <Input
@@ -155,13 +161,13 @@ export default function SignUpForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="h-11 rounded-lg bg-white dark:bg-slate-900 transition focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+              className="h-11 rounded-lg bg-background border-border transition focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
               placeholder="name@example.com"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-sm font-medium text-foreground mb-1.5">
               Password
             </label>
             <div className="relative">
@@ -171,13 +177,13 @@ export default function SignUpForm() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={6}
-                className="h-11 rounded-lg bg-white dark:bg-slate-900 transition focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 pr-10"
+                className="h-11 rounded-lg bg-background border-border transition focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 pr-10"
                 placeholder="••••••••"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
-                className="absolute inset-y-0 right-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                className="absolute inset-y-0 right-3 flex items-center text-muted-foreground hover:text-foreground transition"
                 tabIndex={-1}
               >
                 {showPassword ? <FaEyeSlash size={16} /> : <FaEye size={16} />}
@@ -186,7 +192,7 @@ export default function SignUpForm() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-sm font-medium text-foreground mb-1.5">
               Confirm Password
             </label>
             <div className="relative">
@@ -196,13 +202,13 @@ export default function SignUpForm() {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
                 minLength={6}
-                className="h-11 rounded-lg bg-white dark:bg-slate-900 transition focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 pr-10"
+                className="h-11 rounded-lg bg-background border-border transition focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 pr-10"
                 placeholder="••••••••"
               />
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword((v) => !v)}
-                className="absolute inset-y-0 right-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                className="absolute inset-y-0 right-3 flex items-center text-muted-foreground hover:text-foreground transition"
                 tabIndex={-1}
               >
                 {showConfirmPassword ? <FaEyeSlash size={16} /> : <FaEye size={16} />}
@@ -213,11 +219,11 @@ export default function SignUpForm() {
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full h-11 mt-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg"
+            className="w-full h-11 mt-2 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-lg transition"
           >
             {isLoading ? (
               <div className="flex items-center gap-2">
-                <svg className="w-4 h-4 animate-spin text-white" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 animate-spin text-primary-foreground" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                 </svg>
@@ -230,20 +236,20 @@ export default function SignUpForm() {
         </form>
       ) : (
         <form onSubmit={handleVerifyOtp} className="space-y-4">
-          <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-900/50 rounded-lg mb-4">
-            <p className="text-sm text-indigo-800 dark:text-indigo-200">
+          <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg mb-4">
+            <p className="text-sm text-primary">
               We sent a code to <span className="font-semibold">{email}</span>.
             </p>
           </div>
 
           {error && (
-            <div className="p-3 text-sm text-red-600 bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/50 rounded-lg">
+            <div className="p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg">
               {error}
             </div>
           )}
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-sm font-medium text-foreground mb-1.5">
               Verification Code
             </label>
             <Input
@@ -251,7 +257,7 @@ export default function SignUpForm() {
               onChange={(e) => setOtp(e.target.value)}
               required
               maxLength={6}
-              className="h-11 rounded-lg bg-white dark:bg-slate-900 transition focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 text-center text-2xl tracking-[0.5em] font-mono"
+              className="h-11 rounded-lg bg-background border-border transition focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 text-center text-2xl tracking-[0.5em] font-mono"
               placeholder="000000"
             />
           </div>
@@ -259,11 +265,11 @@ export default function SignUpForm() {
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full h-11 mt-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg"
+            className="w-full h-11 mt-2 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-lg transition"
           >
             {isLoading ? (
               <div className="flex items-center gap-2">
-                <svg className="w-4 h-4 animate-spin text-white" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 animate-spin text-primary-foreground" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                 </svg>
@@ -277,18 +283,18 @@ export default function SignUpForm() {
           <button
             type="button"
             onClick={() => setStep(1)}
-            className="w-full text-sm font-medium text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 mt-4 transition"
+            className="w-full text-sm font-medium text-muted-foreground hover:text-foreground mt-4 transition"
           >
             Back to sign up
           </button>
         </form>
       )}
 
-      <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
+      <p className="mt-6 text-center text-sm text-muted-foreground">
         Already have an account?{" "}
         <Link
           href="/sign-in"
-          className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium"
+          className="text-primary hover:text-primary/80 transition font-medium"
         >
           Sign in
         </Link>

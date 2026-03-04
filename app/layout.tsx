@@ -8,6 +8,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import SessionProvider from "@/components/SessionProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { PreferencesProvider } from "@/components/providers/PreferencesContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -41,13 +42,15 @@ export default async function RootLayout({
           defaultTheme="light"
           enableSystem>
           <SessionProvider session={session}>
-            <Provider>
+            <PreferencesProvider>
+              <Provider>
               <NextTopLoader />
               {children}
               <Toaster />
             </Provider>
-          </SessionProvider>
-        </ThemeProvider>
+          </PreferencesProvider>
+        </SessionProvider>
+      </ThemeProvider>
       </body>
     </html>
   );

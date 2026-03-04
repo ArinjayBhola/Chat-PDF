@@ -19,7 +19,7 @@ type Props = {
 const CollapsedSidebar = memo(({ className, onToggle, chats, chatId, isPro }: Props) => (
   <div
     className={cn(
-      "h-screen w-[64px] bg-slate-900 border-r border-slate-800 shadow-xl flex flex-col items-center py-4 gap-6",
+      "h-screen w-[64px] bg-sidebar border-r border-sidebar-border shadow-xl flex flex-col items-center py-4 gap-6",
       "transition-all duration-300 ease-in-out",
       className,
     )}>
@@ -37,7 +37,7 @@ const CollapsedSidebar = memo(({ className, onToggle, chats, chatId, isPro }: Pr
       isPro={isPro}
       chatCount={chats.length}>
       {({ isUploading }) => (
-        <div className={cn("w-10 h-10 flex items-center justify-center bg-blue-600 rounded-lg hover:bg-blue-700 transition cursor-pointer mx-auto", isUploading && "opacity-50 pointer-events-none")}>
+        <div className={cn("w-10 h-10 flex items-center justify-center bg-primary rounded-lg hover:bg-primary/90 text-primary-foreground transition cursor-pointer mx-auto", isUploading && "opacity-50 pointer-events-none")}>
           {isUploading ? (
             <RiLoader2Fill
               className="text-white animate-spin"

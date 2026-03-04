@@ -45,8 +45,8 @@ const MessageList = ({ messages }: Props) => {
                 className={cn(
                   "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center shadow-sm select-none mt-1",
                   isUser
-                    ? "bg-blue-600 dark:bg-blue-500 text-white ring-2 ring-blue-100 dark:ring-blue-900/50"
-                    : "bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300",
+                    ? "bg-primary text-primary-foreground ring-2 ring-primary/20"
+                    : "bg-muted border border-border text-muted-foreground",
                 )}>
                 {isUser ? <CiUser className="h-4 w-4" /> : <IoSparklesOutline className="h-4 w-4" />}
               </div>
@@ -54,8 +54,8 @@ const MessageList = ({ messages }: Props) => {
               {/* Message Bubble */}
               <div
                 className={cn("rounded-2xl px-5 py-2.5 shadow-sm text-[15px] leading-relaxed tracking-wide", {
-                  "bg-blue-600 dark:bg-blue-500 text-white rounded-tr-sm shadow-md": isUser,
-                  "bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-tl-sm":
+                  "bg-primary text-primary-foreground rounded-tr-sm shadow-md": isUser,
+                  "bg-card text-foreground border border-border rounded-tl-sm":
                     !isUser,
                 })}>
                 <div className="markdown-prose whitespace-pre-wrap font-medium">{text}</div>

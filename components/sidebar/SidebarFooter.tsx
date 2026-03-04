@@ -20,12 +20,12 @@ const SidebarFooter = memo(({ isPro, chatCount }: Props) => (
     <div className="flex flex-col gap-1">
       <Link
         href="/"
-        className="flex items-center p-2 rounded-md text-slate-400 dark:text-slate-500 hover:text-white dark:hover:text-slate-200 hover:bg-slate-800/50 dark:hover:bg-slate-700/50 transition-colors text-sm">
+        className="flex items-center px-3 py-2.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors font-medium text-sm">
         <IoMdHome className="w-4 h-4 mr-3" />
         Home
       </Link>
-      <div className="flex items-center justify-between px-2 py-2 rounded-md hover:bg-slate-800/50 dark:hover:bg-slate-700/50 transition-colors">
-        <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">Theme</span>
+      <div className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-muted/50 transition-colors">
+        <span className="text-sm text-muted-foreground font-medium">Theme</span>
         <ThemeToggle variant="sidebar" />
       </div>
     </div>

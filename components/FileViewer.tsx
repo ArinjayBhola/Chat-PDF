@@ -39,18 +39,22 @@ const FileViewer = ({ file_url, file_name }: Props) => {
 
   if (category === "image") {
     return (
-      <div className="w-full h-full flex items-center justify-center bg-slate-50 dark:bg-slate-950 overflow-auto p-4">
+      <div className="w-full h-full flex items-center justify-center bg-card/50 overflow-auto p-4 border-l border-border backdrop-blur-sm">
         <img
           src={validUrl}
           alt={file_name}
-          className="max-w-full max-h-full object-contain rounded-lg shadow-md"
+          className="max-w-full max-h-full object-contain rounded-xl shadow-lg ring-1 ring-border"
         />
       </div>
     );
   }
 
   if (category === "text") {
-    return <TextFileViewer url={validUrl} fileName={file_name} />;
+    return (
+      <div className="w-full h-full border-l border-border bg-background">
+        <TextFileViewer url={validUrl} fileName={file_name} />
+      </div>
+    );
   }
 
   // PDF, DOCX, XLSX, PPTX — use Google Docs Viewer
@@ -78,26 +82,26 @@ function TextFileViewer({ url, fileName }: { url: string; fileName: string }) {
 
   if (error) {
     return (
-      <div className="w-full h-full flex items-center justify-center text-slate-500 dark:text-slate-400">
-        <p>Could not load file preview.</p>
+      <div className="w-full h-full flex items-center justify-center text-muted-foreground bg-card/50 backdrop-blur-sm">
+        <p className="font-medium animate-pulse">Could not load file preview.</p>
       </div>
     );
   }
 
   if (content === null) {
     return (
-      <div className="w-full h-full flex items-center justify-center text-slate-500 dark:text-slate-400">
-        <p>Loading...</p>
+      <div className="w-full h-full flex items-center justify-center text-muted-foreground bg-card/50 backdrop-blur-sm">
+        <p className="font-medium animate-pulse">Loading...</p>
       </div>
     );
   }
 
   return (
-    <div className="w-full h-full overflow-auto bg-white dark:bg-slate-950 p-6">
-      <div className="text-xs font-medium text-slate-400 dark:text-slate-500 mb-3 uppercase tracking-wider">
+    <div className="w-full h-full overflow-auto bg-card p-6 border-l border-border custom-scrollbar">
+      <div className="text-xs font-bold text-primary mb-4 uppercase tracking-widest border-b border-border/50 pb-2">
         {fileName}
       </div>
-      <pre className="text-sm text-slate-800 dark:text-slate-200 whitespace-pre-wrap font-mono leading-relaxed">
+      <pre className="text-sm text-foreground whitespace-pre-wrap font-mono leading-relaxed bg-background p-4 rounded-xl border border-border shadow-inner">
         {content}
       </pre>
     </div>

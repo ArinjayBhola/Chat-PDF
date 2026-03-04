@@ -21,11 +21,11 @@ export default function ThemeToggle({ className, variant = "default" }: ThemeTog
 
   const baseClasses =
     variant === "sidebar"
-      ? "flex items-center justify-center w-10 h-10 rounded-md bg-slate-700 dark:bg-slate-700 hover:bg-slate-600 dark:hover:bg-slate-600 transition-colors"
-      : "flex items-center justify-center w-10 h-10 rounded-md bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors";
+      ? "flex items-center justify-center w-9 h-9 rounded-lg hover:bg-muted/80 transition-colors"
+      : "flex items-center justify-center w-10 h-10 rounded-xl bg-muted hover:bg-muted/80 transition-colors";
 
   const iconClasses =
-    variant === "sidebar" ? "w-5 h-5 text-slate-200 dark:text-slate-200" : "w-5 h-5 text-slate-700 dark:text-slate-200";
+    variant === "sidebar" ? "w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" : "w-5 h-5 text-foreground";
 
   if (!mounted) {
     return (

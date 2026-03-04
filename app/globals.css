@@ -110,6 +110,56 @@
   --sidebar-ring: oklch(0.99 0 0 / 0.3);
 }
 
+[data-theme-color="orange"] {
+  --primary: oklch(0.65 0.25 25);
+  --primary-foreground: oklch(0.98 0.01 25);
+  --sidebar: oklch(0.98 0.01 25);
+  --sidebar-primary: oklch(0.65 0.25 25);
+}
+
+.dark[data-theme-color="orange"],
+[data-theme-color="orange"] .dark {
+  --primary: oklch(0.65 0.25 25);
+  --primary-foreground: oklch(0.98 0.01 25);
+  --sidebar: oklch(0.16 0.02 25);
+  --sidebar-primary: oklch(0.65 0.25 25);
+}
+
+[data-theme-color="amber"] {
+  --primary: oklch(0.7 0.2 75);
+  --primary-foreground: oklch(0.99 0 75);
+  --sidebar: oklch(0.99 0 75);
+  --sidebar-primary: oklch(0.7 0.2 75);
+}
+
+.dark[data-theme-color="amber"],
+[data-theme-color="amber"] .dark {
+  --primary: oklch(0.7 0.2 75);
+  --primary-foreground: oklch(0.99 0 75);
+  --sidebar: oklch(0.16 0.02 75);
+  --sidebar-primary: oklch(0.7 0.2 75);
+}
+
+[data-theme-color="rose"] {
+  --primary: oklch(0.6 0.25 5);
+  --primary-foreground: oklch(0.98 0.01 5);
+  --sidebar: oklch(0.98 0.01 5);
+  --sidebar-primary: oklch(0.6 0.25 5);
+}
+
+.dark[data-theme-color="rose"],
+[data-theme-color="rose"] .dark {
+  --primary: oklch(0.6 0.25 5);
+  --primary-foreground: oklch(0.98 0.01 5);
+  --sidebar: oklch(0.16 0.02 5);
+  --sidebar-primary: oklch(0.6 0.25 5);
+}
+
+html[data-size="compact"],
+[data-size="compact"] body {
+  font-size: 14px;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

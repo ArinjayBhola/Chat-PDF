@@ -106,7 +106,7 @@ export default function ChatComponent({
   const isBusy = status === "submitted" || status === "streaming";
 
   return (
-    <div className="relative h-full flex flex-col bg-white dark:bg-slate-900 overflow-hidden">
+    <div className="relative h-full flex flex-col bg-background overflow-hidden">
       {/* Messages */}
       <div
         ref={containerRef}
@@ -116,14 +116,14 @@ export default function ChatComponent({
           
           {/* Empty State - No Messages Yet */}
           {messages.length === 0 && (
-            <div className="flex flex-col items-center justify-center gap-4 text-center text-slate-500 dark:text-slate-400 p-8 mb-4">
-              <div className="bg-blue-100 dark:bg-blue-900/30 p-4 rounded-full border border-blue-200 dark:border-blue-800 shadow-sm">
-                <IoSparklesOutline className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+            <div className="flex flex-col items-center justify-center gap-4 text-center p-8 mb-4 max-w-lg mx-auto">
+              <div className="bg-primary/10 p-5 rounded-2xl border border-primary/20 shadow-sm animate-in zoom-in duration-500">
+                <IoSparklesOutline className="h-10 w-10 text-primary" />
               </div>
               <div>
-                <p className="text-lg font-semibold text-slate-800 dark:text-slate-200">No messages yet</p>
-                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                  Start the conversation by asking a question about your PDF.
+                <p className="text-xl font-bold text-foreground">No messages yet</p>
+                <p className="text-sm text-muted-foreground mt-2 font-medium">
+                  Start the conversation by asking a question, or switch on Web Search to browse the internet.
                 </p>
               </div>
             </div>
@@ -132,10 +132,10 @@ export default function ChatComponent({
           <MessageList messages={messages} />
 
           {status === "submitted" && (
-             <div className="flex justify-start px-4 mt-4">
-              <div className="max-w-[70%] rounded-2xl rounded-tl-none px-4 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-medium">
-                <span className="inline-block animate-spin">
-                  <LuLoaderCircle />
+             <div className="flex justify-start px-4 mt-4 animate-in fade-in slide-in-from-bottom-2">
+              <div className="rounded-2xl rounded-tl-none px-5 py-4 bg-muted text-foreground text-sm font-medium shadow-sm">
+                <span className="inline-block animate-spin text-primary">
+                  <LuLoaderCircle className="w-5 h-5" />
                 </span>
               </div>
             </div>
@@ -144,7 +144,7 @@ export default function ChatComponent({
       </div>
 
       {/* Input */}
-      <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
+      <div className="p-4 border-t border-border bg-background/80 backdrop-blur-md">
         <div className="max-w-4xl mx-auto w-full space-y-2">
           {showLoginPrompt && (
             <div className="p-3 mb-2 rounded-lg bg-orange-50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-900/20 flex items-center justify-between">
@@ -166,16 +166,16 @@ export default function ChatComponent({
 
           {/* Mode indicator */}
           {webSearch && (
-            <div className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400">
+            <div className="flex items-center gap-2 text-xs text-primary bg-primary/5 px-3 py-1.5 rounded-lg w-fit">
               <FiGlobe className="h-4 w-4" />
-              <span className="font-medium">Web search enabled - using live internet data</span>
+              <span className="font-medium animate-pulse">Web search active</span>
             </div>
           )}
 
           <form
             onSubmit={handleSubmit}
             className={cn(
-              "flex items-center gap-2 bg-slate-50 dark:bg-slate-800 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 transition-all",
+              "flex items-center gap-2 bg-card p-1.5 rounded-2xl border border-border shadow-sm transition-all focus-within:ring-2 focus-within:ring-primary/20",
               isBusy && "opacity-90",
             )}>
             {/* Web search toggle */}
@@ -183,22 +183,22 @@ export default function ChatComponent({
               type="button"
               onClick={() => setWebSearch((v) => !v)}
               disabled={isBusy}
+              title="Toggle Web Search"
               className={cn(
-                "flex items-center gap-2 px-3 h-10 rounded-xl border text-sm font-medium transition-all",
+                "flex items-center justify-center w-10 h-10 rounded-xl transition-all flex-shrink-0",
                 webSearch
-                  ? "bg-blue-100 border-blue-300 text-blue-700 dark:bg-blue-900/30 dark:border-blue-700 dark:text-blue-300"
-                  : "bg-transparent border-transparent text-slate-400 hover:text-slate-600 dark:text-slate-500",
+                  ? "bg-primary text-primary-foreground shadow-md"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80",
               )}>
               <FiGlobe className="h-4 w-4" />
-              <span className="hidden sm:inline">{webSearch ? "Web Search ON" : "Web Search"}</span>
             </button>
 
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               disabled={isBusy || !canChat}
-              placeholder={!canChat ? "Chatting is disabled..." : (webSearch ? "Ask using live web data…" : "Ask a question about your PDF…")}
-              className="flex-1 bg-transparent border-none focus-visible:ring-0 text-sm"
+              placeholder={!canChat ? "Chatting is disabled..." : (webSearch ? "Ask using live web data…" : "Ask a question about your document…")}
+              className="flex-1 bg-transparent border-none focus-visible:ring-0 text-sm md:text-base px-2 shadow-none"
             />
 
             {/* Send button morph */}
@@ -207,8 +207,8 @@ export default function ChatComponent({
               size="icon"
               disabled={isBusy || !input.trim()}
               className={cn(
-                "h-10 w-10 rounded-xl transition-all",
-                isBusy ? "bg-blue-600 text-white" : "bg-blue-600 hover:bg-blue-700 text-white",
+                "h-10 w-10 rounded-xl transition-all flex-shrink-0",
+                "bg-primary hover:bg-primary/90 text-primary-foreground",
               )}>
               <FaArrowUp className="h-5 w-5" />
             </Button>

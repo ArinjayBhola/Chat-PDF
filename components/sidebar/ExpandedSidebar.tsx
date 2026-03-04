@@ -24,7 +24,7 @@ const ExpandedSidebar = memo(({ className, onToggle, chats, chatId, isPro, onDel
   return (
     <div
       className={cn(
-        "w-[280px] h-screen p-4 bg-slate-900 flex flex-col border-r border-slate-800 shadow-xl",
+        "w-[280px] h-screen p-4 bg-sidebar flex flex-col border-r border-sidebar-border shadow-xl",
         "transition-all duration-300 ease-in-out",
         className,
       )}>
@@ -35,7 +35,7 @@ const ExpandedSidebar = memo(({ className, onToggle, chats, chatId, isPro, onDel
         chatCount={chats.length}>
         {({ isUploading }) => (
           <Button
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white border-none shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] h-10 rounded-lg justify-start px-4"
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground border-none shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] h-10 rounded-lg justify-start px-4"
             disabled={isUploading}>
             {isUploading ? (
               <RiLoader2Fill className="mr-2 w-4 h-4 animate-spin" />
