@@ -8,7 +8,7 @@ const ChatPage = () => {
         <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mb-4 shadow-md border border-blue-200 dark:border-blue-800">
           <FiMessageCircle className="w-8 h-8 text-blue-600 dark:text-blue-400" />
         </div>
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">Welcome to Chat PDF</h2>
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">Welcome to ChatDoc</h2>
         <p className="text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">
           Select a chat from the sidebar to continue your conversation, or start a new one directly.
         </p>

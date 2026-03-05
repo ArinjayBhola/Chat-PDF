@@ -27,7 +27,7 @@ export default async function SettingsPage() {
   const expiryDate = subData[0]?.subscriptionEndDate || null;
 
   // Fetch chats
-  const userChats = await db.select().from(chats).where(eq(chats.userId, session.user.id));
+  const userChats = await db.select({ id: chats.id }).from(chats).where(eq(chats.userId, session.user.id));
   const isAuth = !!session?.user;
 
   return (

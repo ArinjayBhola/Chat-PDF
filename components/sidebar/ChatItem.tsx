@@ -64,13 +64,13 @@ export const ChatItem = memo(
   }) => {
     const router = useRouter();
     const [isEditing, setIsEditing] = React.useState(false);
-    const [editName, setEditName] = React.useState(chat.pdfName);
+    const [editName, setEditName] = React.useState(chat.fileName);
     const [isRenaming, setIsRenaming] = React.useState(false);
 
     const handleRename = async () => {
-      if (editName === chat.pdfName || !editName.trim()) {
+      if (editName === chat.fileName || !editName.trim()) {
         setIsEditing(false);
-        setEditName(chat.pdfName);
+        setEditName(chat.fileName);
         return;
       }
 
@@ -85,7 +85,7 @@ export const ChatItem = memo(
       } catch (error) {
         console.error(error);
         toast.error("Failed to rename chat");
-        setEditName(chat.pdfName);
+        setEditName(chat.fileName);
       } finally {
         setIsRenaming(false);
         setIsEditing(false);
@@ -97,7 +97,7 @@ export const ChatItem = memo(
         handleRename();
       } else if (e.key === "Escape") {
         setIsEditing(false);
-        setEditName(chat.pdfName);
+        setEditName(chat.fileName);
       }
     };
 
@@ -112,7 +112,7 @@ export const ChatItem = memo(
               "bg-primary/10 text-primary shadow-sm font-semibold": isActive,
               "text-muted-foreground hover:text-foreground hover:bg-muted/50 font-medium": !isActive,
             })}>
-            <FileIcon name={chat.pdfName} className="mr-3 w-4 h-4 flex-shrink-0" />
+            <FileIcon name={chat.fileName} className="mr-3 w-4 h-4 flex-shrink-0" />
             {isEditing ? (
               <input
                 autoFocus
@@ -125,7 +125,7 @@ export const ChatItem = memo(
               />
             ) : (
               <p className="w-full overflow-hidden text-sm truncate whitespace-nowrap tracking-wide pr-14">
-                {chat.pdfName}
+                {chat.fileName}
               </p>
             )}
 
@@ -148,7 +148,7 @@ export const ChatItem = memo(
             </div>
           )}
           <div
-            onClick={(e) => onDelete(e, chat.id, chat.pdfName)}
+            onClick={(e) => onDelete(e, chat.id, chat.fileName)}
             className={cn(
               "p-1.5 rounded-md transition-all duration-200 cursor-pointer hover:bg-destructive/10 text-muted-foreground hover:text-destructive",
               { "opacity-100": isActive },
@@ -175,7 +175,7 @@ export const CollapsedChatItem = memo(({ chat, isActive }: { chat: DrizzleChat; 
         "p-3 rounded-lg transition-colors flex items-center justify-center",
         isActive ? "bg-primary/10 text-primary shadow-sm" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
       )}>
-      <FileIcon name={chat.pdfName} className="w-5 h-5" />
+      <FileIcon name={chat.fileName} className="w-5 h-5" />
     </div>
     {isActive && <div className="absolute right-[-4px] top-1 bottom-1 w-1 bg-primary rounded-l-full" />}
   </Link>

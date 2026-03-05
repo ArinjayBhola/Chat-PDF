@@ -1,11 +1,11 @@
 import React from "react";
 
 type Props = {
-  pdf_url: string;
+  file_url: string;
 };
 
-const PDFViewer = ({ pdf_url }: Props) => {
-  const validUrl = pdf_url.replace("https// ", "https://");
+const DocViewer = ({ file_url }: Props) => {
+  const validUrl = file_url.replace("https// ", "https://");
 
   return (
     <iframe
@@ -15,4 +15,4 @@ const PDFViewer = ({ pdf_url }: Props) => {
   );
 };
 
-export default PDFViewer;
+export default DocViewer;

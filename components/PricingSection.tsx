@@ -15,7 +15,7 @@ const PricingSection = ({ isPro }: { isPro: boolean }) => {
           </p>
         </div>
         <p className="mx-auto mt-6 max-w-2xl text-center text-lg leading-8 text-slate-600 dark:text-slate-400">
-          Unlock the full power of PDF Chat AI with our premium plan.
+          Unlock the full power of ChatDoc AI with our premium plan.
         </p>
         <div className="mt-16 flex justify-center">
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:max-w-4xl w-full">
@@ -26,7 +26,7 @@ const PricingSection = ({ isPro }: { isPro: boolean }) => {
                   <h3 className="text-xl font-semibold leading-8 text-slate-900 dark:text-slate-100">Free</h3>
                 </div>
                 <p className="mt-4 text-sm leading-6 text-slate-600 dark:text-slate-400">
-                  Perfect for trying out PDF Chat AI.
+                  Perfect for trying out ChatDoc AI.
                 </p>
                 <p className="mt-6 flex items-baseline gap-x-1">
                   <span className="text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100">₹0</span>
@@ -36,11 +36,11 @@ const PricingSection = ({ isPro }: { isPro: boolean }) => {
                   role="list"
                   className="mt-8 space-y-3 text-sm leading-6 text-slate-600 dark:text-slate-400">
                   <li className="flex gap-x-3">
-                    <FaCheck className="h-6 w-5 flex-none text-indigo-600 dark:text-indigo-400" />3 PDF uploads
+                    <FaCheck className="h-6 w-5 flex-none text-indigo-600 dark:text-indigo-400" />3 document uploads
                   </li>
                   <li className="flex gap-x-3 text-slate-400 dark:text-slate-600 line-through">
                     <FaCheck className="h-6 w-5 flex-none text-slate-300 dark:text-slate-700" />
-                    Unlimited PDF uploads
+                    Unlimited document uploads
                   </li>
                   <li className="flex gap-x-3 text-slate-400 dark:text-slate-600 line-through">
                     <FaCheck className="h-6 w-5 flex-none text-slate-300 dark:text-slate-700" />
@@ -83,7 +83,7 @@ const PricingSection = ({ isPro }: { isPro: boolean }) => {
                   className="mt-8 space-y-3 text-sm leading-6 text-slate-300">
                   <li className="flex gap-x-3">
                     <FaCheck className="h-6 w-5 flex-none text-indigo-400" />
-                    <span className="text-white">Unlimited PDF uploads</span>
+                    <span className="text-white">Unlimited document uploads</span>
                   </li>
                   <li className="flex gap-x-3">
                     <FaCheck className="h-6 w-5 flex-none text-indigo-400" />

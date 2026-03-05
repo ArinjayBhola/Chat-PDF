@@ -1,6 +1,6 @@
-# Chat-PDF 📄💬
+# Chat-Doc 📄💬
 
-A powerful, AI-powered SaaS application that allows users to upload PDF documents and have intelligent conversations with them using advanced AI technology. Built with modern web technologies and designed for a seamless user experience.
+A powerful, AI-powered SaaS application that allows users to upload documents (PDF, Docx, TXT, etc.) and have intelligent conversations with them using advanced AI technology. Built with modern web technologies and designed for a seamless user experience.
 
 ![Next.js](https://img.shields.io/badge/Next.js-15.1.11-black?style=flat-square&logo=next.js)
 ![React](https://img.shields.io/badge/React-19.1.2-blue?style=flat-square&logo=react)
@@ -10,13 +10,13 @@ A powerful, AI-powered SaaS application that allows users to upload PDF document
 ## 🌟 Features
 
 ### Core Functionality
-- **PDF Upload & Processing**: Upload PDF files (up to 10MB) with drag-and-drop support
-- **AI-Powered Chat**: Engage in intelligent conversations about your PDF content using Google's Gemini AI
+- **Multi-Format Upload & Processing**: Upload documents (up to 10MB) with drag-and-drop support
+- **AI-Powered Chat**: Engage in intelligent conversations about your document content using Google's Gemini AI
 - **Vector Search**: Leverages Pinecone vector database for semantic search and context retrieval
-- **OCR Support**: Automatic Optical Character Recognition (Tesseract.js) for scanned PDFs
-- **Web Search**: Integrated Exa.ai search for broader context beyond the PDF
+- **OCR Support**: Automatic Optical Character Recognition (Tesseract.js) for scanned images and documents
+- **Web Search**: Integrated Exa.ai search for broader context beyond the file
 - **Real-time Streaming**: Get AI responses in real-time with smooth streaming
-- **Multi-Document Support**: Manage multiple PDF chats simultaneously
+- **Multi-Document Support**: Manage multiple document chats simultaneously
 
 ### Authentication & User Management
 - **Dual Authentication**: Support for both Google OAuth and email/password credentials
@@ -25,8 +25,8 @@ A powerful, AI-powered SaaS application that allows users to upload PDF document
 
 ### Subscription & Payments
 - **Freemium Model**: 
-  - **Free Tier**: Up to 3 PDF uploads
-  - **Pro Tier**: Unlimited PDF uploads
+  - **Free Tier**: Up to 3 document uploads
+  - **Pro Tier**: Unlimited document uploads
 - **Razorpay Integration**: Secure payment processing for Pro subscriptions
 - **Payment Webhooks**: Automated subscription activation upon successful payment
 
@@ -34,7 +34,7 @@ A powerful, AI-powered SaaS application that allows users to upload PDF document
 - **Clean, Modern UI**: Distraction-free interface with smooth animations
 - **Responsive Design**: Works seamlessly across all device sizes
 - **Chat History**: Persistent message storage for all conversations
-- **PDF Viewer**: Integrated PDF viewing alongside chat interface
+- **Document Viewer**: Integrated document viewing alongside chat interface
 - **Loading States**: Clear visual feedback during processing
 
 ## 🏗️ Architecture

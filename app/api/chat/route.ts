@@ -55,7 +55,7 @@ export async function POST(req: Request) {
 
       if (generatedTitle) {
         await db.update(chats)
-          .set({ pdfName: generatedTitle.trim() })
+          .set({ fileName: generatedTitle.trim() })
           .where(eq(chats.id, chatId));
       }
     } catch (e) {

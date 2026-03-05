@@ -33,8 +33,8 @@ export async function POST(req: Request, res: Response) {
       .values({
         id: crypto.randomUUID(),
         fileKey: file_key,
-        pdfName: file_name,
-        pdfUrl: getS3Url(file_key),
+        fileName: file_name,
+        fileUrl: getS3Url(file_key),
         userId: session.user.id,
       })
       .returning({

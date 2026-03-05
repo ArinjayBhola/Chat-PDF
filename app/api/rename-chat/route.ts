@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     // 2. Update the chat name
     await db
       .update(chats)
-      .set({ pdfName: newName })
+      .set({ fileName: newName })
       .where(eq(chats.id, chatId));
 
     return NextResponse.json({ success: true }, { status: 200 });

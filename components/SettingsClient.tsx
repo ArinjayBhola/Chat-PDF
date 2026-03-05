@@ -238,7 +238,7 @@ export default function SettingsClient({ email, isPro, expiryDate, chatCount }: 
             <div className="pt-8 border-t border-border">
               <h2 className="text-xl font-bold text-destructive mb-4">Danger Zone</h2>
               <p className="text-muted-foreground text-sm mb-6">
-                Permanently delete your account and all associated AI chats. This action cannot be undone.
+                Permanently delete your account and all associated document chats. This action cannot be undone.
               </p>
               <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
                 <DialogTrigger asChild>
@@ -310,16 +310,16 @@ export default function SettingsClient({ email, isPro, expiryDate, chatCount }: 
               <p className="text-muted-foreground text-sm mb-6">Select your primary accent color for the platform.</p>
               
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                {["default", "orange", "amber", "rose"].map((c) => (
+                {["default", "red", "amber", "rose"].map((c) => (
                   <button
                     key={c}
                     onClick={() => setThemeColor(c as any)}
                     className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${themeColor === c ? "border-primary bg-muted" : "border-border hover:bg-muted/50"}`}
                   >
                     <div className="w-6 h-6 rounded-full" style={{
-                      backgroundColor: c === 'default' ? '#3b82f6' : c === 'orange' ? '#f97316' : c === 'amber' ? '#f59e0b' : '#f43f5e'
+                      backgroundColor: c === 'default' ? '#3b82f6' : c === 'red' ? '#ef4444' : c === 'amber' ? '#f59e0b' : '#f43f5e'
                     }} />
-                    <span className="capitalize font-medium">{c}</span>
+                    <span className={cn("capitalize font-medium", themeColor === 'red' && c === 'red' && "text-red-500")}>{c}</span>
                   </button>
                 ))}
               </div>
@@ -412,8 +412,8 @@ export default function SettingsClient({ email, isPro, expiryDate, chatCount }: 
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground mb-1">Chats Created</p>
-                    <p className="text-lg font-semibold">{chatCount} <span className="text-muted-foreground text-sm font-normal">/ {isPro ? "Unlimited" : "3 limits"}</span></p>
+                    <p className="text-sm font-medium text-muted-foreground mb-1">Documents Created</p>
+                    <p className="text-lg font-semibold">{chatCount} <span className="text-muted-foreground text-sm font-normal">/ {isPro ? "Unlimited" : "3 limit"}</span></p>
                     {/* Visual Meter */}
                     {!isPro && (
                       <div className="w-full bg-border h-2 rounded-full mt-2 overflow-hidden">

@@ -21,7 +21,7 @@ type Props = {
 export default function ChatLayout({ chat, isOwner, session }: Props) {
   const [hideDocument, setHideDocument] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
-  const [activeMobileTab, setActiveMobileTab] = useState<"pdf" | "chat">("chat");
+  const [activeMobileTab, setActiveMobileTab] = useState<"file" | "chat">("chat");
 
   const shareData = {
     isShared: chat.isShared === "true",
@@ -82,10 +82,10 @@ export default function ChatLayout({ chat, isOwner, session }: Props) {
           <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-30 flex justify-between items-center shadow-sm text-slate-800 dark:text-slate-100">
             <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl w-40 h-9">
               <button
-                onClick={() => setActiveMobileTab("pdf")}
+                onClick={() => setActiveMobileTab("file")}
                 className={cn(
                     "flex-1 rounded-lg text-xs font-semibold py-1.5 transition-all text-slate-700 dark:text-slate-200",
-                    activeMobileTab === "pdf" && "bg-white dark:bg-slate-700 shadow-sm"
+                    activeMobileTab === "file" && "bg-white dark:bg-slate-700 shadow-sm"
                 )}
               >
                 File
@@ -104,11 +104,11 @@ export default function ChatLayout({ chat, isOwner, session }: Props) {
           </div>
           
           <div className="flex-1 relative overflow-hidden">
-            <div className={cn("absolute inset-0 transition-all duration-300", activeMobileTab === "pdf" ? "opacity-100 translate-x-0 z-10" : "opacity-0 -translate-x-full -z-10 pointer-events-none")}>
+            <div className={cn("absolute inset-0 transition-all duration-300", activeMobileTab === "file" ? "opacity-100 translate-x-0 z-10" : "opacity-0 -translate-x-full -z-10 pointer-events-none")}>
               <div className="w-full h-full p-2 bg-white dark:bg-slate-950">
                 <FileViewer 
-                  file_url={chat.pdfUrl || ""} 
-                  file_name={chat.pdfName} 
+                  file_url={chat.fileUrl || ""} 
+                  file_name={chat.fileName} 
                   refreshKey={currentRefreshKey}
                 />
               </div>
@@ -135,7 +135,7 @@ export default function ChatLayout({ chat, isOwner, session }: Props) {
                 </div>
                 <div className="flex flex-col min-w-0">
                     <h2 className="text-[13px] sm:text-[14px] font-bold text-slate-900 dark:text-white truncate tracking-tight leading-tight">
-                        {chat.pdfName}
+                        {chat.fileName}
                     </h2>
                     <div className="flex items-center gap-1.5 mt-0.5">
                         <span className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]" />
@@ -163,8 +163,8 @@ export default function ChatLayout({ chat, isOwner, session }: Props) {
                 leftPanel={
                   <div className="w-full h-full overflow-hidden border-r border-slate-200 dark:border-slate-700 bg-[#f8f9fa] dark:bg-slate-950">
                     <FileViewer 
-                      file_url={chat.pdfUrl || ""} 
-                      file_name={chat.pdfName} 
+                      file_url={chat.fileUrl || ""} 
+                      file_name={chat.fileName} 
                       refreshKey={currentRefreshKey}
                     />
                   </div>

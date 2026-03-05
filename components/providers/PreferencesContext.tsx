@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 type InterfaceSize = "comfortable" | "compact";
-type ThemeColor = "default" | "orange" | "amber" | "rose" | "emerald";
+type ThemeColor = "default" | "red" | "amber" | "rose" | "emerald";
 type ChatAppearance = "modern" | "classic";
 type Typography = "sans" | "serif" | "mono";
 

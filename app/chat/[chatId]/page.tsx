@@ -1,4 +1,3 @@
-import PDFViewer from "@/components/PDFViewer";
 import { db } from "@/lib/db";
 import { chats } from "@/lib/db/schema";
 import { getServerSession } from "next-auth";

@@ -22,8 +22,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ChatPDF",
-  description: "Chat with your PDF documents using AI.",
+  title: "ChatDoc",
+  description: "Chat with your documents using AI.",
 };
 
 export default async function RootLayout({
