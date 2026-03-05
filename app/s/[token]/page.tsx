@@ -29,11 +29,14 @@ const PublicSharePage = async ({ params }: Props) => {
   const isOwner = session?.user?.id === currentChat.userId;
 
   return (
-    <ChatLayout 
-      chat={currentChat}
-      isOwner={isOwner}
-      session={session}
-    />
+    <div className="h-screen w-full">
+      <ChatLayout 
+        chat={currentChat}
+        isOwner={isOwner}
+        session={session}
+        isSharedView={true}
+      />
+    </div>
   );
 };
 

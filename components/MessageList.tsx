@@ -16,9 +16,10 @@ type Props = {
   status?: string;
   chatId?: string;
   onNoteAdded?: () => void;
+  isSharedView?: boolean;
 };
 
-const MessageList = ({ messages, reload, status, chatId, onNoteAdded }: Props) => {
+const MessageList = ({ messages, reload, status, chatId, onNoteAdded, isSharedView = false }: Props) => {
   const { chatAppearance } = usePreferences();
   const [copiedId, setCopiedId] = React.useState<string | null>(null);
 
@@ -94,7 +95,7 @@ const MessageList = ({ messages, reload, status, chatId, onNoteAdded }: Props) =
                       {copiedId === message.id ? <IoCheckmarkOutline className="w-3.5 h-3.5 text-primary" /> : <IoCopyOutline className="w-3.5 h-3.5" />}
                     </button>
                   )}
-                  {chatId && (
+                  {!isSharedView && chatId && (
                     <button
                       title="Save to Notes"
                       onClick={async () => {
@@ -111,7 +112,7 @@ const MessageList = ({ messages, reload, status, chatId, onNoteAdded }: Props) =
                       <LuNotebook className="w-3.5 h-3.5" />
                     </button>
                   )}
-                  {!isUser && reload && status !== "streaming" && message.id === messages[messages.length - 1].id && (
+                  {!isSharedView && !isUser && reload && status !== "streaming" && message.id === messages[messages.length - 1].id && (
                     <button
                       title="Regenerate response"
                       onClick={() => reload()}

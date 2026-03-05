@@ -66,6 +66,11 @@ export function ShareDialog({ open, onOpenChange, chatId, initialData }: ShareDi
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const hasChanges = 
+    isShared !== (initialData?.isShared ?? false) ||
+    permission !== (initialData?.sharePermission ?? "view") ||
+    allowPublic !== (initialData?.allowPublicView ?? false);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
@@ -93,7 +98,7 @@ export function ShareDialog({ open, onOpenChange, chatId, initialData }: ShareDi
               }`}
             >
               <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                className={`relative inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
                   isShared ? "translate-x-6" : "translate-x-1"
                 }`}
               />
@@ -143,7 +148,7 @@ export function ShareDialog({ open, onOpenChange, chatId, initialData }: ShareDi
                   }`}
                 >
                   <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    className={`relative inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
                       allowPublic ? "translate-x-6" : "translate-x-1"
                     }`}
                   />
@@ -170,9 +175,9 @@ export function ShareDialog({ open, onOpenChange, chatId, initialData }: ShareDi
           )}
 
           <Button 
-            className="w-full" 
+            className="w-full text-sm font-bold" 
             onClick={handleSave} 
-            disabled={isSaving}
+            disabled={isSaving || !hasChanges}
           >
             {isSaving ? "Saving..." : "Save Settings"}
           </Button>

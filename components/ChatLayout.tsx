@@ -17,9 +17,10 @@ type Props = {
   chat: DrizzleChat;
   isOwner: boolean;
   session: Session | null;
+  isSharedView?: boolean;
 };
 
-export default function ChatLayout({ chat, isOwner, session }: Props) {
+export default function ChatLayout({ chat, isOwner, session, isSharedView = false }: Props) {
   const [hideDocument, setHideDocument] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isNotesOpen, setIsNotesOpen] = useState(false);
@@ -42,21 +43,23 @@ export default function ChatLayout({ chat, isOwner, session }: Props) {
 
   const headerActions = (
     <div className="flex items-center gap-2 sm:gap-3">
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => setIsNotesOpen(!isNotesOpen)}
-        className={cn(
-          "flex items-center gap-2 h-9 px-3 sm:px-4 border-slate-200 dark:border-slate-800 transition-all duration-200 shadow-sm bg-white dark:bg-slate-900",
-          isNotesOpen
-            ? "text-[#f97316] border-[#f97316]/50 bg-orange-50/50 dark:bg-orange-950/20"
-            : "text-slate-600 dark:text-slate-400 hover:text-[#f97316] hover:border-[#f97316]/30"
-        )}
-        title={isNotesOpen ? "Hide Notes" : "Show Notes"}
-      >
-        <LuNotebook className="w-4 h-4" />
-        <span className="hidden sm:inline text-xs font-semibold">Notes</span>
-      </Button>
+      {session?.user && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setIsNotesOpen(!isNotesOpen)}
+          className={cn(
+            "flex items-center gap-2 h-9 px-3 sm:px-4 border-slate-200 dark:border-slate-800 transition-all duration-200 shadow-sm bg-white dark:bg-slate-900",
+            isNotesOpen
+              ? "text-primary border-primary/50 bg-primary/5"
+              : "text-slate-600 dark:text-slate-400 hover:text-primary hover:border-primary/30"
+          )}
+          title={isNotesOpen ? "Hide Notes" : "Show Notes"}
+        >
+          <LuNotebook className="w-4 h-4" />
+          <span className="hidden sm:inline text-xs font-semibold">Notes</span>
+        </Button>
+      )}
 
       <Button
         variant="outline"
@@ -143,6 +146,7 @@ export default function ChatLayout({ chat, isOwner, session }: Props) {
                 isShared={chat.isShared === "true"}
                 sharePermission={chat.sharePermission as "view" | "edit"}
                 onNoteAdded={handleNoteAdded}
+                isSharedView={isSharedView}
               />
             </div>
           </div>
@@ -152,7 +156,7 @@ export default function ChatLayout({ chat, isOwner, session }: Props) {
       {/* Desktop Layout */}
       <div className="hidden lg:flex w-full h-full overflow-hidden flex-col">
         {/* Header with actions */}
-        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md flex justify-between items-center z-20 shadow-sm transition-all duration-300 font-sans">
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md flex justify-between items-center z-30 shadow-sm transition-all duration-300 font-sans">
             <div className="flex items-center gap-3 min-w-0">
                 <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg shrink-0">
                     <LuFileBox className="w-5 h-5 text-blue-600 dark:text-blue-400" />
@@ -170,8 +174,8 @@ export default function ChatLayout({ chat, isOwner, session }: Props) {
             {headerActions}
         </div>
 
-        <div className="flex-1 overflow-hidden pointer-events-auto flex">
-            <div className={cn("flex-1 flex flex-col h-full transition-all duration-500", { "mr-80": isNotesOpen })}>
+        <div className="flex-1 overflow-hidden flex">
+            <div className="flex-1 flex flex-col h-full min-w-0 relative">
                 <div className={cn("w-full h-full", hideDocument ? "block" : "hidden")}>
                     <div className="w-full h-full max-w-5xl mx-auto bg-white dark:bg-slate-900 border-x border-slate-100 dark:border-slate-800 shadow-xl overflow-hidden ring-1 ring-black/5 dark:ring-white/5">
                         <ChatComponent
@@ -180,6 +184,7 @@ export default function ChatLayout({ chat, isOwner, session }: Props) {
                             isShared={chat.isShared === "true"}
                             sharePermission={chat.sharePermission as "view" | "edit"}
                             onNoteAdded={handleNoteAdded}
+                            isSharedView={isSharedView}
                         />
                     </div>
                 </div>
@@ -203,6 +208,7 @@ export default function ChatLayout({ chat, isOwner, session }: Props) {
                           isShared={chat.isShared === "true"}
                           sharePermission={chat.sharePermission as "view" | "edit"}
                           onNoteAdded={handleNoteAdded}
+                          isSharedView={isSharedView}
                         />
                       </div>
                     }
@@ -215,17 +221,21 @@ export default function ChatLayout({ chat, isOwner, session }: Props) {
             </div>
 
             {/* Integrated Notes Sidebar */}
-            <div className={cn(
-              "fixed top-[65px] bottom-0 right-0 w-80 z-20 transition-transform duration-500 ease-in-out bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 shadow-2xl",
-              isNotesOpen ? "translate-x-0" : "translate-x-full"
-            )}>
-              <NotesSidebar 
-                chatId={chat.id} 
-                isOpen={isNotesOpen} 
-                onClose={() => setIsNotesOpen(false)} 
-                refreshKey={notesRefreshKey}
-              />
-            </div>
+            {session?.user && (
+              <div className={cn(
+                "h-full transition-all duration-300 ease-in-out bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 shrink-0",
+                isNotesOpen ? "w-80 opacity-100" : "w-0 opacity-0 overflow-hidden border-none"
+              )}>
+                <div className="w-80 h-full">
+                  <NotesSidebar 
+                    chatId={chat.id} 
+                    isOpen={isNotesOpen} 
+                    onClose={() => setIsNotesOpen(false)} 
+                    refreshKey={notesRefreshKey}
+                  />
+                </div>
+              </div>
+            )}
         </div>
       </div>
 
