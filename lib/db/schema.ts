@@ -32,6 +32,19 @@ export const messages = pgTable("messages", {
   senderName: text("sender_name"),
 });
 
+export const notes = pgTable("notes", {
+  id: uuid("id").primaryKey(),
+  chatId: uuid("chat_id")
+    .references(() => chats.id)
+    .notNull(),
+  userId: text("user_id").notNull(),
+  content: text("content").notNull(),
+  source: text("source").notNull().default("manual"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export type DrizzleNote = typeof notes.$inferSelect;
+
 export const userSubscriptions = pgTable("user_subscriptions", {
   id: uuid("id").primaryKey(),
   userId: text("user_id").notNull().unique(),

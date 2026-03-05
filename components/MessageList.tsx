@@ -5,23 +5,27 @@ import { cn } from "@/lib/utils";
 import { UIMessage } from "ai";
 import { CiUser, CiRedo } from "react-icons/ci";
 import { IoSparklesOutline, IoCopyOutline, IoCheckmarkOutline } from "react-icons/io5";
+import { LuNotebook } from "react-icons/lu";
 import { usePreferences } from "./providers/PreferencesContext";
+import { saveToNotes } from "./NotesPanel";
 import toast from "react-hot-toast";
 
 type Props = {
   messages: UIMessage[];
   reload?: () => void;
   status?: string;
+  chatId?: string;
+  onNoteAdded?: () => void;
 };
 
-const MessageList = ({ messages, reload, status }: Props) => {
+const MessageList = ({ messages, reload, status, chatId, onNoteAdded }: Props) => {
   const { chatAppearance } = usePreferences();
   const [copiedId, setCopiedId] = React.useState<string | null>(null);
 
   if (!messages?.length) return null;
 
   return (
-    <div className="flex flex-col gap-4 px-2 sm:px-4 py-4">
+    <div className="flex flex-col gap-4 px-2 sm:px-4 py-4 group">
       {messages.map((message) => {
         const text = message.parts
           ?.filter((part) => part.type === "text")
@@ -71,12 +75,12 @@ const MessageList = ({ messages, reload, status }: Props) => {
                     "bg-primary/10 text-foreground border border-primary/20 rounded-md w-fit": chatAppearance === "classic" && isUser,
                     "bg-muted text-foreground border border-border rounded-md w-fit": chatAppearance === "classic" && !isUser,
                   })}>
-                  <div className="markdown-prose whitespace-pre-wrap font-medium">{text}</div>
+                  <div className="markdown-prose whitespace-pre-wrap font-medium text-sm sm:text-base leading-relaxed">{text}</div>
                 </div>
                 
-                {/* Message Actions (AI Only) */}
-                {!isUser && (
-                  <div className="flex items-center gap-2 mt-1 px-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200" style={{ opacity: 1 }}> {/* Forced opacity for visibility, remove style={{}} in next iteration if hover is preferred */}
+                {/* Message Actions */}
+                <div className="flex items-center gap-2 mt-1 px-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  {!isUser && (
                     <button
                       title="Copy message"
                       onClick={() => {
@@ -89,17 +93,34 @@ const MessageList = ({ messages, reload, status }: Props) => {
                     >
                       {copiedId === message.id ? <IoCheckmarkOutline className="w-3.5 h-3.5 text-primary" /> : <IoCopyOutline className="w-3.5 h-3.5" />}
                     </button>
-                    {reload && status !== "streaming" && message.id === messages[messages.length - 1].id && (
-                      <button
-                        title="Regenerate response"
-                        onClick={() => reload()}
-                        className="p-1.5 text-muted-foreground hover:text-foreground rounded-md hover:bg-muted transition-colors"
-                      >
-                         <CiRedo className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
-                )}
+                  )}
+                  {chatId && (
+                    <button
+                      title="Save to Notes"
+                      onClick={async () => {
+                        try {
+                          await saveToNotes(chatId, text, isUser ? "user_message" : "ai_response");
+                          toast.success("Saved to notes");
+                          if (onNoteAdded) onNoteAdded();
+                        } catch {
+                          toast.error("Failed to save note");
+                        }
+                      }}
+                      className="p-1.5 text-muted-foreground hover:text-slate-900 dark:hover:text-white rounded-md hover:bg-muted transition-colors"
+                    >
+                      <LuNotebook className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                  {!isUser && reload && status !== "streaming" && message.id === messages[messages.length - 1].id && (
+                    <button
+                      title="Regenerate response"
+                      onClick={() => reload()}
+                      className="p-1.5 text-muted-foreground hover:text-foreground rounded-md hover:bg-muted transition-colors"
+                    >
+                       <CiRedo className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </div>

@@ -20,6 +20,7 @@ type Props = {
   isOwner?: boolean;
   isShared?: boolean;
   sharePermission?: "view" | "edit";
+  onNoteAdded?: () => void;
 };
 
 export default function ChatComponent({
@@ -27,6 +28,7 @@ export default function ChatComponent({
   isOwner,
   isShared,
   sharePermission,
+  onNoteAdded,
 }: Props) {
   const { data: sessionData } = useQuery({
     queryKey: ["session"],
@@ -159,7 +161,7 @@ export default function ChatComponent({
             </div>
           )}
 
-          <MessageList messages={messages} reload={handleRegenerate} status={status} />
+          <MessageList messages={messages} reload={handleRegenerate} status={status} chatId={chatId} onNoteAdded={onNoteAdded} />
 
           {status === "submitted" && (
              <div className="flex justify-start px-4 mt-4 animate-in fade-in slide-in-from-bottom-2">
