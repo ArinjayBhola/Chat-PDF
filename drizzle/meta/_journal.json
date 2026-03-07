@@ -15,6 +15,13 @@
       "when": 1772561700287,
       "tag": "0001_keen_paladin",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1772877481636,
+      "tag": "0002_charming_doctor_strange",
+      "breakpoints": true
     }
   ]
 }

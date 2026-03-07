@@ -45,6 +45,25 @@ export const notes = pgTable("notes", {
 
 export type DrizzleNote = typeof notes.$inferSelect;
 
+export const comparisons = pgTable("comparisons", {
+  id: uuid("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  chatIdsKey: text("chat_ids_key").notNull(), // sorted comma-separated chat IDs
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export type DrizzleComparison = typeof comparisons.$inferSelect;
+
+export const comparisonMessages = pgTable("comparison_messages", {
+  id: uuid("id").primaryKey(),
+  comparisonId: uuid("comparison_id")
+    .references(() => comparisons.id)
+    .notNull(),
+  content: text("content").notNull(),
+  role: userSystemEnum("role").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const userSubscriptions = pgTable("user_subscriptions", {
   id: uuid("id").primaryKey(),
   userId: text("user_id").notNull().unique(),

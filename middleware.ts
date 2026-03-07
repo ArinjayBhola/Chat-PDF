@@ -14,7 +14,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  if (pathname.startsWith("/chat")) {
+  if (pathname.startsWith("/chat") || pathname.startsWith("/compare")) {
     const signInUrl = new URL("/sign-in", req.url);
     signInUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(signInUrl);
