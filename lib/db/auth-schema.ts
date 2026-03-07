@@ -10,6 +10,7 @@ export const users = pgTable("users", {
   emailVerified: timestamp("email_verified", { mode: "date" }),
   image: text("image"),
   password: text("password"), // For credentials provider
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export const accounts = pgTable(
