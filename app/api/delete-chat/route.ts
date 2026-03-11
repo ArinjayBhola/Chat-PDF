@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { chats, messages } from "@/lib/db/schema";
+import { chats, messages, notes } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { Pinecone } from "@pinecone-database/pinecone";
@@ -58,10 +58,13 @@ export async function DELETE(req: Request) {
         console.error("Error deleting from S3:", s3Error);
     }
 
-    // 4. Delete messages first
+    // 4. Delete notes first (references chats.id via foreign key)
+    await db.delete(notes).where(eq(notes.chatId, chatId));
+
+    // 5. Delete messages
     await db.delete(messages).where(eq(messages.chatsId, chatId));
 
-    // 5. Delete the chat
+    // 6. Delete the chat
     await db.delete(chats).where(eq(chats.id, chatId));
 
     return NextResponse.json({ success: true }, { status: 200 });

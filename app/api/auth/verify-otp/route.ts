@@ -1,11 +1,14 @@
 import { db } from "@/lib/db";
 import { users, otps } from "@/lib/db/auth-schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, lt } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
+    // Auto-delete all expired OTPs from the DB
+    await db.delete(otps).where(lt(otps.expiresAt, new Date()));
+
     const { name, email, password, otp } = await req.json();
 
     if (!email || !otp) {
