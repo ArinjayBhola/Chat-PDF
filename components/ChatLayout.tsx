@@ -176,48 +176,39 @@ export default function ChatLayout({ chat, isOwner, session, isSharedView = fals
 
         <div className="flex-1 overflow-hidden flex">
             <div className="flex-1 flex flex-col h-full min-w-0 relative">
-                <div className={cn("w-full h-full", hideDocument ? "block" : "hidden")}>
-                    <div className="w-full h-full max-w-5xl mx-auto bg-white dark:bg-slate-900 border-x border-slate-100 dark:border-slate-800 shadow-xl overflow-hidden ring-1 ring-black/5 dark:ring-white/5">
-                        <ChatComponent
-                            chatId={chat.id}
-                            isOwner={isOwner}
-                            isShared={chat.isShared === "true"}
-                            sharePermission={chat.sharePermission as "view" | "edit"}
-                            onNoteAdded={handleNoteAdded}
-                            isSharedView={isSharedView}
-                        />
+                <ResizableSplit
+                  hideLeft={hideDocument}
+                  leftPanel={
+                    <div className="w-full h-full overflow-hidden border-r border-slate-200 dark:border-slate-700 bg-[#f8f9fa] dark:bg-slate-950">
+                      <FileViewer
+                        file_url={chat.fileUrl || ""}
+                        file_name={chat.fileName}
+                        refreshKey={currentRefreshKey}
+                      />
                     </div>
-                </div>
-
-                <div className={cn("w-full h-full", hideDocument ? "hidden" : "block")}>
-                    <ResizableSplit
-                    leftPanel={
-                      <div className="w-full h-full overflow-hidden border-r border-slate-200 dark:border-slate-700 bg-[#f8f9fa] dark:bg-slate-950">
-                        <FileViewer
-                          file_url={chat.fileUrl || ""}
-                          file_name={chat.fileName}
-                          refreshKey={currentRefreshKey}
-                        />
-                      </div>
-                    }
-                    rightPanel={
-                      <div className="w-full h-full bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-700 shadow-2xl z-10 flex flex-col">
-                        <ChatComponent
-                          chatId={chat.id}
-                          isOwner={isOwner}
-                          isShared={chat.isShared === "true"}
-                          sharePermission={chat.sharePermission as "view" | "edit"}
-                          onNoteAdded={handleNoteAdded}
-                          isSharedView={isSharedView}
-                        />
-                      </div>
-                    }
-                    defaultLeftWidth={60}
-                    minLeftWidth={30}
-                    minRightWidth={30}
-                    storageKey={`chat-split-${chat.id}`}
-                  />
-                </div>
+                  }
+                  rightPanel={
+                    <div className={cn(
+                      "w-full h-full bg-white dark:bg-slate-900 flex flex-col",
+                      hideDocument
+                        ? "max-w-5xl mx-auto border-x border-slate-100 dark:border-slate-800 shadow-xl ring-1 ring-black/5 dark:ring-white/5"
+                        : "border-l border-slate-200 dark:border-slate-700 shadow-2xl z-10"
+                    )}>
+                      <ChatComponent
+                        chatId={chat.id}
+                        isOwner={isOwner}
+                        isShared={chat.isShared === "true"}
+                        sharePermission={chat.sharePermission as "view" | "edit"}
+                        onNoteAdded={handleNoteAdded}
+                        isSharedView={isSharedView}
+                      />
+                    </div>
+                  }
+                  defaultLeftWidth={60}
+                  minLeftWidth={30}
+                  minRightWidth={30}
+                  storageKey={`chat-split-${chat.id}`}
+                />
             </div>
 
             {/* Integrated Notes Sidebar */}

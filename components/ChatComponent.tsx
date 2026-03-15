@@ -6,7 +6,7 @@ import { DefaultChatTransport } from "ai";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import MessageList from "./MessageList";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { dbMessageToUIMessage } from "@/lib/message-mapper";
 import { cn } from "@/lib/utils";
@@ -45,6 +45,7 @@ export default function ChatComponent({
   const canChat = isOwner || (isShared && sharePermission === "edit" && sessionData?.user);
   const showLoginPrompt = isShared && !sessionData?.user && sharePermission === "edit";
 
+  const queryClient = useQueryClient();
   const [input, setInput] = useState("");
   const [webSearch, setWebSearch] = useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -105,6 +106,8 @@ export default function ChatComponent({
         body: { webSearch },
       },
     );
+    // Invalidate cache so other ChatComponent instances get fresh messages
+    queryClient.invalidateQueries({ queryKey: ["chat-messages", chatId] });
   };
 
   const handleRegenerate = async () => {

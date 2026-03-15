@@ -23,9 +23,22 @@ const EXTENSION_CATEGORY: Record<string, FileCategory> = {
   ".webp": "image",
 };
 
-function getCategory(fileName: string): FileCategory {
+function getCategory(fileName: string, fileUrl?: string): FileCategory {
   const ext = fileName.slice(fileName.lastIndexOf(".")).toLowerCase();
-  return EXTENSION_CATEGORY[ext] || "text";
+  const category = EXTENSION_CATEGORY[ext];
+  if (category) return category;
+
+  // Fallback: detect from URL (handles renamed files that lost their extension)
+  if (fileUrl) {
+    try {
+      const urlPath = new URL(fileUrl).pathname;
+      const urlExt = urlPath.slice(urlPath.lastIndexOf(".")).toLowerCase();
+      const urlCategory = EXTENSION_CATEGORY[urlExt];
+      if (urlCategory) return urlCategory;
+    } catch {}
+  }
+
+  return "text";
 }
 
 type Props = {
@@ -36,7 +49,7 @@ type Props = {
 
 const FileViewer = ({ file_url, file_name, refreshKey = 0 }: Props) => {
   const validUrl = file_url.replace("https// ", "https://");
-  const category = getCategory(file_name);
+  const category = getCategory(file_name, validUrl);
 
   if (category === "image") {
     return (

@@ -11,6 +11,7 @@ type Props = {
   minRightWidth?: number;
   storageKey?: string;
   className?: string;
+  hideLeft?: boolean;
 };
 
 const ResizableSplit = ({
@@ -21,6 +22,7 @@ const ResizableSplit = ({
   minRightWidth = 30,
   storageKey,
   className,
+  hideLeft = false,
 }: Props) => {
   const [leftWidth, setLeftWidth] = useState(defaultLeftWidth);
   const [isDragging, setIsDragging] = useState(false);
@@ -112,36 +114,38 @@ const ResizableSplit = ({
       className={cn("flex w-full h-full overflow-hidden", className)}>
       {/* Left Panel */}
       <div
-        className="h-full overflow-hidden transition-none"
+        className={cn("h-full overflow-hidden", hideLeft ? "hidden" : "block")}
         style={{ width: `${leftWidth}%` }}>
         {leftPanel}
       </div>
 
       {/* Draggable Divider */}
-      <div
-        className={cn(
-          "relative w-1 h-full bg-slate-300 dark:bg-slate-600 cursor-col-resize flex-shrink-0 group",
-          "hover:bg-blue-500 dark:hover:bg-blue-400 transition-colors duration-200",
-          isDragging && "bg-blue-500 dark:bg-blue-400",
-        )}
-        onMouseDown={handleMouseDown}>
-        {/* Visual indicator on hover */}
+      {!hideLeft && (
         <div
           className={cn(
-            "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
-            "w-1 h-16 bg-slate-400 dark:bg-slate-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity",
-            isDragging && "opacity-100 bg-blue-500 dark:bg-blue-400",
+            "relative w-1 h-full bg-slate-300 dark:bg-slate-600 cursor-col-resize flex-shrink-0 group",
+            "hover:bg-blue-500 dark:hover:bg-blue-400 transition-colors duration-200",
+            isDragging && "bg-blue-500 dark:bg-blue-400",
           )}
-        />
+          onMouseDown={handleMouseDown}>
+          {/* Visual indicator on hover */}
+          <div
+            className={cn(
+              "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
+              "w-1 h-16 bg-slate-400 dark:bg-slate-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity",
+              isDragging && "opacity-100 bg-blue-500 dark:bg-blue-400",
+            )}
+          />
 
-        {/* Wider hit area for easier grabbing */}
-        <div className="absolute inset-y-0 -left-2 -right-2 cursor-col-resize" />
-      </div>
+          {/* Wider hit area for easier grabbing */}
+          <div className="absolute inset-y-0 -left-2 -right-2 cursor-col-resize" />
+        </div>
+      )}
 
       {/* Right Panel */}
       <div
         className="h-full overflow-hidden transition-none"
-        style={{ width: `${100 - leftWidth}%` }}>
+        style={{ width: hideLeft ? "100%" : `${100 - leftWidth}%` }}>
         {rightPanel}
       </div>
     </div>
