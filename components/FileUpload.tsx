@@ -1,7 +1,7 @@
 "use client";
 
 import { uploadToS3 } from "@/lib/s3";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { useDropzone } from "react-dropzone";
 import axios from "axios";
@@ -19,6 +19,7 @@ type Props = {
 const FileUpload = ({ isPro, chatCount, children }: Props) => {
   const [uploading, setUploading] = useState(false);
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const { mutate, isPending } = useMutation({
     mutationFn: async ({ file_key, file_name }: { file_key: string; file_name: string }) => {
@@ -62,6 +63,7 @@ const FileUpload = ({ isPro, chatCount, children }: Props) => {
         mutate(data, {
           onSuccess: ({ chat_id }) => {
             toast.success("Chat Created");
+            queryClient.invalidateQueries({ queryKey: ["chats-list"] });
             router.push(`/chat/${chat_id}`);
           },
           onError: (error: any) => {

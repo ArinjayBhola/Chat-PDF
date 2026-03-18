@@ -14,7 +14,7 @@ import { CiUser } from "react-icons/ci";
 import { IoCopyOutline, IoCheckmarkOutline } from "react-icons/io5";
 import toast from "react-hot-toast";
 import { usePreferences } from "./providers/PreferencesContext";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { DrizzleChat } from "@/lib/db/schema";
@@ -39,6 +39,7 @@ export default function CompareView({ chatIds, documents, allChats }: Props) {
   const [showAddMenu, setShowAddMenu] = useState(false);
   const { chatAppearance } = usePreferences();
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const canRemove = documents.length > 2;
   const canAdd = documents.length < 3;
@@ -123,6 +124,7 @@ export default function CompareView({ chatIds, documents, allChats }: Props) {
       axios.get(`/api/compare?chatIds=${chatIds.join(",")}`).then((res) => {
         if (res.data.exists) {
           setComparisonId(res.data.comparisonId);
+          queryClient.invalidateQueries({ queryKey: ["comparisons-list"] });
         }
       });
     }

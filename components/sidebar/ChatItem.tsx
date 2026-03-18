@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { DrizzleChat } from "@/lib/db/schema";
 import axios from "axios";
 import { toast } from "react-hot-toast";
+import { useQueryClient } from "@tanstack/react-query";
 
 type FileCategory = "pdf" | "document" | "spreadsheet" | "presentation" | "text" | "image";
 
@@ -63,6 +64,7 @@ export const ChatItem = memo(
     onDelete: (e: React.MouseEvent, chatId: string, chatName: string) => void;
   }) => {
     const router = useRouter();
+    const queryClient = useQueryClient();
     const [isEditing, setIsEditing] = React.useState(false);
     const [editName, setEditName] = React.useState(chat.fileName);
     const [isRenaming, setIsRenaming] = React.useState(false);
@@ -81,7 +83,8 @@ export const ChatItem = memo(
           newName: editName,
         });
         toast.success("Chat renamed!");
-        router.refresh();
+        queryClient.invalidateQueries({ queryKey: ["chats-list"] });
+        queryClient.invalidateQueries({ queryKey: ["comparisons-list"] });
       } catch (error) {
         console.error(error);
         toast.error("Failed to rename chat");

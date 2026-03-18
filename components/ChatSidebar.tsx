@@ -9,6 +9,7 @@ import toast from "react-hot-toast";
 import ExpandedSidebar from "./sidebar/ExpandedSidebar";
 import CollapsedSidebar from "./sidebar/CollapsedSidebar";
 import { cn } from "@/lib/utils";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 type Props = {
   chats: DrizzleChat[];
@@ -18,15 +19,28 @@ type Props = {
 };
 
 // Main ChatSidebar Component
-const ChatSidebar = ({ chats, chatId: propChatId, className, isPro }: Props) => {
+const ChatSidebar = ({ chats: initialChats, chatId: propChatId, className, isPro }: Props) => {
   const params = useParams();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(true);
 
   // Delete state
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleteName, setDeleteName] = useState<string>("");
+
+  // Use React Query for chats with server data as initial
+  const { data: chats = initialChats } = useQuery<DrizzleChat[]>({
+    queryKey: ["chats-list"],
+    queryFn: async () => {
+      const res = await axios.get("/api/chats");
+      return res.data;
+    },
+    initialData: initialChats,
+    staleTime: 30 * 1000,
+    refetchOnWindowFocus: false,
+  });
 
   // Memoize chatId to prevent unnecessary recalculations
   const chatId = useMemo(() => propChatId || (params?.chatId as string), [propChatId, params?.chatId]);
@@ -53,7 +67,8 @@ const ChatSidebar = ({ chats, chatId: propChatId, className, isPro }: Props) => 
         toast.success("Chat deleted!");
         setDeleteId(null);
         setDeleteName("");
-        router.refresh();
+        queryClient.invalidateQueries({ queryKey: ["chats-list"] });
+        queryClient.invalidateQueries({ queryKey: ["comparisons-list"] });
 
         // If we deleted the current chat, redirect to home
         if (deleteId === chatId) {
@@ -78,7 +93,7 @@ const ChatSidebar = ({ chats, chatId: propChatId, className, isPro }: Props) => 
         chatName={deleteName}
       />
 
-      <div 
+      <div
         className={cn(
           "h-screen relative flex-shrink-0 transition-all duration-300 ease-in-out bg-sidebar border-r shadow-xl overflow-hidden",
           isOpen ? "w-[280px] border-sidebar-border" : "w-[64px] border-sidebar-border"
