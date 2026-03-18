@@ -94,7 +94,7 @@ export function ShareDialog({ open, onOpenChange, chatId, initialData }: ShareDi
             <button
               onClick={() => setIsShared(!isShared)}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 ${
-                isShared ? "bg-blue-600" : "bg-slate-200 dark:bg-slate-800"
+                isShared ? "bg-primary" : "bg-muted"
               }`}
             >
               <span
@@ -136,7 +136,7 @@ export function ShareDialog({ open, onOpenChange, chatId, initialData }: ShareDi
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <div className="flex items-center gap-2">
-                    <LuGlobe className="w-4 h-4 text-slate-500" />
+                    <LuGlobe className="w-4 h-4 text-muted-foreground" />
                     <label className="text-sm font-medium">Allow Public Viewing</label>
                   </div>
                   <p className="text-xs text-muted-foreground">Anyone with the link can view (no login required).</p>
@@ -144,7 +144,7 @@ export function ShareDialog({ open, onOpenChange, chatId, initialData }: ShareDi
                 <button
                   onClick={() => setAllowPublic(!allowPublic)}
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 ${
-                    allowPublic ? "bg-blue-600" : "bg-slate-200 dark:bg-slate-800"
+                    allowPublic ? "bg-primary" : "bg-muted"
                   }`}
                 >
                   <span
@@ -160,10 +160,10 @@ export function ShareDialog({ open, onOpenChange, chatId, initialData }: ShareDi
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Share Link</label>
                   <div className="flex gap-2">
-                    <Input 
-                      readOnly 
-                      value={shareUrl} 
-                      className="bg-slate-50 dark:bg-slate-900 border-dashed"
+                    <Input
+                      readOnly
+                      value={shareUrl}
+                      className="bg-muted/50 border-dashed"
                     />
                     <Button size="icon" variant="outline" onClick={copyToClipboard}>
                       {copied ? <LuCheck className="text-green-500" /> : <LuCopy />}

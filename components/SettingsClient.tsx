@@ -175,7 +175,7 @@ export default function SettingsClient({ email, isPro, expiryDate, chatCount }: 
                       type="text"
                       value={otp}
                       onChange={(e) => setOtp(e.target.value)}
-                      className="w-full p-2.5 rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary outline-none"
+                      className="w-full h-11 rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary/30 outline-none px-3 transition-all"
                       placeholder="Enter 6-digit OTP"
                     />
                   </div>
@@ -185,7 +185,7 @@ export default function SettingsClient({ email, isPro, expiryDate, chatCount }: 
                       type={showCurrentPassword ? "text" : "password"}
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
-                      className="w-full p-2.5 pr-10 rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary outline-none"
+                      className="w-full h-11 pr-10 rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary/30 outline-none px-3 transition-all"
                     />
                     <button 
                       type="button" 
@@ -201,7 +201,7 @@ export default function SettingsClient({ email, isPro, expiryDate, chatCount }: 
                       type={showNewPassword ? "text" : "password"}
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      className="w-full p-2.5 pr-10 rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary outline-none"
+                      className="w-full h-11 pr-10 rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary/30 outline-none px-3 transition-all"
                     />
                     <button 
                       type="button" 
@@ -217,7 +217,7 @@ export default function SettingsClient({ email, isPro, expiryDate, chatCount }: 
                       type={showConfirmPassword ? "text" : "password"}
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="w-full p-2.5 pr-10 rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary outline-none"
+                      className="w-full h-11 pr-10 rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary/30 outline-none px-3 transition-all"
                     />
                     <button 
                       type="button" 
@@ -260,7 +260,7 @@ export default function SettingsClient({ email, isPro, expiryDate, chatCount }: 
                       type="text"
                       value={deleteInput}
                       onChange={(e) => setDeleteInput(e.target.value)}
-                      className="w-full p-2 rounded-lg border border-border bg-background focus:ring-2 focus:ring-destructive outline-none"
+                      className="w-full h-11 rounded-lg border border-border bg-background focus:ring-2 focus:ring-destructive/20 focus:border-destructive/30 outline-none px-3 transition-all"
                       placeholder="DELETE"
                     />
                   </div>

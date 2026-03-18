@@ -26,9 +26,9 @@ const UpgradeButton = ({ isPro }: { isPro: boolean }) => {
       disabled={isPro}
       className={`w-full ${
         isPro
-          ? "bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600"
-          : "bg-purple-600 hover:bg-purple-700 dark:bg-white dark:hover:bg-slate-100 dark:text-slate-900 dark:font-extrabold"
-      } text-white border-none transition-all hover:scale-[1.02] active:scale-[0.98] h-10 rounded-lg justify-center font-bold`}>
+          ? "bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700"
+          : "bg-primary hover:bg-primary/90"
+      } text-primary-foreground border-none transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] h-10 rounded-lg justify-center font-bold shadow-md`}>
       {isPro ? "Pro Plan Active" : "Upgrade to Pro"}
     </Button>
   );

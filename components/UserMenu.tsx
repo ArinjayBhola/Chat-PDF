@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import { MdLogout } from "react-icons/md";
 import ThemeToggle from "./ThemeToggle";
+import { cn } from "@/lib/utils";
 
 interface UserMenuProps {
   user: {
@@ -38,7 +39,7 @@ export default function UserMenu({ user }: UserMenuProps) {
         ref={menuRef}>
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center justify-center w-10 h-10 rounded-full bg-sidebar hover:opacity-90 transition-all shadow-md hover:shadow-lg ring-2 ring-border hover:ring-primary/50">
+          className="flex items-center justify-center w-10 h-10 rounded-full bg-sidebar hover:opacity-90 transition-all duration-200 shadow-md hover:shadow-lg ring-2 ring-border hover:ring-primary/50 active:scale-95">
           {user.image ? (
             <Image
               src={user.image}
@@ -48,14 +49,17 @@ export default function UserMenu({ user }: UserMenuProps) {
               className="rounded-full"
             />
           ) : (
-            <span className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-white font-semibold text-lg select-none">
+            <span className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold text-lg select-none">
               {userInitial}
             </span>
           )}
         </button>
 
         {isOpen && (
-          <div className="absolute right-0 mt-2 w-56 bg-card rounded-xl shadow-xl border border-border py-2 z-50 overflow-hidden">
+          <div className={cn(
+            "absolute right-0 mt-2 w-56 bg-card rounded-xl shadow-xl border border-border py-2 z-50 overflow-hidden",
+            "animate-in fade-in slide-in-from-top-2 duration-200"
+          )}>
             <div className="flex items-center gap-1 bg-muted/30">
               <div>
                 {user.image ? (
@@ -67,7 +71,7 @@ export default function UserMenu({ user }: UserMenuProps) {
                     className="rounded-full ml-2"
                   />
                 ) : (
-                  <span className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-foreground font-semibold text-lg select-none ml-2">
+                  <span className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold text-lg select-none ml-2">
                     {userInitial}
                   </span>
                 )}
@@ -92,7 +96,7 @@ export default function UserMenu({ user }: UserMenuProps) {
             <button
               onClick={() => signOut({ callbackUrl: "/" })}
               className="group w-full px-4 py-2.5 text-left text-sm text-foreground hover:bg-muted/50 hover:text-destructive transition-colors flex items-center gap-2.5 font-medium">
-              <MdLogout className="w-4 h-4 text-muted-foreground group-hover:text-destructive" />
+              <MdLogout className="w-4 h-4 text-muted-foreground group-hover:text-destructive transition-colors" />
               Sign Out
             </button>
           </div>

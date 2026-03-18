@@ -48,7 +48,7 @@ function FileIcon({ name, className }: { name: string; className?: string }) {
     case "pdf":
       return <FiFileText className={cn("text-red-400", className)} />;
     default:
-      return <FiFileText className={cn("text-slate-400", className)} />;
+      return <FiFileText className={cn("text-muted-foreground", className)} />;
   }
 }
 

@@ -123,17 +123,17 @@ const ResizableSplit = ({
       {!hideLeft && (
         <div
           className={cn(
-            "relative w-1 h-full bg-slate-300 dark:bg-slate-600 cursor-col-resize flex-shrink-0 group",
-            "hover:bg-blue-500 dark:hover:bg-blue-400 transition-colors duration-200",
-            isDragging && "bg-blue-500 dark:bg-blue-400",
+            "relative w-1 h-full bg-border cursor-col-resize flex-shrink-0 group",
+            "hover:bg-primary transition-colors duration-200",
+            isDragging && "bg-primary",
           )}
           onMouseDown={handleMouseDown}>
-          {/* Visual indicator on hover */}
+          {/* Visual grab handle */}
           <div
             className={cn(
               "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
-              "w-1 h-16 bg-slate-400 dark:bg-slate-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity",
-              isDragging && "opacity-100 bg-blue-500 dark:bg-blue-400",
+              "w-1.5 h-12 bg-primary rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-sm",
+              isDragging && "opacity-100 h-20 shadow-md",
             )}
           />
 

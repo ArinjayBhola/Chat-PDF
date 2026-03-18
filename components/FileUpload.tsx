@@ -98,40 +98,39 @@ const FileUpload = ({ isPro, chatCount, children }: Props) => {
     <div className="w-full">
       <div
         {...(isFreeLimitReached ? {} : getRootProps())}
-        className={`group relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed py-10 transition-all 
+        className={`group relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed py-10 transition-all duration-200
           ${
             isFreeLimitReached
-              ? "border-slate-300 bg-slate-50 cursor-default"
-              : "border-slate-300 bg-slate-50 hover:border-blue-400 hover:bg-blue-50/30 cursor-pointer"
+              ? "border-border bg-muted/30 cursor-default"
+              : "border-border bg-muted/30 hover:border-primary/50 hover:bg-primary/5 cursor-pointer"
           }`}>
         {!isFreeLimitReached && <input {...getInputProps()} />}
 
         {isUploading ? (
-          <div className="flex flex-col items-center">
-            <RiLoader2Fill className="h-10 w-10 text-blue-600 animate-spin" />
-            <p className="mt-4 text-sm font-medium text-slate-600">Processing your file...</p>
+          <div className="flex flex-col items-center animate-in fade-in duration-300">
+            <RiLoader2Fill className="h-10 w-10 text-primary animate-spin" />
+            <p className="mt-4 text-sm font-medium text-muted-foreground">Processing your file...</p>
           </div>
         ) : isFreeLimitReached ? (
           <div className="flex flex-col items-center">
-            <div className="rounded-full bg-slate-100 p-4 shadow-sm border border-slate-200">
-              <FaInbox className="h-8 w-8 text-slate-400" />
+            <div className="rounded-full bg-muted p-4 shadow-sm border border-border">
+              <FaInbox className="h-8 w-8 text-muted-foreground" />
             </div>
-            <p className="mt-4 text-sm font-semibold text-slate-900">Free limit reached</p>
-            <p className="mt-1 text-xs text-slate-500 max-w-[200px] text-center mb-4">
+            <p className="mt-4 text-sm font-semibold text-foreground">Free limit reached</p>
+            <p className="mt-1 text-xs text-muted-foreground max-w-[200px] text-center mb-4">
               You can only upload 3 files on the free plan.
             </p>
-
-            <p className="text-sm font-medium text-blue-600 hover:text-blue-500 hover:underline">
+            <p className="text-sm font-medium text-primary hover:text-primary/80 hover:underline transition-colors">
               Upgrade to upload more
             </p>
           </div>
         ) : (
           <div className="flex flex-col items-center">
-            <div className="rounded-full bg-white p-4 shadow-md border border-slate-200 transition-transform group-hover:scale-110 group-hover:shadow-lg">
-              <FaInbox className="h-8 w-8 text-blue-600" />
+            <div className="rounded-full bg-background p-4 shadow-md border border-border transition-all duration-200 group-hover:scale-110 group-hover:shadow-lg group-hover:border-primary/30">
+              <FaInbox className="h-8 w-8 text-primary" />
             </div>
-            <p className="mt-4 text-sm font-semibold text-slate-900">Drop file here</p>
-            <p className="mt-1 text-xs text-slate-500">PDF, DOCX, TXT, images & more (up to 10MB)</p>
+            <p className="mt-4 text-sm font-semibold text-foreground">Drop file here</p>
+            <p className="mt-1 text-xs text-muted-foreground">PDF, DOCX, TXT, images & more (up to 10MB)</p>
           </div>
         )}
       </div>

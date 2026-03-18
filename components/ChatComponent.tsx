@@ -191,18 +191,18 @@ export default function ChatComponent({
       <div className="p-4 border-t border-border bg-background/80 backdrop-blur-md">
         <div className="max-w-4xl mx-auto w-full space-y-2">
           {showLoginPrompt && (
-            <div className="p-3 mb-2 rounded-lg bg-orange-50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-900/20 flex items-center justify-between">
-              <p className="text-xs text-orange-800 dark:text-orange-300">
-                You need to sign in to send messages to this shared chat.
+            <div className="p-3 mb-2 rounded-xl bg-accent/50 border border-border flex items-center justify-between animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <p className="text-xs text-muted-foreground font-medium">
+                Sign in to send messages to this shared chat.
               </p>
-              <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => window.location.href = `/sign-in?callbackUrl=${window.location.pathname}`}>
+              <Button size="sm" variant="outline" className="h-7 text-xs ml-3 shrink-0" onClick={() => window.location.href = `/sign-in?callbackUrl=${window.location.pathname}`}>
                 Sign In
               </Button>
             </div>
           )}
           {!canChat && !showLoginPrompt && isShared && (
-             <div className="p-2 mb-2 rounded-md bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/20">
-                <p className="text-xs text-blue-800 dark:text-blue-300 text-center uppercase tracking-wider font-semibold">
+             <div className="p-2.5 mb-2 rounded-xl bg-muted/50 border border-border animate-in fade-in duration-300">
+                <p className="text-xs text-muted-foreground text-center uppercase tracking-wider font-semibold">
                   Read-Only Mode
                 </p>
              </div>
@@ -210,16 +210,16 @@ export default function ChatComponent({
 
           {/* Mode indicator */}
           {webSearch && (
-            <div className="flex items-center gap-2 text-xs text-primary bg-primary/5 px-3 py-1.5 rounded-lg w-fit">
-              <FiGlobe className="h-4 w-4" />
-              <span className="font-medium animate-pulse">Web search active</span>
+            <div className="flex items-center gap-2 text-xs text-primary bg-primary/5 border border-primary/10 px-3 py-1.5 rounded-xl w-fit animate-in fade-in slide-in-from-bottom-1 duration-200">
+              <FiGlobe className="h-3.5 w-3.5" />
+              <span className="font-semibold">Web search active</span>
             </div>
           )}
 
           <form
             onSubmit={handleSubmit}
             className={cn(
-              "flex items-center gap-2 bg-card p-1.5 rounded-2xl border border-border shadow-sm transition-all focus-within:ring-2 focus-within:ring-primary/20",
+              "flex items-center gap-2 bg-card p-1.5 rounded-2xl border border-border shadow-sm transition-all duration-200 focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary/30 focus-within:shadow-md",
               isBusy && "opacity-90",
             )}>
             {/* Web search toggle */}
@@ -229,10 +229,10 @@ export default function ChatComponent({
               disabled={isBusy}
               title="Toggle Web Search"
               className={cn(
-                "flex items-center justify-center w-10 h-10 rounded-xl transition-all flex-shrink-0",
+                "flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200 flex-shrink-0 active:scale-95",
                 webSearch
-                  ? "bg-primary text-primary-foreground shadow-md"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80",
+                  ? "bg-primary text-primary-foreground shadow-md ring-2 ring-primary/20"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground",
               )}>
               <FiGlobe className="h-4 w-4" />
             </button>
@@ -245,18 +245,27 @@ export default function ChatComponent({
               className="flex-1 bg-transparent border-none focus-visible:ring-0 text-sm md:text-base px-2 shadow-none"
             />
 
-            {/* Send button morph */}
+            {/* Send button */}
             <Button
               type="submit"
               size="icon"
               disabled={isBusy || !input.trim()}
               className={cn(
-                "h-10 w-10 rounded-xl transition-all flex-shrink-0",
-                "bg-primary hover:bg-primary/90 text-primary-foreground",
+                "h-10 w-10 rounded-xl transition-all duration-200 flex-shrink-0 active:scale-90",
+                input.trim()
+                  ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg"
+                  : "bg-muted text-muted-foreground",
               )}>
-              <FaArrowUp className="h-5 w-5" />
+              <FaArrowUp className={cn("h-4 w-4 transition-transform duration-200", input.trim() && "scale-110")} />
             </Button>
           </form>
+
+          {/* Keyboard hint */}
+          {canChat && (
+            <p className="text-[10px] text-muted-foreground/60 text-center font-medium select-none">
+              Press <kbd className="px-1 py-0.5 bg-muted rounded text-[10px] font-mono border border-border">Enter</kbd> to send
+            </p>
+          )}
         </div>
       </div>
     </div>

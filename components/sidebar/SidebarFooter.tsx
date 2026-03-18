@@ -10,11 +10,19 @@ type Props = {
 };
 
 const SidebarFooter = memo(({ isPro, chatCount }: Props) => (
-  <div className="mt-4 pt-4 border-t border-slate-800 dark:border-slate-700 flex flex-col gap-4">
+  <div className="mt-4 pt-4 border-t border-sidebar-border flex flex-col gap-4">
     <div className="px-2">
-      <p className="text-xs text-slate-400 dark:text-slate-500 mb-2">
-        {isPro ? "Pro Plan" : `${chatCount} / 3 Free PDFs used`}
+      <p className="text-xs text-muted-foreground mb-2">
+        {isPro ? "Pro Plan" : `${chatCount} / 3 Free uploads used`}
       </p>
+      {!isPro && (
+        <div className="w-full bg-sidebar-border h-1.5 rounded-full mb-2 overflow-hidden">
+          <div
+            className={`h-full rounded-full transition-all duration-500 ${chatCount >= 3 ? "bg-destructive" : "bg-primary"}`}
+            style={{ width: `${Math.min((chatCount / 3) * 100, 100)}%` }}
+          />
+        </div>
+      )}
       <UpgradeButton isPro={isPro} />
     </div>
     <div className="flex flex-col gap-1">

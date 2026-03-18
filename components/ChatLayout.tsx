@@ -42,17 +42,17 @@ export default function ChatLayout({ chat, isOwner, session, isSharedView = fals
   };
 
   const headerActions = (
-    <div className="flex items-center gap-2 sm:gap-3">
+    <div className="flex items-center gap-1.5 sm:gap-2">
       {session?.user && (
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
           onClick={() => setIsNotesOpen(!isNotesOpen)}
           className={cn(
-            "flex items-center gap-2 h-9 px-3 sm:px-4 border-slate-200 dark:border-slate-800 transition-all duration-200 shadow-sm bg-white dark:bg-slate-900",
+            "flex items-center gap-2 h-8 px-2.5 sm:px-3 rounded-lg transition-all duration-200",
             isNotesOpen
-              ? "text-primary border-primary/50 bg-primary/5"
-              : "text-slate-600 dark:text-slate-400 hover:text-primary hover:border-primary/30"
+              ? "text-primary bg-primary/10"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted/80"
           )}
           title={isNotesOpen ? "Hide Notes" : "Show Notes"}
         >
@@ -62,10 +62,10 @@ export default function ChatLayout({ chat, isOwner, session, isSharedView = fals
       )}
 
       <Button
-        variant="outline"
+        variant="ghost"
         size="sm"
         onClick={() => refreshViewer(chat.id)}
-        className="flex items-center gap-2 h-9 px-3 sm:px-4 border-slate-200 dark:border-slate-700 hover:border-primary hover:text-primary transition-all duration-200 bg-white dark:bg-slate-900 shadow-sm"
+        className="flex items-center gap-2 h-8 px-2.5 sm:px-3 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-all duration-200 active:scale-95"
         title="Reload File"
       >
         <LuRotateCcw className="w-4 h-4" />
@@ -73,24 +73,24 @@ export default function ChatLayout({ chat, isOwner, session, isSharedView = fals
       </Button>
       {isOwner && (
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
           onClick={() => setIsShareOpen(true)}
-          className="flex items-center gap-2 h-9 px-3 sm:px-4 border-slate-200 dark:border-slate-700 hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 bg-white dark:bg-slate-900 shadow-sm"
+          className="flex items-center gap-2 h-8 px-2.5 sm:px-3 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all duration-200 active:scale-95"
         >
           <LuShare2 className="w-4 h-4" />
           <span className="hidden sm:inline text-xs font-semibold">Share</span>
         </Button>
       )}
       <Button
-        variant="outline"
+        variant="ghost"
         size="sm"
         onClick={() => setHideDocument(!hideDocument)}
         className={cn(
-            "flex items-center gap-2 h-9 px-3 sm:px-4 border-slate-200 dark:border-slate-800 transition-all duration-200 shadow-sm bg-white dark:bg-slate-900",
+            "flex items-center gap-2 h-8 px-2.5 sm:px-3 rounded-lg transition-all duration-200 active:scale-95",
             hideDocument
-                ? "text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-900/50 bg-blue-50/50 dark:bg-blue-900/20"
-                : "text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400"
+                ? "text-primary bg-primary/10"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/80"
         )}
         title={hideDocument ? "Show Document" : "Hide Document"}
       >
@@ -101,17 +101,19 @@ export default function ChatLayout({ chat, isOwner, session, isSharedView = fals
   );
 
   return (
-    <div className="flex flex-col w-full h-full overflow-hidden bg-[#fafafa] dark:bg-slate-950 relative">
+    <div className="flex flex-col w-full h-full overflow-hidden bg-background relative">
       {/* Mobile Layout */}
       <div className="lg:hidden flex-1 overflow-hidden flex flex-col h-full">
         <div className="flex-1 flex flex-col h-full">
-          <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-30 flex justify-between items-center shadow-sm text-slate-800 dark:text-slate-100">
-            <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl w-40 h-9">
+          <div className="px-4 py-3 border-b border-border bg-background/80 backdrop-blur-md sticky top-0 z-30 flex justify-between items-center shadow-sm text-foreground">
+            <div className="flex bg-muted p-1 rounded-xl w-40 h-9">
               <button
                 onClick={() => setActiveMobileTab("file")}
                 className={cn(
-                    "flex-1 rounded-lg text-xs font-semibold py-1.5 transition-all text-slate-700 dark:text-slate-200",
-                    activeMobileTab === "file" && "bg-white dark:bg-slate-700 shadow-sm"
+                    "flex-1 rounded-lg text-xs font-semibold py-1.5 transition-all duration-200",
+                    activeMobileTab === "file"
+                      ? "bg-background text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
                 )}
               >
                 File
@@ -119,8 +121,10 @@ export default function ChatLayout({ chat, isOwner, session, isSharedView = fals
               <button
                 onClick={() => setActiveMobileTab("chat")}
                 className={cn(
-                    "flex-1 rounded-lg text-xs font-semibold py-1.5 transition-all text-slate-700 dark:text-slate-200",
-                    activeMobileTab === "chat" && "bg-white dark:bg-slate-700 shadow-sm"
+                    "flex-1 rounded-lg text-xs font-semibold py-1.5 transition-all duration-200",
+                    activeMobileTab === "chat"
+                      ? "bg-background text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
                 )}
               >
                 Chat
@@ -131,7 +135,7 @@ export default function ChatLayout({ chat, isOwner, session, isSharedView = fals
 
           <div className="flex-1 relative overflow-hidden">
             <div className={cn("absolute inset-0 transition-all duration-300", activeMobileTab === "file" ? "opacity-100 translate-x-0 z-10" : "opacity-0 -translate-x-full -z-10 pointer-events-none")}>
-              <div className="w-full h-full p-2 bg-white dark:bg-slate-950">
+              <div className="w-full h-full p-2 bg-background">
                 <FileViewer
                   file_url={chat.fileUrl || ""}
                   file_name={chat.fileName}
@@ -156,18 +160,18 @@ export default function ChatLayout({ chat, isOwner, session, isSharedView = fals
       {/* Desktop Layout */}
       <div className="hidden lg:flex w-full h-full overflow-hidden flex-col">
         {/* Header with actions */}
-        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md flex justify-between items-center z-30 shadow-sm transition-all duration-300 font-sans">
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-border bg-background/80 backdrop-blur-md flex justify-between items-center z-30 shadow-sm transition-all duration-300 font-sans">
             <div className="flex items-center gap-3 min-w-0">
-                <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg shrink-0">
-                    <LuFileBox className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                <div className="p-2 bg-primary/10 rounded-lg shrink-0">
+                    <LuFileBox className="w-5 h-5 text-primary" />
                 </div>
                 <div className="flex flex-col min-w-0">
-                    <h2 className="text-[13px] sm:text-[14px] font-bold text-slate-900 dark:text-white truncate tracking-tight leading-tight">
+                    <h2 className="text-[13px] sm:text-[14px] font-bold text-foreground truncate tracking-tight leading-tight">
                         {chat.fileName}
                     </h2>
                     <div className="flex items-center gap-1.5 mt-0.5">
-                        <span className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]" />
-                        <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider truncate">Active Workspace</span>
+                        <span className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)] animate-pulse" />
+                        <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider truncate">Active Workspace</span>
                     </div>
                 </div>
             </div>
@@ -179,7 +183,7 @@ export default function ChatLayout({ chat, isOwner, session, isSharedView = fals
                 <ResizableSplit
                   hideLeft={hideDocument}
                   leftPanel={
-                    <div className="w-full h-full overflow-hidden border-r border-slate-200 dark:border-slate-700 bg-[#f8f9fa] dark:bg-slate-950">
+                    <div className="w-full h-full overflow-hidden border-r border-border bg-muted/30">
                       <FileViewer
                         file_url={chat.fileUrl || ""}
                         file_name={chat.fileName}
@@ -189,10 +193,10 @@ export default function ChatLayout({ chat, isOwner, session, isSharedView = fals
                   }
                   rightPanel={
                     <div className={cn(
-                      "w-full h-full bg-white dark:bg-slate-900 flex flex-col",
+                      "w-full h-full bg-background flex flex-col",
                       hideDocument
-                        ? "max-w-5xl mx-auto border-x border-slate-100 dark:border-slate-800 shadow-xl ring-1 ring-black/5 dark:ring-white/5"
-                        : "border-l border-slate-200 dark:border-slate-700 shadow-2xl z-10"
+                        ? "max-w-5xl mx-auto border-x border-border shadow-xl ring-1 ring-border/50"
+                        : "border-l border-border shadow-2xl z-10"
                     )}>
                       <ChatComponent
                         chatId={chat.id}
@@ -214,14 +218,14 @@ export default function ChatLayout({ chat, isOwner, session, isSharedView = fals
             {/* Integrated Notes Sidebar */}
             {session?.user && (
               <div className={cn(
-                "h-full transition-all duration-300 ease-in-out bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 shrink-0",
+                "h-full transition-all duration-300 ease-in-out bg-background border-l border-border shrink-0",
                 isNotesOpen ? "w-80 opacity-100" : "w-0 opacity-0 overflow-hidden border-none"
               )}>
                 <div className="w-80 h-full">
-                  <NotesSidebar 
-                    chatId={chat.id} 
-                    isOpen={isNotesOpen} 
-                    onClose={() => setIsNotesOpen(false)} 
+                  <NotesSidebar
+                    chatId={chat.id}
+                    isOpen={isNotesOpen}
+                    onClose={() => setIsNotesOpen(false)}
                     refreshKey={notesRefreshKey}
                   />
                 </div>

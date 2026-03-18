@@ -30,10 +30,10 @@ const CollapsedSidebar = memo(({ className, onToggle, chats, chatId, isPro }: Pr
       )}>
       <button
         onClick={onToggle}
-        className="bg-slate-700 p-2 rounded-lg cursor-pointer hover:bg-slate-600 transition-colors"
+        className="bg-muted p-2 rounded-lg cursor-pointer hover:bg-muted/80 transition-colors"
         aria-label="Expand sidebar">
         <FaBars
-          className="text-white"
+          className="text-foreground"
           size={14}
         />
       </button>
@@ -42,15 +42,15 @@ const CollapsedSidebar = memo(({ className, onToggle, chats, chatId, isPro }: Pr
         isPro={isPro}
         chatCount={chats.length}>
         {({ isUploading }) => (
-          <div className={cn("w-10 h-10 flex items-center justify-center bg-primary rounded-lg hover:bg-primary/90 text-primary-foreground transition cursor-pointer mx-auto", isUploading && "opacity-50 pointer-events-none")}>
+          <div className={cn("w-10 h-10 flex items-center justify-center bg-primary rounded-lg hover:bg-primary/90 text-primary-foreground transition-all duration-200 cursor-pointer mx-auto active:scale-95", isUploading && "opacity-50 pointer-events-none")}>
             {isUploading ? (
               <RiLoader2Fill
-                className="text-white animate-spin"
+                className="text-primary-foreground animate-spin"
                 size={16}
               />
             ) : (
               <FaPlus
-                className="text-white"
+                className="text-primary-foreground"
                 size={16}
               />
             )}
@@ -63,7 +63,7 @@ const CollapsedSidebar = memo(({ className, onToggle, chats, chatId, isPro }: Pr
           <>
             <button
               onClick={() => setIsCompareOpen(true)}
-              className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-slate-700 text-slate-400 hover:text-purple-400 transition-colors"
+              className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-muted text-muted-foreground hover:text-primary transition-colors"
               title="Compare Documents"
             >
               <LuGitCompareArrows size={18} />
@@ -81,7 +81,7 @@ const CollapsedSidebar = memo(({ className, onToggle, chats, chatId, isPro }: Pr
         <ThemeToggle variant="sidebar" />
         <Link href="/">
           <IoMdHome
-            className="text-slate-400 dark:text-slate-500 hover:text-white dark:hover:text-slate-200 transition"
+            className="text-muted-foreground hover:text-foreground transition-colors"
             size={18}
           />
         </Link>

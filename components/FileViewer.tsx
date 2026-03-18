@@ -98,16 +98,26 @@ function TextFileViewer({ url, fileName }: { url: string; fileName: string }) {
 
   if (error) {
     return (
-      <div className="w-full h-full flex items-center justify-center text-muted-foreground bg-card/50 backdrop-blur-sm">
-        <p className="font-medium animate-pulse">Could not load file preview.</p>
+      <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground bg-muted/30 gap-3">
+        <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center">
+          <span className="text-destructive text-lg font-bold">!</span>
+        </div>
+        <p className="font-medium text-sm">Could not load file preview</p>
+        <button
+          onClick={() => { setError(false); setContent(null); }}
+          className="text-xs text-primary hover:text-primary/80 font-semibold transition-colors"
+        >
+          Try again
+        </button>
       </div>
     );
   }
 
   if (content === null) {
     return (
-      <div className="w-full h-full flex items-center justify-center text-muted-foreground bg-card/50 backdrop-blur-sm">
-        <p className="font-medium animate-pulse">Loading...</p>
+      <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground bg-muted/30 gap-3">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        <p className="font-medium text-sm">Loading preview...</p>
       </div>
     );
   }
