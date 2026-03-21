@@ -23,8 +23,7 @@ export default async function Home({
   const isAuth = !!session?.user;
 
   const resolvedSearchParams = await searchParams;
-  const razorpay_payment_link_status = resolvedSearchParams.razorpay_payment_link_status;
-  const razorpay_payment_link_id = resolvedSearchParams.razorpay_payment_link_id;
+  const paymentStatus = resolvedSearchParams.payment as string | undefined;
 
   const isPro = await checkSubscription();
 
@@ -36,11 +35,8 @@ export default async function Home({
 
   return (
     <div className="relative isolate min-h-screen bg-background text-foreground animate-in fade-in duration-1000">
-      {isAuth && razorpay_payment_link_status === "paid" && razorpay_payment_link_id && (
-        <PaymentSuccessHandler
-          userId={session!.user.id}
-          searchParams={resolvedSearchParams}
-        />
+      {paymentStatus && (
+        <PaymentSuccessHandler paymentStatus={paymentStatus} />
       )}
 
       {/* Modern Warm Background with Top Right Nav */}
