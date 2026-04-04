@@ -26,6 +26,7 @@ export const chats = pgTable("chats", {
   sharePermission: text("share_permission").notNull().default("view"), // 'view' | 'edit'
   allowPublicView: text("allow_public_view").notNull().default("false"),
   folderId: uuid("folder_id").references(() => folders.id, { onDelete: "set null" }),
+  isPinned: text("is_pinned").notNull().default("false"),
 });
 
 export type DrizzleChat = typeof chats.$inferSelect;

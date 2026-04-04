@@ -1,0 +1,1 @@
+ALTER TABLE "chats" ADD COLUMN "is_pinned" text DEFAULT 'false' NOT NULL;

@@ -36,6 +36,13 @@
       "when": 1775295194932,
       "tag": "0004_redundant_metal_master",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1775298117455,
+      "tag": "0005_lovely_meteorite",
+      "breakpoints": true
     }
   ]
 }

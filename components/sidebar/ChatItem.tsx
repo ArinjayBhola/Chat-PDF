@@ -2,7 +2,7 @@ import React, { memo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FiFileText, FiImage, FiTrash, FiEdit2 } from "react-icons/fi";
-import { LuFileSpreadsheet, LuPresentation, LuFileText } from "react-icons/lu";
+import { LuFileSpreadsheet, LuPresentation, LuFileText, LuPin, LuPinOff } from "react-icons/lu";
 import { cn } from "@/lib/utils";
 import { DrizzleChat } from "@/lib/db/schema";
 import axios from "axios";
@@ -58,10 +58,12 @@ export const ChatItem = memo(
     chat,
     isActive,
     onDelete,
+    onTogglePin,
   }: {
     chat: DrizzleChat;
     isActive: boolean;
     onDelete: (e: React.MouseEvent, chatId: string, chatName: string) => void;
+    onTogglePin?: (chatId: string, isPinned: boolean) => void;
   }) => {
     const router = useRouter();
     const queryClient = useQueryClient();
@@ -144,6 +146,19 @@ export const ChatItem = memo(
         </Link>
 
         <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-20">
+          {!isEditing && onTogglePin && (
+            <div
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onTogglePin(chat.id, chat.isPinned !== "true");
+              }}
+              className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-primary transition-colors cursor-pointer"
+              title={chat.isPinned === "true" ? "Unpin chat" : "Pin chat"}
+            >
+              {chat.isPinned === "true" ? <LuPinOff size={14} /> : <LuPin size={14} />}
+            </div>
+          )}
           {!isEditing && (
             <div
               onClick={(e) => {

@@ -6,6 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { cn } from "@/lib/utils";
+import { LuPin } from "react-icons/lu";
 
 type Props = {
   folders: DrizzleFolder[];
@@ -13,6 +14,7 @@ type Props = {
   chatId: string;
   searchQuery: string;
   onDeleteChat: (e: React.MouseEvent, chatId: string, chatName: string) => void;
+  onTogglePin: (chatId: string, isPinned: boolean) => void;
 };
 
 const STORAGE_KEY = "chat-pdf-expanded-folders";
@@ -32,7 +34,7 @@ function saveExpandedFolders(set: Set<string>) {
   } catch {}
 }
 
-const FolderList = memo(({ folders, chats, chatId, searchQuery, onDeleteChat }: Props) => {
+const FolderList = memo(({ folders, chats, chatId, searchQuery, onDeleteChat, onTogglePin }: Props) => {
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(loadExpandedFolders);
   const [uncategorizedDragOver, setUncategorizedDragOver] = useState(false);
   const queryClient = useQueryClient();
@@ -46,13 +48,16 @@ const FolderList = memo(({ folders, chats, chatId, searchQuery, onDeleteChat }: 
     return chats.filter((chat) => chat.fileName.toLowerCase().includes(q));
   }, [chats, searchQuery, isSearching]);
 
-  // Group chats by folderId
-  const { folderChatsMap, uncategorizedChats } = useMemo(() => {
+  // Split into pinned and unpinned, then group unpinned by folderId
+  const { pinnedChats, folderChatsMap, uncategorizedChats } = useMemo(() => {
+    const pinned: DrizzleChat[] = [];
     const map = new Map<string, DrizzleChat[]>();
     const uncategorized: DrizzleChat[] = [];
 
     for (const chat of filteredChats) {
-      if (chat.folderId) {
+      if (chat.isPinned === "true") {
+        pinned.push(chat);
+      } else if (chat.folderId) {
         const existing = map.get(chat.folderId) || [];
         existing.push(chat);
         map.set(chat.folderId, existing);
@@ -61,7 +66,7 @@ const FolderList = memo(({ folders, chats, chatId, searchQuery, onDeleteChat }: 
       }
     }
 
-    return { folderChatsMap: map, uncategorizedChats: uncategorized };
+    return { pinnedChats: pinned, folderChatsMap: map, uncategorizedChats: uncategorized };
   }, [filteredChats]);
 
   // When searching, auto-expand folders with matching chats
@@ -135,6 +140,29 @@ const FolderList = memo(({ folders, chats, chatId, searchQuery, onDeleteChat }: 
 
   return (
     <div className="flex flex-col gap-0.5">
+      {/* Pinned Chats */}
+      {pinnedChats.length > 0 && (
+        <div className="mb-2">
+          <div className="flex items-center gap-1.5 px-2 mb-1">
+            <LuPin className="w-3 h-3 text-primary/70" />
+            <p className="text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-wider">
+              Pinned
+            </p>
+          </div>
+          <div className="flex flex-col gap-0.5">
+            {pinnedChats.map((chat) => (
+              <ChatItem
+                key={chat.id}
+                chat={chat}
+                isActive={chat.id === chatId}
+                onDelete={onDeleteChat}
+                onTogglePin={onTogglePin}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Folders */}
       {visibleFolders.map((folder) => (
         <FolderItem
@@ -146,6 +174,7 @@ const FolderList = memo(({ folders, chats, chatId, searchQuery, onDeleteChat }: 
           onToggleExpand={() => toggleFolder(folder.id)}
           onDeleteChat={onDeleteChat}
           onMoveChat={handleMoveChat}
+          onTogglePin={onTogglePin}
         />
       ))}
 
@@ -169,7 +198,7 @@ const FolderList = memo(({ folders, chats, chatId, searchQuery, onDeleteChat }: 
             uncategorizedDragOver && "ring-2 ring-primary/50 bg-primary/5"
           )}
         >
-          {visibleFolders.length > 0 && (
+          {(visibleFolders.length > 0 || pinnedChats.length > 0) && (
             <p className="text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-wider px-2 mb-1 mt-2">
               Uncategorized
             </p>
@@ -181,6 +210,7 @@ const FolderList = memo(({ folders, chats, chatId, searchQuery, onDeleteChat }: 
                 chat={chat}
                 isActive={chat.id === chatId}
                 onDelete={onDeleteChat}
+                onTogglePin={onTogglePin}
               />
             ))}
           </div>

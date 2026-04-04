@@ -16,6 +16,7 @@ type Props = {
   onToggleExpand: () => void;
   onDeleteChat: (e: React.MouseEvent, chatId: string, chatName: string) => void;
   onMoveChat: (chatId: string, folderId: string | null) => void;
+  onTogglePin: (chatId: string, isPinned: boolean) => void;
 };
 
 const FolderItem = memo(({
@@ -26,6 +27,7 @@ const FolderItem = memo(({
   onToggleExpand,
   onDeleteChat,
   onMoveChat,
+  onTogglePin,
 }: Props) => {
   const [isDragOver, setIsDragOver] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -184,6 +186,7 @@ const FolderItem = memo(({
                 chat={chat}
                 isActive={chat.id === chatId}
                 onDelete={onDeleteChat}
+                onTogglePin={onTogglePin}
               />
             ))
           )}

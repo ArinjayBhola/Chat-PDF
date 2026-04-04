@@ -79,6 +79,19 @@ const ExpandedSidebar = memo(({ className, onToggle, chats, chatId, isPro, onDel
     }
   };
 
+  const handleTogglePin = async (pinChatId: string, isPinned: boolean) => {
+    const previousChats = queryClient.getQueryData<DrizzleChat[]>(["chats-list"]);
+    queryClient.setQueryData<DrizzleChat[]>(["chats-list"], (old) =>
+      old?.map((c) => (c.id === pinChatId ? { ...c, isPinned: isPinned ? "true" : "false" } : c))
+    );
+    try {
+      await axios.patch("/api/chats/pin", { chatId: pinChatId, isPinned });
+    } catch {
+      queryClient.setQueryData(["chats-list"], previousChats);
+      toast.error("Failed to update pin");
+    }
+  };
+
   // Determine active comparison from URL
   const currentChatsParam = searchParams?.get("chats") || "";
 
@@ -145,6 +158,7 @@ const ExpandedSidebar = memo(({ className, onToggle, chats, chatId, isPro, onDel
           chatId={chatId}
           searchQuery={searchQuery}
           onDeleteChat={onDeleteChat}
+          onTogglePin={handleTogglePin}
         />
 
         <CreateFolderDialog
