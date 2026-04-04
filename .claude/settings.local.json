@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -r \"TODO\\\\|FIXME\\\\|HACK\" D:oiqbcnloaskbcjwhdjkmcProjectChat-PDF --include=*.ts --include=*.tsx --include=*.js --include=*.jsx)",
+      "Bash(cat D:oiqbcnloaskbcjwhdjkmcProjectChat-PDF/types/*)",
+      "Bash(find /d/oiqbcnloaskbcjwhdjkmc/Project/Chat-PDF -type f -name *.ts -path */migrations/*)",
+      "Bash(find /d/oiqbcnloaskbcjwhdjkmc/Project/Chat-PDF/drizzle -type f -name *.sql)",
+      "Bash(npx drizzle-kit:*)",
+      "Bash(npx tsc:*)"
+    ]
+  }
+}

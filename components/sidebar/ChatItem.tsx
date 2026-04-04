@@ -105,7 +105,14 @@ export const ChatItem = memo(
     };
 
     return (
-      <div className="relative group">
+      <div
+        className="relative group"
+        draggable={!isEditing}
+        onDragStart={(e) => {
+          e.dataTransfer.setData("text/plain", chat.id);
+          e.dataTransfer.effectAllowed = "move";
+        }}
+      >
         <Link
           href={isEditing ? "#" : `/chat/${chat.id}`}
           onClick={(e) => isEditing && e.preventDefault()}

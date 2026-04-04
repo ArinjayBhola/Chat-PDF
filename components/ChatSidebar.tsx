@@ -69,6 +69,7 @@ const ChatSidebar = ({ chats: initialChats, chatId: propChatId, className, isPro
         setDeleteName("");
         queryClient.invalidateQueries({ queryKey: ["chats-list"] });
         queryClient.invalidateQueries({ queryKey: ["comparisons-list"] });
+        queryClient.invalidateQueries({ queryKey: ["folders-list"] });
 
         // If we deleted the current chat, redirect to home
         if (deleteId === chatId) {

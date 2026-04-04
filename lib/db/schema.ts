@@ -1,9 +1,18 @@
-import { pgTable, text, timestamp, pgEnum, uuid } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, pgEnum, uuid, integer } from "drizzle-orm/pg-core";
 
 // Export auth schema
 export * from "./auth-schema";
 
 export const userSystemEnum = pgEnum("user_system_enum", ["system", "user"]);
+
+export const folders = pgTable("folders", {
+  id: uuid("id").primaryKey(),
+  name: text("name").notNull(),
+  userId: text("user_id").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export type DrizzleFolder = typeof folders.$inferSelect;
 
 export const chats = pgTable("chats", {
   id: uuid("id").primaryKey(),
@@ -16,6 +25,7 @@ export const chats = pgTable("chats", {
   shareToken: text("share_token").unique(),
   sharePermission: text("share_permission").notNull().default("view"), // 'view' | 'edit'
   allowPublicView: text("allow_public_view").notNull().default("false"),
+  folderId: uuid("folder_id").references(() => folders.id, { onDelete: "set null" }),
 });
 
 export type DrizzleChat = typeof chats.$inferSelect;

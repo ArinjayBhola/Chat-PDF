@@ -2,19 +2,21 @@ import React, { memo, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
-import { DrizzleChat } from "@/lib/db/schema";
+import { DrizzleChat, DrizzleFolder } from "@/lib/db/schema";
 import SidebarHeader from "./SidebarHeader";
 import SidebarFooter from "./SidebarFooter";
-import { ChatItem } from "./ChatItem";
 import FileUpload from "../FileUpload";
 import { RiLoader2Fill } from "react-icons/ri";
-import { LuGitCompareArrows, LuChevronDown, LuTrash2 } from "react-icons/lu";
+import { LuGitCompareArrows, LuChevronDown, LuTrash2, LuFolderPlus } from "react-icons/lu";
 import { CompareDialog } from "../CompareDialog";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
+import SearchBar from "./SearchBar";
+import FolderList from "./FolderList";
+import CreateFolderDialog from "./CreateFolderDialog";
 
 type Props = {
   className?: string;
@@ -34,11 +36,23 @@ type ComparisonItem = {
 
 const ExpandedSidebar = memo(({ className, onToggle, chats, chatId, isPro, onDeleteChat }: Props) => {
   const [isCompareOpen, setIsCompareOpen] = useState(false);
+  const [isCreateFolderOpen, setIsCreateFolderOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [comparisonsExpanded, setComparisonsExpanded] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const currentChat = chats.find((c) => c.id === chatId);
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
+
+  const { data: folders = [] } = useQuery<DrizzleFolder[]>({
+    queryKey: ["folders-list"],
+    queryFn: async () => {
+      const res = await axios.get("/api/folders");
+      return res.data;
+    },
+    staleTime: 30 * 1000,
+    refetchOnWindowFocus: false,
+  });
 
   const { data: comparisons } = useQuery<ComparisonItem[]>({
     queryKey: ["comparisons-list"],
@@ -112,20 +126,31 @@ const ExpandedSidebar = memo(({ className, onToggle, chats, chatId, isPro, onDel
       />
 
       <div className="flex-1 overflow-y-auto mt-6 flex flex-col gap-2 pr-2 custom-scrollbar">
-        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2 mb-2">Your Chats</p>
+        <div className="flex items-center justify-between px-2 mb-2">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Your Chats</p>
+          <button
+            onClick={() => setIsCreateFolderOpen(true)}
+            className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-primary transition-colors"
+            title="New folder"
+          >
+            <LuFolderPlus className="w-3.5 h-3.5" />
+          </button>
+        </div>
 
-        {chats.length === 0 ? (
-          <div className="px-2 text-muted-foreground text-sm italic">No chats yet.</div>
-        ) : (
-          chats.map((chat) => (
-            <ChatItem
-              key={chat.id}
-              chat={chat}
-              isActive={chat.id === chatId}
-              onDelete={onDeleteChat}
-            />
-          ))
-        )}
+        <SearchBar value={searchQuery} onChange={setSearchQuery} />
+
+        <FolderList
+          folders={folders}
+          chats={chats}
+          chatId={chatId}
+          searchQuery={searchQuery}
+          onDeleteChat={onDeleteChat}
+        />
+
+        <CreateFolderDialog
+          open={isCreateFolderOpen}
+          onOpenChange={setIsCreateFolderOpen}
+        />
 
         {/* Comparisons Section */}
         {comparisons && comparisons.length > 0 && (
