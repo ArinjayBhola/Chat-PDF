@@ -6,7 +6,7 @@ import { ChatItem } from "./ChatItem";
 import { useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { RiLoader2Fill } from "react-icons/ri";
+import { showUndoToast } from "../UndoToast";
 
 type Props = {
   folder: DrizzleFolder;
@@ -33,7 +33,6 @@ const FolderItem = memo(({
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(folder.name);
   const [isRenaming, setIsRenaming] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const queryClient = useQueryClient();
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -73,19 +72,41 @@ const FolderItem = memo(({
     }
   };
 
-  const handleDelete = async (e: React.MouseEvent) => {
+  const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    try {
-      setIsDeleting(true);
-      await axios.delete(`/api/folders/${folder.id}`);
-      toast.success("Folder deleted");
-      queryClient.invalidateQueries({ queryKey: ["folders-list"] });
-      queryClient.invalidateQueries({ queryKey: ["chats-list"] });
-    } catch {
-      toast.error("Failed to delete folder");
-    } finally {
-      setIsDeleting(false);
-    }
+
+    // Snapshot caches for rollback
+    const previousFolders = queryClient.getQueryData<DrizzleFolder[]>(["folders-list"]);
+    const previousChats = queryClient.getQueryData<DrizzleChat[]>(["chats-list"]);
+
+    // Optimistically remove folder and uncategorize its chats
+    queryClient.setQueryData<DrizzleFolder[]>(["folders-list"], (old) =>
+      old?.filter((f) => f.id !== folder.id)
+    );
+    queryClient.setQueryData<DrizzleChat[]>(["chats-list"], (old) =>
+      old?.map((c) => (c.folderId === folder.id ? { ...c, folderId: null } : c))
+    );
+
+    showUndoToast({
+      message: `Folder "${folder.name}" deleted`,
+      duration: 5000,
+      onUndo: () => {
+        queryClient.setQueryData(["folders-list"], previousFolders);
+        queryClient.setQueryData(["chats-list"], previousChats);
+        toast.success("Folder restored!");
+      },
+      onConfirm: async () => {
+        try {
+          await axios.delete(`/api/folders/${folder.id}`);
+          queryClient.invalidateQueries({ queryKey: ["folders-list"] });
+          queryClient.invalidateQueries({ queryKey: ["chats-list"] });
+        } catch {
+          queryClient.setQueryData(["folders-list"], previousFolders);
+          queryClient.setQueryData(["chats-list"], previousChats);
+          toast.error("Failed to delete folder");
+        }
+      },
+    });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -159,15 +180,10 @@ const FolderItem = memo(({
           )}
           <button
             onClick={handleDelete}
-            disabled={isDeleting}
             className="p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
             title="Delete folder"
           >
-            {isDeleting ? (
-              <RiLoader2Fill className="w-3 h-3 animate-spin" />
-            ) : (
-              <LuTrash2 className="w-3 h-3" />
-            )}
+            <LuTrash2 className="w-3 h-3" />
           </button>
         </div>
       </div>

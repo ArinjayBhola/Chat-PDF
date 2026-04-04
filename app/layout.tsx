@@ -4,6 +4,7 @@ import "./globals.css";
 import Provider from "@/components/Provider";
 import { Toaster } from "react-hot-toast";
 import NextTopLoader from "nextjs-toploader";
+import CommandPalette from "@/components/CommandPalette";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import SessionProvider from "@/components/SessionProvider";
@@ -48,6 +49,7 @@ export default async function RootLayout({
                 <Provider>
                   <NextTopLoader />
                   {children}
+                  <CommandPalette />
                   <Toaster />
                 </Provider>
               </ViewerProvider>

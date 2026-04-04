@@ -10,6 +10,7 @@ import ExpandedSidebar from "./sidebar/ExpandedSidebar";
 import CollapsedSidebar from "./sidebar/CollapsedSidebar";
 import { cn } from "@/lib/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { showUndoToast } from "./UndoToast";
 
 type Props = {
   chats: DrizzleChat[];
@@ -26,7 +27,6 @@ const ChatSidebar = ({ chats: initialChats, chatId: propChatId, className, isPro
   const [isOpen, setIsOpen] = useState(true);
 
   // Delete state
-  const [isDeleting, setIsDeleting] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleteName, setDeleteName] = useState<string>("");
 
@@ -57,31 +57,56 @@ const ChatSidebar = ({ chats: initialChats, chatId: propChatId, className, isPro
   const handleDelete = async () => {
     if (!deleteId) return;
 
-    try {
-      setIsDeleting(true);
-      const response = await axios.delete("/api/delete-chat", {
-        data: { chatId: deleteId },
-      });
+    const deletingChatId = deleteId;
+    const deletingChatName = deleteName;
 
-      if (response.status === 200) {
-        toast.success("Chat deleted!");
-        setDeleteId(null);
-        setDeleteName("");
-        queryClient.invalidateQueries({ queryKey: ["chats-list"] });
-        queryClient.invalidateQueries({ queryKey: ["comparisons-list"] });
-        queryClient.invalidateQueries({ queryKey: ["folders-list"] });
+    // Snapshot current cache for rollback
+    const previousChats = queryClient.getQueryData<DrizzleChat[]>(["chats-list"]);
 
-        // If we deleted the current chat, redirect to home
-        if (deleteId === chatId) {
-          router.push("/");
-        }
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error("Something went wrong");
-    } finally {
-      setIsDeleting(false);
+    // Optimistically remove chat from cache
+    queryClient.setQueryData<DrizzleChat[]>(["chats-list"], (old) =>
+      old?.filter((c) => c.id !== deletingChatId)
+    );
+
+    // Close the modal
+    setDeleteId(null);
+    setDeleteName("");
+
+    // Redirect if deleting current chat
+    if (deletingChatId === chatId) {
+      router.push("/");
     }
+
+    // Show undo toast with grace period
+    showUndoToast({
+      message: `"${deletingChatName}" deleted`,
+      duration: 5000,
+      onUndo: () => {
+        // Restore chat in cache
+        queryClient.setQueryData(["chats-list"], previousChats);
+        toast.success("Chat restored!");
+        // Navigate back if we redirected
+        if (deletingChatId === chatId) {
+          router.push(`/chat/${deletingChatId}`);
+        }
+      },
+      onConfirm: async () => {
+        // Actually delete after grace period
+        try {
+          await axios.delete("/api/delete-chat", {
+            data: { chatId: deletingChatId },
+          });
+          queryClient.invalidateQueries({ queryKey: ["chats-list"] });
+          queryClient.invalidateQueries({ queryKey: ["comparisons-list"] });
+          queryClient.invalidateQueries({ queryKey: ["folders-list"] });
+        } catch (error) {
+          console.error(error);
+          // Restore on failure
+          queryClient.setQueryData(["chats-list"], previousChats);
+          toast.error("Failed to delete chat");
+        }
+      },
+    });
   };
 
   return (
@@ -90,7 +115,7 @@ const ChatSidebar = ({ chats: initialChats, chatId: propChatId, className, isPro
         isOpen={!!deleteId}
         onClose={() => setDeleteId(null)}
         onConfirm={handleDelete}
-        loading={isDeleting}
+        loading={false}
         chatName={deleteName}
       />
 

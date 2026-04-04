@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { Input } from "./ui/input";
@@ -12,7 +12,7 @@ import { dbMessageToUIMessage } from "@/lib/message-mapper";
 import { cn } from "@/lib/utils";
 import { FiGlobe } from "react-icons/fi";
 import { FaArrowUp } from "react-icons/fa";
-import { LuLoaderCircle } from "react-icons/lu";
+import { LuLoaderCircle, LuArrowUp, LuArrowDown, LuChevronsDown } from "react-icons/lu";
 import { IoSparklesOutline } from "react-icons/io5";
 
 type Props = {
@@ -50,6 +50,41 @@ export default function ChatComponent({
   const [webSearch, setWebSearch] = useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
 
+  // Scroll navigation state
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const [showScrollBottom, setShowScrollBottom] = useState(false);
+  const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
+
+  const handleScroll = useCallback(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const { scrollTop, scrollHeight, clientHeight } = el;
+    const distanceFromTop = scrollTop;
+    const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+
+    setShowScrollTop(distanceFromTop > 300);
+    setShowScrollBottom(distanceFromBottom > 150);
+    setIsAutoScrollEnabled(distanceFromBottom <= 150);
+  }, []);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    el.addEventListener("scroll", handleScroll, { passive: true });
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, [handleScroll]);
+
+  const scrollToTop = () => {
+    containerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const scrollToBottom = () => {
+    const el = containerRef.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+    setIsAutoScrollEnabled(true);
+  };
+
   /* Load messages */
   const { data } = useQuery({
     queryKey: ["chat-messages", chatId],
@@ -73,14 +108,14 @@ export default function ChatComponent({
     }),
   });
 
-  /* Auto scroll */
+  /* Auto scroll - only when user hasn't scrolled up */
   useEffect(() => {
-    if (!containerRef.current) return;
+    if (!containerRef.current || !isAutoScrollEnabled) return;
     containerRef.current.scrollTo({
       top: containerRef.current.scrollHeight,
       behavior: "smooth",
     });
-  }, [messages, status]);
+  }, [messages, status, isAutoScrollEnabled]);
 
   /* Sync DB messages */
   useEffect(() => {
@@ -185,6 +220,28 @@ export default function ChatComponent({
             </div>
           )}
         </div>
+      </div>
+
+      {/* Scroll Navigation Buttons */}
+      <div className="absolute right-4 bottom-28 z-20 flex flex-col gap-2">
+        {showScrollTop && (
+          <button
+            onClick={scrollToTop}
+            className="p-2 rounded-full bg-background/90 border border-border shadow-lg backdrop-blur-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-200 animate-in fade-in zoom-in-75 active:scale-90"
+            title="Scroll to top"
+          >
+            <LuArrowUp className="w-4 h-4" />
+          </button>
+        )}
+        {showScrollBottom && (
+          <button
+            onClick={scrollToBottom}
+            className="p-2 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-all duration-200 animate-in fade-in zoom-in-75 active:scale-90"
+            title="Scroll to bottom"
+          >
+            <LuChevronsDown className="w-4 h-4" />
+          </button>
+        )}
       </div>
 
       {/* Input */}
