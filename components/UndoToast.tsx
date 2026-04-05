@@ -56,6 +56,15 @@ export function UndoToast({ message, toastId, duration = 5000, onUndo, onExpire 
         <LuUndo2 className="w-3.5 h-3.5" />
         Undo
       </button>
+      <button
+        onClick={() => {
+          toast.dismiss(toastId);
+          onExpire();
+        }}
+        className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground transition-all shrink-0"
+      >
+        Delete Now
+      </button>
       {/* Progress bar */}
       <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-muted overflow-hidden rounded-b-lg">
         <div

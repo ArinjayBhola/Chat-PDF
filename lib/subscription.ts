@@ -25,7 +25,8 @@ export const checkSubscription = async () => {
   const isValid =
     !!userSubscription.razorpayPaymentId &&
     !!userSubscription.subscriptionEndDate &&
-    userSubscription.subscriptionEndDate.getTime() > Date.now();
+    userSubscription.subscriptionEndDate.getTime() > Date.now() &&
+    userSubscription.status !== "cancelled";
 
   return isValid;
 };

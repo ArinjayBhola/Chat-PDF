@@ -54,6 +54,37 @@ export default function SettingsClient({ email, isPro, expiryDate, chatCount }: 
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [deleteInput, setDeleteInput] = useState("");
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
+
+  const calculateProRataRefund = () => {
+    if (!expiryDate) return { amount: 0, daysLeft: 0, percentage: 0 };
+    const now = new Date();
+    const endDate = new Date(expiryDate);
+    const msLeft = endDate.getTime() - now.getTime();
+    const daysLeft = Math.max(0, msLeft / (1000 * 60 * 60 * 24));
+    const percentage = (daysLeft / 30) * 100;
+    const amount = (daysLeft / 30) * 9.99; // Using float for display
+    return { 
+      amount: Math.max(0, amount), 
+      daysLeft: Math.floor(daysLeft), 
+      percentage: Math.min(100, Math.max(0, percentage)) 
+    };
+  };
+
+  const handleCancelSubscription = async () => {
+    try {
+      setIsCancelling(true);
+      await axios.post("/api/subscription/cancel");
+      toast.success("Subscription cancelled. Refund initiated.");
+      setIsCancelDialogOpen(false);
+      router.refresh(); // Refresh to update isPro and expiryDate
+    } catch (error: any) {
+      toast.error(error.response?.data?.error || "Failed to cancel subscription");
+    } finally {
+      setIsCancelling(false);
+    }
+  };
 
   const handleResetPasswordOTP = async () => {
     try {
@@ -440,8 +471,66 @@ export default function SettingsClient({ email, isPro, expiryDate, chatCount }: 
                   </div>
                 )}
                 {isPro && (
-                    <div className="pt-4 border-t border-border mt-2">
+                    <div className="pt-4 border-t border-border mt-2 flex flex-col gap-4">
                         <UpgradeButton isPro={isPro} />
+                        
+                        <Dialog open={isCancelDialogOpen} onOpenChange={setIsCancelDialogOpen}>
+                          <DialogTrigger asChild>
+                            <Button variant="outline" className="w-full h-11 border-destructive/30 text-destructive hover:bg-destructive/10 hover:border-destructive transition-all">
+                              Cancel Subscription
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="sm:max-w-md">
+                            <DialogHeader>
+                              <DialogTitle className="text-xl font-bold">Cancel Subscription?</DialogTitle>
+                              <DialogDescription className="text-sm text-muted-foreground pt-2">
+                                You are about to cancel your Pro subscription. Based on your remaining time, you will receive a <b>pro-rata refund</b>.
+                              </DialogDescription>
+                            </DialogHeader>
+                            
+                            <div className="py-6 space-y-4">
+                              <div className="bg-primary/5 border border-primary/10 rounded-xl p-4 flex flex-col items-center text-center">
+                                <p className="text-sm text-muted-foreground mb-1">Estimated Refund</p>
+                                <p className="text-3xl font-extrabold text-primary">
+                                  Rs. {(calculateProRataRefund().amount * 100).toFixed(2)}
+                                </p>
+                                <p className="text-xs font-medium text-muted-foreground mt-2 uppercase tracking-widest">
+                                  {calculateProRataRefund().daysLeft} days remaining ({calculateProRataRefund().percentage.toFixed(0)}%)
+                                </p>
+                              </div>
+                              
+                              <ul className="space-y-3 text-sm">
+                                <li className="flex items-start gap-3">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
+                                  <span>Refund will be processed automatically to your original payment method.</span>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
+                                  <span>Money will be reflected in <b>5-6 business days</b>.</span>
+                                </li>
+                                <li className="flex items-start gap-3 text-destructive font-medium">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-destructive mt-1.5 shrink-0" />
+                                  <span>Pro features will be revoked immediately upon cancellation.</span>
+                                </li>
+                              </ul>
+                            </div>
+
+                            <DialogFooter className="flex-col sm:flex-row gap-3">
+                              <Button variant="ghost" onClick={() => setIsCancelDialogOpen(false)} disabled={isCancelling} className="flex-1 rounded-xl">
+                                Keep Subscription
+                              </Button>
+                              <Button 
+                                variant="destructive" 
+                                onClick={handleCancelSubscription} 
+                                disabled={isCancelling}
+                                className="flex-1 rounded-xl shadow-lg shadow-destructive/20"
+                              >
+                                {isCancelling && <FiLoader className="w-4 h-4 mr-2 animate-spin" />}
+                                Confirm Cancellation
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
                     </div>
                 )}
 

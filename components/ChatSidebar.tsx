@@ -68,14 +68,9 @@ const ChatSidebar = ({ chats: initialChats, chatId: propChatId, className, isPro
       old?.filter((c) => c.id !== deletingChatId)
     );
 
-    // Close the modal
+    // Close the modal and reset local state immediately
     setDeleteId(null);
     setDeleteName("");
-
-    // Redirect if deleting current chat
-    if (deletingChatId === chatId) {
-      router.push("/");
-    }
 
     // Show undo toast with grace period
     showUndoToast({
@@ -85,10 +80,6 @@ const ChatSidebar = ({ chats: initialChats, chatId: propChatId, className, isPro
         // Restore chat in cache
         queryClient.setQueryData(["chats-list"], previousChats);
         toast.success("Chat restored!");
-        // Navigate back if we redirected
-        if (deletingChatId === chatId) {
-          router.push(`/chat/${deletingChatId}`);
-        }
       },
       onConfirm: async () => {
         // Actually delete after grace period
@@ -99,6 +90,11 @@ const ChatSidebar = ({ chats: initialChats, chatId: propChatId, className, isPro
           queryClient.invalidateQueries({ queryKey: ["chats-list"] });
           queryClient.invalidateQueries({ queryKey: ["comparisons-list"] });
           queryClient.invalidateQueries({ queryKey: ["folders-list"] });
+
+          // Redirect to /chat only after confirmation, if it was the active chat
+          if (deletingChatId === chatId) {
+            router.push("/chat");
+          }
         } catch (error) {
           console.error(error);
           // Restore on failure

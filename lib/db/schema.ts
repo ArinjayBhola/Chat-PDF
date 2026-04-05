@@ -83,4 +83,5 @@ export const userSubscriptions = pgTable("user_subscriptions", {
   razorpayPaymentLinkStatus: text("razorpay_payment_link_status"),
   razorpaySignature: text("razorpay_signature"),
   subscriptionEndDate: timestamp("subscription_end_date"),
+  status: text("status").default("active"),
 });
