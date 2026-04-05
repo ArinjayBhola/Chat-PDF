@@ -38,6 +38,27 @@ export default async function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  const size = localStorage.getItem("chatpdf-size");
+                  const color = localStorage.getItem("chatpdf-color");
+                  const appearance = localStorage.getItem("chatpdf-appearance");
+                  const typography = localStorage.getItem("chatpdf-typography");
+                  
+                  if (size) document.documentElement.setAttribute("data-size", size);
+                  if (color) document.documentElement.setAttribute("data-theme-color", color);
+                  if (appearance) document.documentElement.setAttribute("data-chat-appearance", appearance);
+                  if (typography) document.documentElement.setAttribute("data-typography", typography);
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ThemeProvider
           attribute="class"

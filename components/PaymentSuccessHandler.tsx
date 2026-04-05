@@ -23,6 +23,8 @@ export default function PaymentSuccessHandler({ paymentStatus }: Props) {
       toast.error("Payment was not completed.");
     } else if (paymentStatus === "db_error") {
       toast.error("Failed to activate subscription. Please contact support.");
+    } else if (paymentStatus === "config_error") {
+      toast.error("Payment configuration error. Please contact admin.");
     } else if (paymentStatus === "missing_params") {
       toast.error("Invalid payment response. Please try again.");
     }

@@ -54,6 +54,7 @@ export async function GET(req: Request) {
       notes: {
         userId: session.user.id,
       },
+      reference_id: `ref_${Date.now().toString(36)}_${session.user.id.slice(-21)}`,
       callback_url: callback_url,
       callback_method: "get",
     });

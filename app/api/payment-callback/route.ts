@@ -23,7 +23,7 @@ export async function GET(req: Request) {
   );
   const razorpayPaymentLinkRefId = url.searchParams.get(
     "razorpay_payment_link_reference_id"
-  );
+  ) || "";
   const razorpayPaymentLinkStatus = url.searchParams.get(
     "razorpay_payment_link_status"
   );
@@ -33,11 +33,15 @@ export async function GET(req: Request) {
   if (
     !razorpayPaymentId ||
     !razorpayPaymentLinkId ||
-    !razorpayPaymentLinkRefId ||
     !razorpayPaymentLinkStatus ||
     !razorpaySignature
   ) {
-    console.error("[PAYMENT_CALLBACK] Missing required parameters");
+    console.error("[PAYMENT_CALLBACK] Missing required parameters", {
+      razorpayPaymentId: !!razorpayPaymentId,
+      razorpayPaymentLinkId: !!razorpayPaymentLinkId,
+      razorpayPaymentLinkStatus: !!razorpayPaymentLinkStatus,
+      razorpaySignature: !!razorpaySignature,
+    });
     return NextResponse.redirect(`${baseUrl}/?payment=missing_params`);
   }
 
