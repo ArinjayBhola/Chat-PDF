@@ -10,7 +10,8 @@ const nextConfig: NextConfig = {
   serverExternalPackages: [
     "@huggingface/transformers",
     "onnxruntime-node",
-    "pdfjs-dist"
+    "pdfjs-dist",
+    "skia-canvas"
   ],
   images: {
     remotePatterns: [new URL("https://lh3.googleusercontent.com/**")],
