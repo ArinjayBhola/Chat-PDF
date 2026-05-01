@@ -30,7 +30,8 @@ const UpgradeButton = ({ isPro }: { isPro: boolean }) => {
       } else if (status === 401) {
         toast.error("Please sign in to continue.");
       } else {
-        toast.error("Unable to start payment. Please try again.");
+        // Show specific error from server if available, otherwise fallback
+        toast.error(typeof message === 'string' ? message : "Unable to start payment. Please try again.");
       }
       setIsGlobalLoading(false);
     }
