@@ -1,12 +1,15 @@
-import { fromPath } from "pdf2pic";
-import { createWorker, Worker } from "tesseract.js";
 import fs from "fs/promises";
 import os from "os";
+import path from "path";
+import { createWorker } from "tesseract.js";
+import sharp from "sharp";
 
-export async function ocrPdfPage(pdfPath: string, pageNumber: number, worker?: Worker): Promise<string> {
+export async function ocrPdfPage(pdfPath: string, pageNumber: number): Promise<string> {
   const tempDir = os.tmpdir();
+  const { fromPath } = await import("pdf2pic");
+  
   const options = {
-    density: 200,
+    density: 300, // Increased density for better Gemini vision
     format: "png",
     savePath: tempDir,
     width: 2000,
@@ -14,34 +17,47 @@ export async function ocrPdfPage(pdfPath: string, pageNumber: number, worker?: W
   };
 
   try {
+    console.log(`[OCR] Processing page ${pageNumber} with Local Pipeline (Sharp + Tesseract)...`);
     const converter = fromPath(pdfPath, options);
     const page = await converter(pageNumber);
 
-    let tempWorker: Worker | null = null;
-    const workerToUse = worker || (tempWorker = await createWorker("eng"));
+    if (!page.path) {
+      throw new Error("Failed to generate image from PDF page");
+    }
 
+    // --- ADVANCED IMAGE PRE-PROCESSING ---
+    const processedImagePath = path.join(tempDir, `processed_${path.basename(page.path)}`);
+    
+    await sharp(page.path)
+      .grayscale() // Remove color noise
+      .normalize() // Enhance contrast
+      .threshold(180) // Convert to black and white for crisp edges
+      .sharpen() // Sharpen the text characters
+      .toFile(processedImagePath);
+
+    const worker = await createWorker("eng");
+    
     try {
-      if (!page.path) {
-        throw new Error("Failed to generate image from PDF page");
-      }
+      // Configure Tesseract for better local results
+      await (worker as any).setParameters({
+        tessedit_pageseg_mode: "1", // Automatic page segmentation with OSD
+        tessedit_ocr_engine_mode: "1", // LSTM only (more accurate)
+      });
 
-      const {
-        data: { text },
-      } = await workerToUse.recognize(page.path);
-
-      // Cleanup the generated image
-      if (page.path) {
-        await fs.unlink(page.path).catch((e) => console.error("Failed to delete temp OCR image:", e));
-      }
-
+      const { data: { text } } = await worker.recognize(processedImagePath);
+      
+      // Cleanup
+      await Promise.all([
+        fs.unlink(page.path).catch(() => {}),
+        fs.unlink(processedImagePath).catch(() => {})
+      ]);
+      
       return text;
     } finally {
-      if (tempWorker) {
-        await tempWorker.terminate();
-      }
+      await worker.terminate();
     }
   } catch (error) {
-    console.error(`Error in ocrPdfPage for page ${pageNumber}:`, error);
-    return ""; // Return empty string so other pages can still be processed
+    console.error(`[OCR] Local OCR error on page ${pageNumber}:`, error);
+    return "";
   }
 }

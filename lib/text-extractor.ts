@@ -1,10 +1,11 @@
 import fs from "fs";
 import path from "path";
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
-import { createWorker } from "tesseract.js";
 import { ocrPdfPage } from "./OCR";
 import pLimit from "p-limit";
 import { getFileCategory } from "./file-utils";
+import sharp from "sharp";
+import os from "os";
 
 export type ExtractedPage = {
   pageContent: string;
@@ -44,12 +45,7 @@ async function extractPdf(filePath: string): Promise<ExtractedPage[]> {
         let text = page.pageContent;
         if (needsOCR(text)) {
           console.log(`OCR fallback → page ${i + 1}`);
-          const worker = await createWorker("eng");
-          try {
-            text = await ocrPdfPage(filePath, i + 1, worker);
-          } finally {
-            await worker.terminate();
-          }
+          text = await ocrPdfPage(filePath, i + 1);
         }
         return {
           pageContent: text,
@@ -143,19 +139,49 @@ async function extractPptx(filePath: string): Promise<ExtractedPage[]> {
 }
 
 async function extractImage(filePath: string): Promise<ExtractedPage[]> {
-  const worker = await createWorker("eng");
+  const tempDir = os.tmpdir();
+  const processedImagePath = path.join(tempDir, `processed_img_${Date.now()}.png`);
+
   try {
-    const {
-      data: { text },
-    } = await worker.recognize(filePath);
+    // --- ADVANCED IMAGE PRE-PROCESSING ---
+    await sharp(filePath)
+      .grayscale()
+      .normalize()
+      .threshold(180)
+      .sharpen()
+      .toFile(processedImagePath);
+
+    const { createWorker } = await import("tesseract.js");
+    const worker = await createWorker("eng");
+    
+    try {
+      await (worker as any).setParameters({
+        tessedit_pageseg_mode: "1",
+        tessedit_ocr_engine_mode: "1",
+      });
+
+      const { data: { text } } = await worker.recognize(processedImagePath);
+      
+      // Cleanup
+      await fs.promises.unlink(processedImagePath).catch(() => {});
+      
+      return [
+        {
+          pageContent: text || "No text could be extracted.",
+          metadata: { loc: { pageNumber: 1 } },
+        },
+      ];
+    } finally {
+      await worker.terminate();
+    }
+  } catch (error) {
+    console.error("Local Image OCR failed:", error);
     return [
       {
-        pageContent: text || "No text could be extracted from this image.",
+        pageContent: "Failed to extract text from image.",
         metadata: { loc: { pageNumber: 1 } },
       },
     ];
-  } finally {
-    await worker.terminate();
   }
 }
 
