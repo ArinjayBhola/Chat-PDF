@@ -15,8 +15,11 @@ export async function POST(req: Request, res: Response) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  const isPro = await checkSubscription();
-  const userChats = await db.select().from(chats).where(eq(chats.userId, session.user.id));
+  // Parallelize subscription check and user chat count
+  const [isPro, userChats] = await Promise.all([
+    checkSubscription(),
+    db.select().from(chats).where(eq(chats.userId, session.user.id))
+  ]);
 
   if (userChats.length >= 3 && !isPro) {
     return NextResponse.json({ error: "limit_reached" }, { status: 403 });

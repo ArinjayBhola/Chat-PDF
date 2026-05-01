@@ -17,10 +17,13 @@ const page = async ({ params, searchParams }: {
 }) => {
   const { chatId } = await params;
   const { token } = await searchParams;
-  const session = await getServerSession(authOptions);
+  
+  // Parallelize session and chat data fetching
+  const [session, _chats] = await Promise.all([
+    getServerSession(authOptions),
+    db.select().from(chats).where(eq(chats.id, chatId))
+  ]);
 
-  // Fetch chat data
-  const _chats = await db.select().from(chats).where(eq(chats.id, chatId));
   if (_chats.length === 0) {
     return redirect("/");
   }

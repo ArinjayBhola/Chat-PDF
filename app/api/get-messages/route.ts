@@ -9,7 +9,12 @@ export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
   const { chatId } = await req.json();
 
-  const _chats = await db.select().from(chats).where(eq(chats.id, chatId));
+  // Parallelize chat check and messages fetch
+  const [_chats, _messages] = await Promise.all([
+    db.select().from(chats).where(eq(chats.id, chatId)),
+    db.select().from(messages).where(eq(messages.chatsId, chatId))
+  ]);
+
   if (_chats.length === 0) {
     return NextResponse.json({ error: "Chat not found" }, { status: 404 });
   }
@@ -28,6 +33,5 @@ export async function POST(req: Request) {
     }
   }
 
-  const _messages = await db.select().from(messages).where(eq(messages.chatsId, chatId));
   return NextResponse.json({ messages: _messages });
 }

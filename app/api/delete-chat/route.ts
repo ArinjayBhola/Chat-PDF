@@ -23,48 +23,55 @@ export async function DELETE(req: Request) {
     
     const fileKey = chat[0].fileKey;
 
-    try {
-        // 2. Delete vectors from Pinecone
-        const pc = new Pinecone({
+    // Parallelize deletions from Pinecone, S3, and database (notes and messages)
+    await Promise.all([
+      // 2. Delete vectors from Pinecone
+      (async () => {
+        try {
+          const pc = new Pinecone({
             apiKey: process.env.PINECONE_API_KEY!,
-        });
-        const index = pc.index(process.env.PINECONE_INDEX_NAME!);
-        const namespace = convertToAscii(fileKey);
-        await index.namespace(namespace).deleteAll();
-    } catch (pineconeError) {
-        console.error("Error deleting from Pinecone:", pineconeError);
-    }
-    
-    try {
-        // 3. Delete file from S3
-        AWS.config.update({
-          accessKeyId: process.env.NEXT_PUBLIC_AWS_S3_ACCESS_KEY_ID,
-          secretAccessKey: process.env.NEXT_PUBLIC_AWS_S3_SECRET_ACCESS_KEY,
-        });
-        const s3 = new AWS.S3({
-          params: {
-            Bucket: process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME,
-          },
-          region: process.env.NEXT_PUBLIC_AWS_REGION,
-        });
-        
-        const params = {
-          Bucket: process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME!,
-          Key: fileKey,
-        };
-        
-        await s3.deleteObject(params).promise();
-    } catch (s3Error) {
-        console.error("Error deleting from S3:", s3Error);
-    }
+          });
+          const index = pc.index(process.env.PINECONE_INDEX_NAME!);
+          const namespace = convertToAscii(fileKey);
+          await index.namespace(namespace).deleteAll();
+        } catch (pineconeError) {
+          console.error("Error deleting from Pinecone:", pineconeError);
+        }
+      })(),
 
-    // 4. Delete notes first (references chats.id via foreign key)
-    await db.delete(notes).where(eq(notes.chatId, chatId));
+      // 3. Delete file from S3
+      (async () => {
+        try {
+          AWS.config.update({
+            accessKeyId: process.env.NEXT_PUBLIC_AWS_S3_ACCESS_KEY_ID,
+            secretAccessKey: process.env.NEXT_PUBLIC_AWS_S3_SECRET_ACCESS_KEY,
+          });
+          const s3 = new AWS.S3({
+            params: {
+              Bucket: process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME,
+            },
+            region: process.env.NEXT_PUBLIC_AWS_REGION,
+          });
+          
+          const params = {
+            Bucket: process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME!,
+            Key: fileKey,
+          };
+          
+          await s3.deleteObject(params).promise();
+        } catch (s3Error) {
+          console.error("Error deleting from S3:", s3Error);
+        }
+      })(),
 
-    // 5. Delete messages
-    await db.delete(messages).where(eq(messages.chatsId, chatId));
+      // 4. Delete notes (references chats.id via foreign key)
+      db.delete(notes).where(eq(notes.chatId, chatId)),
 
-    // 6. Delete the chat
+      // 5. Delete messages
+      db.delete(messages).where(eq(messages.chatsId, chatId))
+    ]);
+
+    // 6. Finally, delete the chat
     await db.delete(chats).where(eq(chats.id, chatId));
 
     return NextResponse.json({ success: true }, { status: 200 });

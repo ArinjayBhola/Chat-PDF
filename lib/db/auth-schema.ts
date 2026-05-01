@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, primaryKey, integer } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, primaryKey, integer, index } from "drizzle-orm/pg-core";
 import type { AdapterAccount } from "next-auth/adapters";
 
 export const users = pgTable("users", {
@@ -34,6 +34,7 @@ export const accounts = pgTable(
     compoundKey: primaryKey({
       columns: [account.provider, account.providerAccountId],
     }),
+    userIdIdx: index("accounts_user_id_idx").on(account.userId),
   }),
 );
 
@@ -46,4 +47,7 @@ export const otps = pgTable("otps", {
   type: text("type").notNull(), // 'verification' or 'reset'
   expiresAt: timestamp("expires_at").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  emailIdx: index("otps_email_idx").on(table.email),
+  expiresAtIdx: index("otps_expires_at_idx").on(table.expiresAt),
+}));
