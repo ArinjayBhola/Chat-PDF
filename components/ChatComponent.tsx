@@ -145,6 +145,43 @@ export default function ChatComponent({
     queryClient.invalidateQueries({ queryKey: ["chat-messages", chatId] });
   };
 
+  /* Handle Selection Actions from Floating Menu */
+  useEffect(() => {
+    const handleSelectionAction = (e: any) => {
+      const { action, text, targetChatId } = e.detail;
+      if (targetChatId && targetChatId !== chatId) return;
+
+      let prompt = "";
+      switch (action) {
+        case "explain":
+          prompt = `Explain this part of the document in detail:\n\n"${text}"`;
+          break;
+        case "summarize":
+          prompt = `Summarize this specific section concisely:\n\n"${text}"`;
+          break;
+        case "translate":
+          prompt = `Translate this text into plain English (or the primary language of our conversation if different):\n\n"${text}"`;
+          break;
+        default:
+          return;
+      }
+
+      setInput(prompt);
+      // We can't easily trigger the form submit here without refactoring, 
+      // but setting the input is a great first step. 
+      // Actually, let's try to trigger it if possible.
+      setTimeout(() => {
+        const form = document.querySelector("#chat-form") as HTMLFormElement;
+        if (form) {
+            form.requestSubmit();
+        }
+      }, 100);
+    };
+
+    window.addEventListener("selection-action", handleSelectionAction);
+    return () => window.removeEventListener("selection-action", handleSelectionAction);
+  }, [chatId]);
+
   const handleRegenerate = async () => {
     if (messages.length < 2 || status !== "ready") return;
     // The last message is the AI's response, the one before is the user's prompt
@@ -274,6 +311,7 @@ export default function ChatComponent({
           )}
 
           <form
+            id="chat-form"
             onSubmit={handleSubmit}
             className={cn(
               "flex items-center gap-2 bg-card p-1.5 rounded-2xl border border-border shadow-sm transition-all duration-200 focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary/30 focus-within:shadow-md",

@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { useViewer } from "./providers/ViewerContext";
 import { LuFileBox, LuFileX, LuShare2, LuRotateCcw, LuNotebook } from "react-icons/lu";
 import NotesSidebar from "@/components/NotesSidebar";
+import { FloatingMenu, SelectionAction } from "./FloatingMenu";
 
 type Props = {
   chat: DrizzleChat;
@@ -39,6 +40,14 @@ export default function ChatLayout({ chat, isOwner, session, isSharedView = fals
 
   const handleNoteAdded = () => {
     setNotesRefreshKey((prev) => prev + 1);
+  };
+
+  const handleSelectionAction = (action: SelectionAction, text: string) => {
+    window.dispatchEvent(
+      new CustomEvent("selection-action", {
+        detail: { action, text, targetChatId: chat.id },
+      })
+    );
   };
 
   const headerActions = (
@@ -139,6 +148,7 @@ export default function ChatLayout({ chat, isOwner, session, isSharedView = fals
                 <FileViewer
                   file_url={chat.fileUrl || ""}
                   file_name={chat.fileName}
+                  file_key={chat.fileKey}
                   refreshKey={currentRefreshKey}
                 />
               </div>
@@ -187,6 +197,7 @@ export default function ChatLayout({ chat, isOwner, session, isSharedView = fals
                       <FileViewer
                         file_url={chat.fileUrl || ""}
                         file_name={chat.fileName}
+                        file_key={chat.fileKey}
                         refreshKey={currentRefreshKey}
                       />
                     </div>
@@ -242,6 +253,7 @@ export default function ChatLayout({ chat, isOwner, session, isSharedView = fals
           initialData={shareData}
         />
       )}
+      <FloatingMenu onAction={handleSelectionAction} />
     </div>
   );
 }

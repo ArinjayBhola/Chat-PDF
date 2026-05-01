@@ -1,6 +1,17 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+
+const NativePDFViewer = dynamic(() => import("./NativePDFViewer"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex flex-col items-center justify-center p-20 gap-4">
+      <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      <p className="text-xs font-bold text-muted-foreground animate-pulse">LOADING PDF VIEWER...</p>
+    </div>
+  ),
+});
 
 type FileCategory = "pdf" | "document" | "spreadsheet" | "presentation" | "text" | "image";
 
@@ -44,10 +55,11 @@ function getCategory(fileName: string, fileUrl?: string): FileCategory {
 type Props = {
   file_url: string;
   file_name: string;
+  file_key?: string;
   refreshKey?: number;
 };
 
-const FileViewer = ({ file_url, file_name, refreshKey = 0 }: Props) => {
+const FileViewer = ({ file_url, file_name, file_key, refreshKey = 0 }: Props) => {
   const validUrl = file_url.replace("https// ", "https://");
   const category = getCategory(file_name, validUrl);
 
@@ -72,7 +84,13 @@ const FileViewer = ({ file_url, file_name, refreshKey = 0 }: Props) => {
     );
   }
 
-  // PDF, DOCX, XLSX, PPTX — use Google Docs Viewer
+  if (category === "pdf") {
+    // Use proxy for PDFs to avoid CORS issues with S3
+    const proxyUrl = `/api/pdf-proxy?key=${encodeURIComponent(file_key || "")}`;
+    return <NativePDFViewer key={refreshKey} url={proxyUrl} />;
+  }
+
+  // Other documents (DOCX, XLSX, PPTX) — use Google Docs Viewer fallback
   return (
     <iframe
       key={refreshKey}

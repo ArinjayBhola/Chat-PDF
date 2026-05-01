@@ -6,9 +6,7 @@ import { authOptions } from "@/lib/auth-options";
 import { desc, eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import React from "react";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
-import { FaBars } from "react-icons/fa";
+import MobileNav from "@/components/MobileNav";
 import UserMenu from "@/components/UserMenu";
 import { checkSubscription } from "@/lib/subscription";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -35,25 +33,7 @@ const ChatLayout = async ({ children }: Props) => {
     <div className="flex flex-col md:flex-row h-screen overflow-hidden bg-white dark:bg-slate-900">
       <div className="md:hidden flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 z-20">
         <div className="flex items-center gap-3">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                className="md:hidden">
-                <FaBars className="h-5 w-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent
-              side="left"
-              className="p-0 w-[280px]">
-              <ChatSidebar
-                chats={_chats}
-                isPro={isPro}
-                className="border-none"
-              />
-            </SheetContent>
-          </Sheet>
+          <MobileNav chats={_chats} isPro={isPro} />
           <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
             <span className="text-blue-500 dark:text-blue-400">PDF</span> Chat.ai
           </h1>

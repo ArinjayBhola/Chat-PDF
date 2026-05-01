@@ -7,9 +7,17 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  serverExternalPackages: ["@huggingface/transformers", "onnxruntime-node"],
+  serverExternalPackages: [
+    "@huggingface/transformers",
+    "onnxruntime-node",
+    "pdfjs-dist"
+  ],
   images: {
     remotePatterns: [new URL("https://lh3.googleusercontent.com/**")],
+  },
+  webpack: (config) => {
+    config.resolve.alias.canvas = false;
+    return config;
   },
 };
 

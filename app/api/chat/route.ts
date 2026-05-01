@@ -2,7 +2,8 @@ import { getContext } from "@/lib/context";
 import { db } from "@/lib/db";
 import { chats, messages as _messages } from "@/lib/db/schema";
 import { google } from "@ai-sdk/google";
-import { streamText, generateText, convertToModelMessages, ModelMessage, smoothStream, UIMessage } from "ai";
+import { groq } from "@ai-sdk/groq";
+import { streamText, generateText, convertToModelMessages, smoothStream, UIMessage, createUIMessageStreamResponse } from "ai";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import Exa from "exa-js";
@@ -48,10 +49,24 @@ export async function POST(req: Request) {
   // Auto-name chat on the very first message
   if (messages.length === 1) {
     try {
-      const { text: generatedTitle } = await generateText({
-        model: google("gemini-2.5-flash"),
-        prompt: `Generate a very short, concise title (3-5 words maximum) for a chat that starts with this user query: "${lastMessage.parts[0].text}". Return ONLY the title, no quotes or extra text.`,
-      });
+      let generatedTitle = "";
+      try {
+        const titleResult = await generateText({
+          model: google("gemini-2.5-flash"),
+          system: `You are a professional title generator.`,
+          prompt: `Generate a very short, concise title (3-5 words maximum) for a chat that starts with this user query: "${lastMessage.parts[0].text}". Return ONLY the title, no quotes or extra text.`,
+          maxRetries: 0,
+        });
+        generatedTitle = titleResult.text;
+      } catch (e) {
+        console.warn("Gemini quota reached for title, switching to Groq fallback...");
+        const titleResult = await generateText({
+          model: groq("llama-3.3-70b-versatile"),
+          system: `You are a professional title generator.`,
+          prompt: `Generate a very short, concise title (3-5 words maximum) for a chat that starts with this user query: "${lastMessage.parts[0].text}". Return ONLY the title, no quotes or extra text.`,
+        });
+        generatedTitle = titleResult.text;
+      }
 
       if (generatedTitle) {
         await db.update(chats)
@@ -122,21 +137,70 @@ export async function POST(req: Request) {
     };
   });
 
-  const result = streamText({
-    model: google("gemini-2.5-flash"),
-    messages: [prompt as ModelMessage, ...convertToModelMessages(conversationMessages)],
-    experimental_transform: smoothStream(),
-    async onFinish({ text }) {
-      // save assistant message into db
-      await db.insert(_messages).values({
-        id: crypto.randomUUID(),
-        chatsId: chatId,
-        content: text,
-        createdAt: new Date(),
-        role: "system",
-      });
-    },
-  });
+  // Pre-convert messages once
+  const coreMessages = await convertToModelMessages(conversationMessages);
 
-  return result.toUIMessageStreamResponse();
+  // Manual fallback for streaming
+  try {
+    // UNCOMMENT THE LINE BELOW TO TEST GROQ FALLBACK
+    // throw new Error("Simulated Gemini Failure for testing fallback");
+
+    console.log("[MODEL_STATS] Attempting Gemini 2.5 Flash...");
+    
+    // Probe Gemini
+    await generateText({ 
+      model: google("gemini-2.5-flash"), 
+      prompt: "ping", 
+      maxTokens: 1,
+      maxRetries: 0 
+    } as any);
+
+    console.log("[MODEL_STATS] Gemini probe successful. Starting stream...");
+
+    const result = streamText({
+      model: google("gemini-2.5-flash"),
+      system: promptContent,
+      messages: coreMessages,
+      maxRetries: 0,
+      experimental_transform: smoothStream(),
+      async onFinish({ text }) {
+        await saveMessageToDb(chatId, text, "system");
+      },
+    });
+
+    return result.toUIMessageStreamResponse();
+  } catch (e) {
+    console.warn("!!! GEMINI FAILURE !!!", e instanceof Error ? e.message : e);
+    console.log("[MODEL_STATS] Falling back to Groq Llama 3.3...");
+    try {
+      const result = streamText({
+        model: groq("llama-3.3-70b-versatile"),
+        system: promptContent,
+        messages: coreMessages,
+        experimental_transform: smoothStream(),
+        async onFinish({ text }) {
+          await saveMessageToDb(chatId, text, "system");
+        },
+      });
+      console.log("[MODEL_STATS] Groq stream initialized successfully.");
+      return result.toUIMessageStreamResponse();
+    } catch (groqError) {
+      console.error("[MODEL_STATS] FATAL: Groq fallback also failed!", groqError);
+      return createUIMessageStreamResponse({
+        id: crypto.randomUUID(),
+        role: "assistant",
+        parts: [{ type: "text", text: "⚠️ AI service is currently unavailable. Please try again later." }],
+      } as any);
+    }
+  }
+}
+
+async function saveMessageToDb(chatId: string, content: string, role: "user" | "system") {
+  await db.insert(_messages).values({
+    id: crypto.randomUUID(),
+    chatsId: chatId,
+    content: content,
+    createdAt: new Date(),
+    role: role,
+  });
 }
