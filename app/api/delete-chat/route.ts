@@ -4,7 +4,15 @@ import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { Pinecone } from "@pinecone-database/pinecone";
 import { convertToAscii } from "@/lib/utils";
-import AWS from "aws-sdk";
+import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
+
+const s3Client = new S3Client({
+  region: process.env.NEXT_PUBLIC_AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.NEXT_PUBLIC_AWS_S3_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.NEXT_PUBLIC_AWS_S3_SECRET_ACCESS_KEY!,
+  },
+});
 
 export async function DELETE(req: Request) {
   try {
@@ -42,23 +50,13 @@ export async function DELETE(req: Request) {
       // 3. Delete file from S3
       (async () => {
         try {
-          AWS.config.update({
-            accessKeyId: process.env.NEXT_PUBLIC_AWS_S3_ACCESS_KEY_ID,
-            secretAccessKey: process.env.NEXT_PUBLIC_AWS_S3_SECRET_ACCESS_KEY,
-          });
-          const s3 = new AWS.S3({
-            params: {
-              Bucket: process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME,
-            },
-            region: process.env.NEXT_PUBLIC_AWS_REGION,
-          });
-          
           const params = {
             Bucket: process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME!,
             Key: fileKey,
           };
           
-          await s3.deleteObject(params).promise();
+          const command = new DeleteObjectCommand(params);
+          await s3Client.send(command);
         } catch (s3Error) {
           console.error("Error deleting from S3:", s3Error);
         }
@@ -83,3 +81,4 @@ export async function DELETE(req: Request) {
     );
   }
 }
+
