@@ -46,14 +46,22 @@ export async function GET(req: Request) {
   } catch (error: any) {
     console.error("[DODO_CHECKOUT_ERROR] Full error:", error);
     
-    // Log specific details if available from the Dodo SDK
-    if (error.response) {
-      console.error("[DODO_API_RESPONSE_ERROR]", error.response.data);
+    let status = 500;
+    let message = error.message || "Internal Error";
+
+    // Handle errors from the Dodo SDK/API
+    if (error.status) {
+      status = error.status;
+    } else if (error.statusCode) {
+      status = error.statusCode;
+    } else if (error.response?.status) {
+      status = error.response.status;
     }
 
-    return new NextResponse(
-      error.message || "Internal Error", 
-      { status: 500 }
-    );
+    if (error.response?.data) {
+      message = JSON.stringify(error.response.data);
+    }
+
+    return new NextResponse(message, { status });
   }
 }
