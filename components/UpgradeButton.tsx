@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { Button } from "./ui/button";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { toast } from "react-hot-toast";
 import { useGlobalLoading } from "./Provider";
 
@@ -11,11 +11,27 @@ const UpgradeButton = ({ isPro }: { isPro: boolean }) => {
   const handleUpgrade = async () => {
     try {
       setIsGlobalLoading(true);
-      const response = await axios.get("/api/razorpay");
-      window.location.href = response.data.url;
+      const { data } = await axios.get("/api/dodo/checkout");
+      
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        toast.error("Unable to create checkout session.");
+        setIsGlobalLoading(false);
+      }
     } catch (error) {
       console.error(error);
-      toast.error("Something went wrong");
+      const axiosError = error as AxiosError<string>;
+      const status = axiosError.response?.status;
+      const message = axiosError.response?.data;
+
+      if (status === 400 && message === "Already subscribed") {
+        toast.error("You already have an active Pro plan.");
+      } else if (status === 401) {
+        toast.error("Please sign in to continue.");
+      } else {
+        toast.error("Unable to start payment. Please try again.");
+      }
       setIsGlobalLoading(false);
     }
   };

@@ -22,6 +22,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+import Script from "next/script";
+
 export const metadata: Metadata = {
   title: "ChatDoc",
   description: "Chat with your documents using AI.",

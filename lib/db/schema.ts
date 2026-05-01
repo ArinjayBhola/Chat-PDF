@@ -78,10 +78,9 @@ export const comparisonMessages = pgTable("comparison_messages", {
 export const userSubscriptions = pgTable("user_subscriptions", {
   id: uuid("id").primaryKey(),
   userId: text("user_id").notNull().unique(),
-  razorpayPaymentId: text("razorpay_payment_id"),
-  razorpayPaymentLinkId: text("razorpay_payment_link_id"),
-  razorpayPaymentLinkStatus: text("razorpay_payment_link_status"),
-  razorpaySignature: text("razorpay_signature"),
+  dodoPaymentId: text("dodo_payment_id"),
+  dodoSubscriptionId: text("dodo_subscription_id"),
+  dodoCustomerId: text("dodo_customer_id"),
   subscriptionEndDate: timestamp("subscription_end_date"),
   status: text("status").default("active"),
 });
