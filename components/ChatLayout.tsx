@@ -10,9 +10,10 @@ import { Button } from "@/components/ui/button";
 import { ShareDialog } from "./ShareDialog";
 import { cn } from "@/lib/utils";
 import { useViewer } from "./providers/ViewerContext";
-import { LuFileBox, LuFileX, LuShare2, LuRotateCcw, LuNotebook } from "react-icons/lu";
+import { LuFileBox, LuFileX, LuShare2, LuRotateCcw, LuNotebook, LuBrain } from "react-icons/lu";
 import NotesSidebar from "@/components/NotesSidebar";
 import { FloatingMenu, SelectionAction } from "./FloatingMenu";
+import MindMapDialog from "@/components/MindMapDialog";
 
 type Props = {
   chat: DrizzleChat;
@@ -25,6 +26,7 @@ export default function ChatLayout({ chat, isOwner, session, isSharedView = fals
   const [hideDocument, setHideDocument] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isNotesOpen, setIsNotesOpen] = useState(false);
+  const [isMindMapOpen, setIsMindMapOpen] = useState(false);
   const [notesRefreshKey, setNotesRefreshKey] = useState(0);
   const [activeMobileTab, setActiveMobileTab] = useState<"file" | "chat">("chat");
 
@@ -52,6 +54,18 @@ export default function ChatLayout({ chat, isOwner, session, isSharedView = fals
 
   const headerActions = (
     <div className="flex items-center gap-1.5 sm:gap-2">
+      {session?.user && (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setIsMindMapOpen(true)}
+          className="flex items-center gap-2 h-8 px-2.5 sm:px-3 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all duration-200 active:scale-95"
+          title="Mind Map"
+        >
+          <LuBrain className="w-4 h-4" />
+          <span className="hidden sm:inline text-xs font-semibold">Mind Map</span>
+        </Button>
+      )}
       {session?.user && (
         <Button
           variant="ghost"
@@ -251,6 +265,18 @@ export default function ChatLayout({ chat, isOwner, session, isSharedView = fals
           onOpenChange={setIsShareOpen}
           chatId={chat.id}
           initialData={shareData}
+        />
+      )}
+      {session?.user && (
+        <MindMapDialog
+          chatId={chat.id}
+          isOpen={isMindMapOpen}
+          onClose={() => {
+            setIsMindMapOpen(false);
+            // If user is on the chat tab on mobile, switch to file so the page-jump is visible
+            setActiveMobileTab("file");
+          }}
+          fileName={chat.fileName}
         />
       )}
       <FloatingMenu onAction={handleSelectionAction} />

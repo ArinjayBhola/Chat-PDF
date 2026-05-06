@@ -29,6 +29,19 @@ export default function NativePDFViewer({ url, refreshKey = 0 }: Props) {
     }
   }, []);
 
+  // Listen for external jump-to-page events (e.g., from Mind Map)
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      const target = Number(detail?.page);
+      if (!Number.isFinite(target) || target < 1) return;
+      const clamped = numPages ? Math.min(target, numPages) : target;
+      setPageNumber(clamped);
+    };
+    window.addEventListener("pdf-jump-to-page", handler as EventListener);
+    return () => window.removeEventListener("pdf-jump-to-page", handler as EventListener);
+  }, [numPages]);
+
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
     setNumPages(numPages);
     setLoading(false);
