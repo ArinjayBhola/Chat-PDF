@@ -46,38 +46,6 @@ export async function POST(req: Request) {
     senderName: session?.user?.name || "Collaborator",
   });
 
-  // Auto-name chat on the very first message
-  if (messages.length === 1) {
-    try {
-      let generatedTitle = "";
-      try {
-        const titleResult = await generateText({
-          model: google("gemini-2.5-flash"),
-          system: `You are a professional title generator.`,
-          prompt: `Generate a very short, concise title (3-5 words maximum) for a chat that starts with this user query: "${lastMessage.parts[0].text}". Return ONLY the title, no quotes or extra text.`,
-          maxRetries: 0,
-        });
-        generatedTitle = titleResult.text;
-      } catch (e) {
-        console.warn("Gemini quota reached for title, switching to Groq fallback...");
-        const titleResult = await generateText({
-          model: groq("llama-3.3-70b-versatile"),
-          system: `You are a professional title generator.`,
-          prompt: `Generate a very short, concise title (3-5 words maximum) for a chat that starts with this user query: "${lastMessage.parts[0].text}". Return ONLY the title, no quotes or extra text.`,
-        });
-        generatedTitle = titleResult.text;
-      }
-
-      if (generatedTitle) {
-        await db.update(chats)
-          .set({ fileName: generatedTitle.trim() })
-          .where(eq(chats.id, chatId));
-      }
-    } catch (e) {
-      console.error("Failed to auto-name chat", e);
-    }
-  }
-
   let promptContent = "";
 
   if (webSearch) {
