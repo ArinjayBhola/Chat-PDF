@@ -1,3 +1,4 @@
+// UI REDESIGN
 "use client";
 
 import React, { useState } from "react";
@@ -148,9 +149,9 @@ export default function SettingsClient({ email, isPro, expiryDate, chatCount }: 
           <button
             onClick={() => setActiveTab("account")}
             className={cn(
-              "w-full text-left px-5 py-3.5 rounded-xl font-semibold transition-all duration-200 border",
+              "w-full text-left px-5 py-3 rounded-lg font-semibold transition-all duration-200 border cursor-pointer",
               activeTab === "account" 
-                ? "bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20 scale-[1.02]" 
+                ? "bg-primary text-primary-foreground border-primary shadow-sm" 
                 : "bg-card text-foreground border-border hover:bg-muted/80 hover:border-muted-foreground/30"
             )}
           >
@@ -159,9 +160,9 @@ export default function SettingsClient({ email, isPro, expiryDate, chatCount }: 
           <button
             onClick={() => setActiveTab("interface")}
             className={cn(
-              "w-full text-left px-5 py-3.5 rounded-xl font-semibold transition-all duration-200 border",
+              "w-full text-left px-5 py-3 rounded-lg font-semibold transition-all duration-200 border cursor-pointer",
               activeTab === "interface" 
-                ? "bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20 scale-[1.02]" 
+                ? "bg-primary text-primary-foreground border-primary shadow-sm" 
                 : "bg-card text-foreground border-border hover:bg-muted/80 hover:border-muted-foreground/30"
             )}
           >
@@ -170,9 +171,9 @@ export default function SettingsClient({ email, isPro, expiryDate, chatCount }: 
           <button
             onClick={() => setActiveTab("subscription")}
             className={cn(
-              "w-full text-left px-5 py-3.5 rounded-xl font-semibold transition-all duration-200 border",
+              "w-full text-left px-5 py-3 rounded-lg font-semibold transition-all duration-200 border cursor-pointer",
               activeTab === "subscription" 
-                ? "bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20 scale-[1.02]" 
+                ? "bg-primary text-primary-foreground border-primary shadow-sm" 
                 : "bg-card text-foreground border-border hover:bg-muted/80 hover:border-muted-foreground/30"
             )}
           >
@@ -199,7 +200,7 @@ export default function SettingsClient({ email, isPro, expiryDate, chatCount }: 
                   Send OTP to Email
                 </Button>
               ) : (
-                <div className="space-y-4 max-w-sm bg-muted/30 p-4 rounded-xl border border-border">
+                <div className="space-y-4 max-w-sm bg-muted/30 p-4 rounded-lg border border-border">
                   <div>
                     <label className="text-sm font-medium mb-1 block">OTP Code</label>
                     <input
@@ -321,17 +322,17 @@ export default function SettingsClient({ email, isPro, expiryDate, chatCount }: 
               <div className="flex gap-4">
                 <button
                   onClick={() => setInterfaceSize("comfortable")}
-                  className={`flex-1 p-4 rounded-xl border-2 transition-all ${interfaceSize === "comfortable" ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"}`}
+                  className={`flex-1 p-4 rounded-lg border-2 transition-all cursor-pointer ${interfaceSize === "comfortable" ? "border-primary bg-primary/10 text-primary" : "border-border hover:border-primary/50 text-foreground"}`}
                 >
-                  <p className="font-semibold text-lg">Comfortable</p>
-                  <p className="text-sm text-muted-foreground mt-1">Default padding and text size setup.</p>
+                  <p className="font-bold text-md">Comfortable</p>
+                  <p className="text-xs text-muted-foreground mt-1">Default padding and text size setup.</p>
                 </button>
                 <button
                   onClick={() => setInterfaceSize("compact")}
-                  className={`flex-1 p-3 rounded-xl border-2 transition-all ${interfaceSize === "compact" ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"}`}
+                  className={`flex-1 p-3 rounded-lg border-2 transition-all cursor-pointer ${interfaceSize === "compact" ? "border-primary bg-primary/10 text-primary" : "border-border hover:border-primary/50 text-foreground"}`}
                 >
-                  <p className="font-semibold text-base">Compact</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">Smaller text, tighter spacing to fit more content.</p>
+                  <p className="font-bold text-sm">Compact</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">Smaller text, tighter spacing to fit more content.</p>
                 </button>
               </div>
             </div>
@@ -345,12 +346,12 @@ export default function SettingsClient({ email, isPro, expiryDate, chatCount }: 
                   <button
                     key={c}
                     onClick={() => setThemeColor(c as any)}
-                    className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${themeColor === c ? "border-primary bg-muted" : "border-border hover:bg-muted/50"}`}
+                    className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all cursor-pointer ${themeColor === c ? "border-primary bg-muted" : "border-border hover:bg-muted/50"}`}
                   >
-                    <div className="w-6 h-6 rounded-full" style={{
-                      backgroundColor: c === 'default' ? '#3b82f6' : c === 'red' ? '#ef4444' : c === 'amber' ? '#f59e0b' : '#f43f5e'
+                    <div className="w-5 h-5 rounded-md" style={{
+                      backgroundColor: c === 'default' ? '#2563EB' : c === 'red' ? '#ef4444' : c === 'amber' ? '#f59e0b' : '#f43f5e'
                     }} />
-                    <span className={cn("capitalize font-medium", themeColor === 'red' && c === 'red' && "text-red-500")}>{c}</span>
+                    <span className={cn("capitalize font-semibold text-xs", themeColor === 'red' && c === 'red' && "text-red-500")}>{c}</span>
                   </button>
                 ))}
               </div>
@@ -377,19 +378,19 @@ export default function SettingsClient({ email, isPro, expiryDate, chatCount }: 
               <div className="flex gap-4">
                 <button 
                   onClick={() => setChatAppearance("modern")}
-                  className={`flex-1 p-4 rounded-xl border-2 transition-all text-left ${chatAppearance === "modern" ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"}`}
+                  className={`flex-1 p-4 rounded-lg border-2 transition-all text-left cursor-pointer ${chatAppearance === "modern" ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"}`}
                 >
-                  <div className="w-full bg-primary text-primary-foreground py-2 px-4 rounded-2xl rounded-br-sm mb-3 text-sm">Hello, what can you do?</div>
-                  <p className="font-semibold text-foreground">Modern</p>
-                  <p className="text-xs text-muted-foreground mt-1">Rounded bubbles with a tail</p>
+                  <div className="w-full bg-primary text-primary-foreground py-2 px-4 rounded-lg rounded-br-none mb-3 text-xs font-semibold">Hello, what can you do?</div>
+                  <p className="font-bold text-foreground text-sm">Modern</p>
+                  <p className="text-xs text-muted-foreground mt-1 font-semibold">Rounded bubbles with flat corners</p>
                 </button>
                 <button 
                   onClick={() => setChatAppearance("classic")}
-                  className={`flex-1 p-4 rounded-xl border-2 transition-all text-left ${chatAppearance === "classic" ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"}`}
+                  className={`flex-1 p-4 rounded-lg border-2 transition-all text-left cursor-pointer ${chatAppearance === "classic" ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"}`}
                 >
-                  <div className="w-full bg-muted text-foreground py-2 px-4 rounded-md mb-3 text-sm border border-border">Hello, what can you do?</div>
-                  <p className="font-semibold text-foreground">Classic</p>
-                  <p className="text-xs text-muted-foreground mt-1">Squared off professional style</p>
+                  <div className="w-full bg-muted text-foreground py-2 px-4 rounded-lg mb-3 text-xs border border-border font-semibold">Hello, what can you do?</div>
+                  <p className="font-bold text-foreground text-sm">Classic</p>
+                  <p className="text-xs text-muted-foreground mt-1 font-semibold">Sleek solid background borders</p>
                 </button>
               </div>
             </div>
@@ -400,24 +401,24 @@ export default function SettingsClient({ email, isPro, expiryDate, chatCount }: 
               <div className="flex gap-4">
                 <button 
                   onClick={() => setTypography("sans")}
-                  className={`flex-1 p-4 rounded-xl border-2 transition-all font-sans ${typography === "sans" ? "border-primary bg-primary/10 text-primary" : "border-border hover:border-primary/50 text-foreground"}`}
+                  className={`flex-1 p-4 rounded-lg border-2 transition-all font-sans cursor-pointer ${typography === "sans" ? "border-primary bg-primary/10 text-primary" : "border-border hover:border-primary/50 text-foreground"}`}
                 >
                   <span className="text-lg font-bold block mb-1">Aa</span>
-                  <span className="text-sm font-medium">Sans Serif</span>
+                  <span className="text-xs font-semibold">Sans Serif</span>
                 </button>
                 <button 
                   onClick={() => setTypography("serif")}
-                  className={`flex-1 p-4 rounded-xl border-2 transition-all font-serif ${typography === "serif" ? "border-primary bg-primary/10 text-primary" : "border-border hover:border-primary/50 text-foreground"}`}
+                  className={`flex-1 p-4 rounded-lg border-2 transition-all font-serif cursor-pointer ${typography === "serif" ? "border-primary bg-primary/10 text-primary" : "border-border hover:border-primary/50 text-foreground"}`}
                 >
                   <span className="text-lg font-bold block mb-1">Aa</span>
-                  <span className="text-sm font-medium">Serif</span>
+                  <span className="text-xs font-semibold">Serif</span>
                 </button>
                 <button 
                   onClick={() => setTypography("mono")}
-                  className={`flex-1 p-4 rounded-xl border-2 transition-all font-mono ${typography === "mono" ? "border-primary bg-primary/10 text-primary" : "border-border hover:border-primary/50 text-foreground"}`}
+                  className={`flex-1 p-4 rounded-lg border-2 transition-all font-mono cursor-pointer ${typography === "mono" ? "border-primary bg-primary/10 text-primary" : "border-border hover:border-primary/50 text-foreground"}`}
                 >
                   <span className="text-lg font-bold block mb-1">Aa</span>
-                  <span className="text-sm font-medium">Monospace</span>
+                  <span className="text-xs font-semibold">Monospace</span>
                 </button>
               </div>
             </div>
@@ -429,7 +430,7 @@ export default function SettingsClient({ email, isPro, expiryDate, chatCount }: 
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
             <div>
               <h2 className="text-xl font-bold mb-4">Subscription Overview</h2>
-              <div className="bg-muted/30 border border-border rounded-xl p-6 flex flex-col gap-6">
+              <div className="bg-muted/30 border border-border rounded-lg p-6 flex flex-col gap-6">
                 
                 <div className="flex justify-between items-center">
                   <div>
@@ -437,7 +438,7 @@ export default function SettingsClient({ email, isPro, expiryDate, chatCount }: 
                     <p className="text-2xl font-bold">{isPro ? "Pro Plan" : "Free Plan"}</p>
                   </div>
                   {isPro && (
-                    <span className="bg-green-500/20 text-green-600 dark:text-green-400 px-3 py-1 rounded-full text-sm font-semibold">Active</span>
+                    <span className="bg-green-500/20 text-green-600 dark:text-green-400 px-3 py-1 rounded-md text-sm font-semibold">Active</span>
                   )}
                 </div>
 
@@ -447,7 +448,7 @@ export default function SettingsClient({ email, isPro, expiryDate, chatCount }: 
                     <p className="text-lg font-semibold">{chatCount} <span className="text-muted-foreground text-sm font-normal">/ {isPro ? "Unlimited" : "3 limit"}</span></p>
                     {/* Visual Meter */}
                     {!isPro && (
-                      <div className="w-full bg-border h-2 rounded-full mt-2 overflow-hidden">
+                      <div className="w-full bg-border h-2 rounded-md mt-2 overflow-hidden">
                         <div 
                           className={`h-full ${chatCount >= 3 ? "bg-destructive" : "bg-primary"}`} 
                           style={{ width: `${Math.min((chatCount / 3) * 100, 100)}%` }} 
@@ -476,7 +477,7 @@ export default function SettingsClient({ email, isPro, expiryDate, chatCount }: 
                         
                         <Dialog open={isCancelDialogOpen} onOpenChange={setIsCancelDialogOpen}>
                           <DialogTrigger asChild>
-                            <Button variant="outline" className="w-full h-11 border-destructive/30 text-destructive hover:bg-destructive/10 hover:border-destructive transition-all">
+                            <Button variant="outline" className="w-full h-11 border-destructive/30 text-destructive hover:bg-destructive/10 hover:border-destructive transition-all rounded-lg">
                               Cancel Subscription
                             </Button>
                           </DialogTrigger>
@@ -489,12 +490,12 @@ export default function SettingsClient({ email, isPro, expiryDate, chatCount }: 
                             </DialogHeader>
                             
                             <div className="py-6 space-y-4">
-                              <div className="bg-primary/5 border border-primary/10 rounded-xl p-4 flex flex-col items-center text-center">
+                              <div className="bg-primary/5 border border-primary/10 rounded-lg p-4 flex flex-col items-center text-center">
                                 <p className="text-sm text-muted-foreground mb-1">Estimated Refund</p>
                                 <p className="text-3xl font-extrabold text-primary">
                                   Rs. {(calculateProRataRefund().amount * 100).toFixed(2)}
                                 </p>
-                                <p className="text-xs font-medium text-muted-foreground mt-2 uppercase tracking-widest">
+                                <p className="text-xs font-semibold text-muted-foreground mt-2 uppercase tracking-widest">
                                   {calculateProRataRefund().daysLeft} days remaining ({calculateProRataRefund().percentage.toFixed(0)}%)
                                 </p>
                               </div>
@@ -516,14 +517,14 @@ export default function SettingsClient({ email, isPro, expiryDate, chatCount }: 
                             </div>
 
                             <DialogFooter className="flex-col sm:flex-row gap-3">
-                              <Button variant="ghost" onClick={() => setIsCancelDialogOpen(false)} disabled={isCancelling} className="flex-1 rounded-xl">
+                              <Button variant="ghost" onClick={() => setIsCancelDialogOpen(false)} disabled={isCancelling} className="flex-1 rounded-lg">
                                 Keep Subscription
                               </Button>
                               <Button 
                                 variant="destructive" 
                                 onClick={handleCancelSubscription} 
                                 disabled={isCancelling}
-                                className="flex-1 rounded-xl shadow-lg shadow-destructive/20"
+                                className="flex-1 rounded-lg"
                               >
                                 {isCancelling && <FiLoader className="w-4 h-4 mr-2 animate-spin" />}
                                 Confirm Cancellation

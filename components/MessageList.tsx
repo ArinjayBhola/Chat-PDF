@@ -1,3 +1,4 @@
+// UI REDESIGN
 "use client";
 
 import React from "react";
@@ -26,7 +27,7 @@ const MessageList = ({ messages, reload, status, chatId, onNoteAdded, isSharedVi
   if (!messages?.length) return null;
 
   return (
-    <div className="flex flex-col gap-4 px-2 sm:px-4 py-4">
+    <div className="flex flex-col gap-5 px-2 sm:px-4 py-4">
       {messages.map((message) => {
         const text = message.parts
           ?.filter((part) => part.type === "text")
@@ -45,7 +46,7 @@ const MessageList = ({ messages, reload, status, chatId, onNoteAdded, isSharedVi
               "items-start": !isUser,
             })}>
             {isUser && senderName && (
-              <span className="text-[10px] text-muted-foreground mb-1 mr-11">
+              <span className="text-[10px] font-bold text-muted-foreground mb-1 mr-11 uppercase tracking-wider">
                 {senderName}
               </span>
             )}
@@ -57,29 +58,29 @@ const MessageList = ({ messages, reload, status, chatId, onNoteAdded, isSharedVi
               {/* Avatar */}
               <div
                 className={cn(
-                  "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center shadow-sm select-none mt-1 transition-transform duration-200 group-hover/msg:scale-105",
+                  "flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center shadow-xs select-none mt-1 transition-transform duration-200 group-hover/msg:scale-105",
                   isUser
-                    ? "bg-primary text-primary-foreground ring-2 ring-primary/20"
+                    ? "bg-primary text-primary-foreground border border-transparent"
                     : "bg-muted border border-border text-muted-foreground",
                 )}>
-                {isUser ? <CiUser className="h-4 w-4" /> : <IoSparklesOutline className="h-4 w-4" />}
+                {isUser ? <CiUser className="h-4.5 w-4.5" /> : <IoSparklesOutline className="h-4 w-4" />}
               </div>
 
               <div className="flex flex-col gap-1 w-full">
                 {/* Message Bubble */}
                 <div
-                  className={cn("px-5 py-2.5 shadow-sm text-[15px] leading-relaxed tracking-wide transition-shadow duration-200 group-hover/msg:shadow-md", {
+                  className={cn("px-4.5 py-3 shadow-xs text-sm sm:text-[15px] leading-relaxed tracking-normal transition-shadow duration-200 group-hover/msg:shadow-sm", {
                     // Modern
-                    "bg-primary text-primary-foreground rounded-2xl rounded-tr-sm shadow-md": chatAppearance === "modern" && isUser,
-                    "bg-card text-foreground border border-border rounded-2xl rounded-tl-sm w-fit": chatAppearance === "modern" && !isUser,
+                    "bg-primary text-primary-foreground rounded-lg rounded-tr-none shadow-xs": chatAppearance === "modern" && isUser,
+                    "bg-card text-foreground border border-border rounded-lg rounded-tl-none w-fit": chatAppearance === "modern" && !isUser,
                     // Classic
-                    "bg-primary/10 text-foreground border border-primary/20 rounded-md w-fit": chatAppearance === "classic" && isUser,
-                    "bg-muted text-foreground border border-border rounded-md w-fit": chatAppearance === "classic" && !isUser,
+                    "bg-primary/10 text-foreground border border-primary/20 rounded-lg w-fit": chatAppearance === "classic" && isUser,
+                    "bg-muted text-foreground border border-border rounded-lg w-fit": chatAppearance === "classic" && !isUser,
                   })}>
-                  <div className="markdown-prose whitespace-pre-wrap font-medium text-sm sm:text-base leading-relaxed">{text}</div>
+                  <div className="markdown-prose whitespace-pre-wrap font-medium leading-relaxed">{text}</div>
                 </div>
 
-                {/* Message Actions - scoped to individual message hover */}
+                {/* Message Actions */}
                 <div className="flex items-center gap-1 mt-1 px-1 opacity-0 group-hover/msg:opacity-100 transition-all duration-200 translate-y-1 group-hover/msg:translate-y-0">
                   {!isUser && (
                     <button
@@ -90,7 +91,7 @@ const MessageList = ({ messages, reload, status, chatId, onNoteAdded, isSharedVi
                         toast.success("Copied to clipboard");
                         setTimeout(() => setCopiedId(null), 2000);
                       }}
-                      className="p-1.5 text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted/80 transition-all duration-150 active:scale-95"
+                      className="p-1.5 text-muted-foreground hover:text-foreground rounded-md hover:bg-muted transition-all duration-150 active:scale-95 cursor-pointer"
                     >
                       {copiedId === message.id ? <IoCheckmarkOutline className="w-3.5 h-3.5 text-primary" /> : <IoCopyOutline className="w-3.5 h-3.5" />}
                     </button>
@@ -107,7 +108,7 @@ const MessageList = ({ messages, reload, status, chatId, onNoteAdded, isSharedVi
                           toast.error("Failed to save note");
                         }
                       }}
-                      className="p-1.5 text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted/80 transition-all duration-150 active:scale-95"
+                      className="p-1.5 text-muted-foreground hover:text-foreground rounded-md hover:bg-muted transition-all duration-150 active:scale-95 cursor-pointer"
                     >
                       <LuNotebook className="w-3.5 h-3.5" />
                     </button>
@@ -116,7 +117,7 @@ const MessageList = ({ messages, reload, status, chatId, onNoteAdded, isSharedVi
                     <button
                       title="Regenerate response"
                       onClick={() => reload()}
-                      className="p-1.5 text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted/80 transition-all duration-150 active:scale-95"
+                      className="p-1.5 text-muted-foreground hover:text-foreground rounded-md hover:bg-muted transition-all duration-150 active:scale-95 cursor-pointer"
                     >
                        <CiRedo className="w-4 h-4" />
                     </button>

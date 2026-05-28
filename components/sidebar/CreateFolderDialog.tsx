@@ -1,3 +1,4 @@
+// UI REDESIGN
 import React, { useState } from "react";
 import {
   Dialog,
@@ -56,7 +57,7 @@ export default function CreateFolderDialog({ open, onOpenChange }: Props) {
           onChange={(e) => setName(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Folder name"
-          className="w-full h-10 px-3 text-sm rounded-md bg-muted/50 border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-colors"
+          className="w-full h-10 px-3 text-sm rounded-lg bg-muted border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all duration-200"
           disabled={isCreating}
         />
         <DialogFooter>

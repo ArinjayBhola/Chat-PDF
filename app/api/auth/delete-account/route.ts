@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { users } from "@/lib/db/auth-schema";
+import { users, chats } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
@@ -17,7 +17,6 @@ export async function DELETE(req: Request) {
     // we just need to delete the user. Wait,chats are referenced by user_id which is a text matching users.id or clerk id.
     // Actually, in schema.ts chats don't have a cascading foreign key, they just have userId: text("user_id").
     // We should delete chats explicitly if we want a clean wipe.
-    const { chats } = await import("@/lib/db/schema");
     
     // The user's ID might be in session.user.id if NextAuth is configured, or we can look it up by email.
     const dbUser = await db.select().from(users).where(eq(users.email, session.user.email)).limit(1);

@@ -1,3 +1,4 @@
+// UI REDESIGN
 import React, { memo, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { Button } from "../ui/button";
@@ -140,10 +141,10 @@ const ExpandedSidebar = memo(({ className, onToggle, chats, chatId, isPro, onDel
 
       <div className="flex-1 overflow-y-auto mt-6 flex flex-col gap-2 pr-2 custom-scrollbar">
         <div className="flex items-center justify-between px-2 mb-2">
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Your Chats</p>
+          <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-wider">Your Chats</p>
           <button
             onClick={() => setIsCreateFolderOpen(true)}
-            className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-primary transition-colors"
+            className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-primary transition-colors cursor-pointer"
             title="New folder"
           >
             <LuFolderPlus className="w-3.5 h-3.5" />
@@ -171,9 +172,9 @@ const ExpandedSidebar = memo(({ className, onToggle, chats, chatId, isPro, onDel
           <div className="mt-4">
             <button
               onClick={() => setComparisonsExpanded(!comparisonsExpanded)}
-              className="flex items-center justify-between w-full px-2 mb-2 group"
+              className="flex items-center justify-between w-full px-2 mb-2 group cursor-pointer"
             >
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Comparisons</p>
+              <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-wider">Comparisons</p>
               <LuChevronDown className={cn(
                 "w-3.5 h-3.5 text-muted-foreground transition-transform duration-200",
                 !comparisonsExpanded && "-rotate-90"

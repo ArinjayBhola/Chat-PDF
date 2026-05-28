@@ -1,3 +1,4 @@
+// UI REDESIGN
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
@@ -237,7 +238,7 @@ export default function CommandPalette() {
 
       {/* Palette */}
       <div className="absolute top-[20%] left-1/2 -translate-x-1/2 w-full max-w-lg animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 duration-200">
-        <div className="bg-background border border-border rounded-xl shadow-2xl overflow-hidden">
+        <div className="bg-background border border-border rounded-lg shadow-2xl overflow-hidden">
           {/* Search Input */}
           <div className="flex items-center gap-3 px-4 py-3 border-b border-border">
             <LuSearch className="w-5 h-5 text-muted-foreground shrink-0" />

@@ -1,3 +1,4 @@
+// UI REDESIGN
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -239,22 +240,25 @@ export default function CompareView({ chatIds, documents, allChats }: Props) {
         className="flex-1 overflow-y-auto px-4 py-8 custom-scrollbar">
         <div className="min-h-full flex flex-col justify-end">
           {checkingExisting && (
-            <div className="flex flex-col items-center justify-center gap-4 text-center p-8 mb-4 max-w-lg mx-auto">
-              <div className="bg-primary/10 p-5 rounded-2xl border border-primary/20 shadow-sm animate-in zoom-in duration-500">
-                <LuLoaderCircle className="h-10 w-10 text-primary animate-spin" />
+             <div className="flex justify-start px-4 mt-4 animate-in fade-in slide-in-from-bottom-2 w-full max-w-[60%] mr-auto">
+              <div className="rounded-lg rounded-tl-none px-5 py-4 bg-muted text-foreground text-sm font-medium shadow-xs w-full border border-border/50">
+                <div className="space-y-2.5 animate-pulse">
+                  <div className="h-2 bg-muted-foreground/20 rounded-full w-5/6" />
+                  <div className="h-2 bg-muted-foreground/20 rounded-full w-3/4" />
+                  <div className="h-2 bg-muted-foreground/20 rounded-full w-1/2" />
+                </div>
               </div>
-              <p className="text-sm text-muted-foreground font-medium">Checking for existing comparison...</p>
             </div>
           )}
 
           {!checkingExisting && messages.length === 0 && (
             <div className="flex flex-col items-center justify-center gap-4 text-center p-8 mb-4 max-w-lg mx-auto">
-              <div className="bg-primary/10 p-5 rounded-2xl border border-primary/20 shadow-sm animate-in zoom-in duration-500">
-                <LuGitCompareArrows className="h-10 w-10 text-primary" />
+              <div className="bg-primary/10 p-4.5 rounded-lg border border-primary/20 shadow-xs animate-in zoom-in duration-500">
+                <LuGitCompareArrows className="h-8 w-8 text-primary" />
               </div>
               <div>
-                <p className="text-xl font-bold text-foreground">Analyzing Documents...</p>
-                <p className="text-sm text-muted-foreground mt-2 font-medium">
+                <p className="text-lg font-bold text-foreground">Analyzing Documents...</p>
+                <p className="text-xs text-muted-foreground mt-2 font-semibold max-w-xs leading-relaxed">
                   Comparing your selected documents for differences, contradictions, and common ground.
                 </p>
               </div>
@@ -287,27 +291,27 @@ export default function CompareView({ chatIds, documents, allChats }: Props) {
                     })}>
                     <div
                       className={cn(
-                        "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center shadow-sm select-none mt-1",
+                        "flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center shadow-xs select-none mt-1",
                         isUser
-                          ? "bg-primary text-primary-foreground ring-2 ring-primary/20"
+                          ? "bg-primary text-primary-foreground"
                           : "bg-muted border border-border text-muted-foreground",
                       )}>
-                      {isUser ? <CiUser className="h-4 w-4" /> : <IoSparklesOutline className="h-4 w-4" />}
+                      {isUser ? <CiUser className="h-4.5 w-4.5" /> : <IoSparklesOutline className="h-4 w-4" />}
                     </div>
 
                     <div className="flex flex-col gap-1 w-full">
                       <div
-                        className={cn("px-5 py-2.5 shadow-sm text-[15px] leading-relaxed tracking-wide", {
-                          "bg-primary text-primary-foreground rounded-2xl rounded-tr-sm shadow-md":
+                        className={cn("px-4.5 py-3 shadow-xs text-sm sm:text-[15px] leading-relaxed tracking-normal", {
+                          "bg-primary text-primary-foreground rounded-lg rounded-tr-none shadow-xs":
                             chatAppearance === "modern" && isUser,
-                          "bg-card text-foreground border border-border rounded-2xl rounded-tl-sm w-fit":
+                          "bg-card text-foreground border border-border rounded-lg rounded-tl-none w-fit":
                             chatAppearance === "modern" && !isUser,
-                          "bg-primary/10 text-foreground border border-primary/20 rounded-md w-fit":
+                          "bg-primary/10 text-foreground border border-primary/20 rounded-lg w-fit":
                             chatAppearance === "classic" && isUser,
-                          "bg-muted text-foreground border border-border rounded-md w-fit":
+                          "bg-muted text-foreground border border-border rounded-lg w-fit":
                             chatAppearance === "classic" && !isUser,
                         })}>
-                        <div className="markdown-prose whitespace-pre-wrap font-medium text-sm sm:text-base leading-relaxed">
+                        <div className="markdown-prose whitespace-pre-wrap font-medium leading-relaxed">
                           {text}
                         </div>
                       </div>
@@ -322,7 +326,7 @@ export default function CompareView({ chatIds, documents, allChats }: Props) {
                               toast.success("Copied to clipboard");
                               setTimeout(() => setCopiedId(null), 2000);
                             }}
-                            className="p-1.5 text-muted-foreground hover:text-foreground rounded-md hover:bg-muted transition-colors">
+                            className="p-1.5 text-muted-foreground hover:text-foreground rounded-md hover:bg-muted transition-colors cursor-pointer">
                             {copiedId === message.id ? (
                               <IoCheckmarkOutline className="w-3.5 h-3.5 text-primary" />
                             ) : (
@@ -339,11 +343,13 @@ export default function CompareView({ chatIds, documents, allChats }: Props) {
           </div>
 
           {status === "submitted" && (
-            <div className="flex justify-start px-4 mt-4 animate-in fade-in slide-in-from-bottom-2">
-              <div className="rounded-2xl rounded-tl-none px-5 py-4 bg-muted text-foreground text-sm font-medium shadow-sm">
-                <span className="inline-block animate-spin text-primary">
-                  <LuLoaderCircle className="w-5 h-5" />
-                </span>
+            <div className="flex justify-start px-4 mt-4 animate-in fade-in slide-in-from-bottom-2 w-full max-w-[60%] mr-auto">
+              <div className="rounded-lg rounded-tl-none px-5 py-4 bg-muted text-foreground text-sm font-medium shadow-xs w-full border border-border/50">
+                <div className="space-y-2.5 animate-pulse">
+                  <div className="h-2 bg-muted-foreground/20 rounded-full w-5/6" />
+                  <div className="h-2 bg-muted-foreground/20 rounded-full w-3/4" />
+                  <div className="h-2 bg-muted-foreground/20 rounded-full w-1/2" />
+                </div>
               </div>
             </div>
           )}

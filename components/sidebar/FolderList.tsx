@@ -1,3 +1,4 @@
+// UI REDESIGN
 import React, { memo, useMemo, useState, useCallback, useEffect } from "react";
 import { DrizzleChat, DrizzleFolder } from "@/lib/db/schema";
 import FolderItem from "./FolderItem";

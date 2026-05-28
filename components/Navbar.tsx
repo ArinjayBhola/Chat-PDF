@@ -1,3 +1,4 @@
+// UI REDESIGN
 import Link from "next/link";
 import { Button } from "./ui/button";
 import UserMenu from "./UserMenu";
@@ -10,11 +11,11 @@ type NavbarProps = {
 
 export default function Navbar({ isAuth, user, hideSettingsButton }: NavbarProps) {
   return (
-    <nav className="flex items-center justify-between p-6 lg:px-8 border-b border-border/40 backdrop-blur-md sticky top-0 z-50">
+    <nav className="flex items-center justify-between px-6 py-4 md:px-8 border-b border-border bg-background/80 backdrop-blur-md sticky top-0 z-50">
       <div className="flex lg:flex-1">
-        <Link href="/" className="-m-1.5 p-1.5 flex items-center gap-2">
-          <span className="font-bold text-2xl tracking-tighter hover:opacity-80 transition">
-            <span className="text-primary">Docs</span> Chat.ai
+        <Link href="/" className="flex items-center gap-2 transition-transform duration-200 active:scale-95">
+          <span className="font-extrabold text-xl tracking-tight text-foreground select-none">
+            <span className="text-primary">Docs</span>Chat.ai
           </span>
         </Link>
       </div>
@@ -22,22 +23,30 @@ export default function Navbar({ isAuth, user, hideSettingsButton }: NavbarProps
         {isAuth ? (
           <>
             <Link href="/chat">
-              <Button variant="ghost" className="text-sm font-medium hidden sm:block">Go to Chats</Button>
+              <Button variant="default" className="text-sm font-semibold hidden sm:inline-flex shadow-md">
+                Go to Chats
+              </Button>
             </Link>
             {hideSettingsButton ? (
               <Link href="/">
-                <Button variant="ghost" className="text-sm font-medium hidden sm:block">Home</Button>
+                <Button variant="ghost" className="text-sm font-semibold hidden sm:inline-flex">
+                  Home
+                </Button>
               </Link>
             ) : (
               <Link href="/settings">
-                <Button variant="ghost" className="text-sm font-medium hidden sm:block">Settings</Button>
+                <Button variant="outline" className="text-sm font-semibold hidden sm:inline-flex">
+                  Settings
+                </Button>
               </Link>
             )}
             <UserMenu user={user} />
           </>
         ) : (
           <Link href="/sign-in">
-              <Button variant="ghost" className="text-sm font-medium">Log in</Button>
+            <Button variant="default" className="text-sm font-semibold shadow-md">
+              Sign In
+            </Button>
           </Link>
         )}
       </div>

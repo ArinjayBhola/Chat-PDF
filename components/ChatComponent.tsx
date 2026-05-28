@@ -1,3 +1,4 @@
+// UI REDESIGN
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
@@ -226,12 +227,12 @@ export default function ChatComponent({
           {/* Empty State - No Messages Yet */}
           {messages.length === 0 && (
             <div className="flex flex-col items-center justify-center gap-4 text-center p-8 mb-4 max-w-lg mx-auto">
-              <div className="bg-primary/10 p-5 rounded-2xl border border-primary/20 shadow-sm animate-in zoom-in duration-500">
-                <IoSparklesOutline className="h-10 w-10 text-primary" />
+              <div className="bg-primary/10 p-4.5 rounded-lg border border-primary/20 shadow-xs animate-in zoom-in duration-500">
+                <IoSparklesOutline className="h-8 w-8 text-primary" />
               </div>
               <div>
-                <p className="text-xl font-bold text-foreground">No messages yet</p>
-                <p className="text-sm text-muted-foreground mt-2 font-medium">
+                <p className="text-lg font-bold text-foreground">No messages yet</p>
+                <p className="text-xs text-muted-foreground mt-2 font-semibold max-w-sm leading-relaxed">
                   Start the conversation by asking a question, or switch on Web Search to browse the internet.
                 </p>
               </div>
@@ -248,11 +249,13 @@ export default function ChatComponent({
           />
 
           {status === "submitted" && (
-             <div className="flex justify-start px-4 mt-4 animate-in fade-in slide-in-from-bottom-2">
-              <div className="rounded-2xl rounded-tl-none px-5 py-4 bg-muted text-foreground text-sm font-medium shadow-sm">
-                <span className="inline-block animate-spin text-primary">
-                  <LuLoaderCircle className="w-5 h-5" />
-                </span>
+             <div className="flex justify-start px-4 mt-4 animate-in fade-in slide-in-from-bottom-2 w-full max-w-[60%]">
+              <div className="rounded-lg rounded-tl-none px-5 py-4 bg-muted text-foreground text-sm font-medium shadow-xs w-full border border-border/50">
+                <div className="space-y-2.5 animate-pulse">
+                  <div className="h-2 bg-muted-foreground/20 rounded-full w-5/6" />
+                  <div className="h-2 bg-muted-foreground/20 rounded-full w-3/4" />
+                  <div className="h-2 bg-muted-foreground/20 rounded-full w-1/2" />
+                </div>
               </div>
             </div>
           )}
@@ -264,7 +267,7 @@ export default function ChatComponent({
         {showScrollTop && (
           <button
             onClick={scrollToTop}
-            className="p-2 rounded-full bg-background/90 border border-border shadow-lg backdrop-blur-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-200 animate-in fade-in zoom-in-75 active:scale-90"
+            className="p-2.5 rounded-full bg-background border border-border shadow-md text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-200 animate-in fade-in zoom-in-75 active:scale-90 cursor-pointer"
             title="Scroll to top"
           >
             <LuArrowUp className="w-4 h-4" />
@@ -273,7 +276,7 @@ export default function ChatComponent({
         {showScrollBottom && (
           <button
             onClick={scrollToBottom}
-            className="p-2 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-all duration-200 animate-in fade-in zoom-in-75 active:scale-90"
+            className="p-2.5 rounded-full bg-primary text-primary-foreground shadow-md hover:bg-primary/95 transition-all duration-200 animate-in fade-in zoom-in-75 active:scale-90 cursor-pointer"
             title="Scroll to bottom"
           >
             <LuChevronsDown className="w-4 h-4" />
@@ -285,8 +288,8 @@ export default function ChatComponent({
       <div className="p-4 border-t border-border bg-background/80 backdrop-blur-md">
         <div className="max-w-4xl mx-auto w-full space-y-2">
           {showLoginPrompt && (
-            <div className="p-3 mb-2 rounded-xl bg-accent/50 border border-border flex items-center justify-between animate-in fade-in slide-in-from-bottom-2 duration-300">
-              <p className="text-xs text-muted-foreground font-medium">
+            <div className="p-3 mb-2 rounded-lg bg-muted border border-border flex items-center justify-between animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <p className="text-xs text-muted-foreground font-semibold">
                 Sign in to send messages to this shared chat.
               </p>
               <Button size="sm" variant="outline" className="h-7 text-xs ml-3 shrink-0" onClick={() => window.location.href = `/sign-in?callbackUrl=${window.location.pathname}`}>
@@ -295,8 +298,8 @@ export default function ChatComponent({
             </div>
           )}
           {!canChat && !showLoginPrompt && isShared && (
-             <div className="p-2.5 mb-2 rounded-xl bg-muted/50 border border-border animate-in fade-in duration-300">
-                <p className="text-xs text-muted-foreground text-center uppercase tracking-wider font-semibold">
+             <div className="p-2.5 mb-2 rounded-lg bg-muted/50 border border-border animate-in fade-in duration-300">
+                <p className="text-xs text-muted-foreground text-center uppercase tracking-wider font-bold">
                   Read-Only Mode
                 </p>
              </div>
@@ -304,9 +307,9 @@ export default function ChatComponent({
 
           {/* Mode indicator */}
           {webSearch && (
-            <div className="flex items-center gap-2 text-xs text-primary bg-primary/5 border border-primary/10 px-3 py-1.5 rounded-xl w-fit animate-in fade-in slide-in-from-bottom-1 duration-200">
+            <div className="flex items-center gap-2 text-[10px] text-primary bg-primary/10 border border-primary/20 px-2.5 py-1 rounded-md w-fit animate-in fade-in slide-in-from-bottom-1 duration-200 font-bold uppercase tracking-wider">
               <FiGlobe className="h-3.5 w-3.5" />
-              <span className="font-semibold">Web search active</span>
+              <span>Web search active</span>
             </div>
           )}
 
@@ -314,7 +317,7 @@ export default function ChatComponent({
             id="chat-form"
             onSubmit={handleSubmit}
             className={cn(
-              "flex items-center gap-2 bg-card p-1.5 rounded-2xl border border-border shadow-sm transition-all duration-200 focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary/30 focus-within:shadow-md",
+              "flex items-center gap-2 bg-card p-1.5 rounded-lg border border-border shadow-xs transition-all duration-200 focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary/40 focus-within:shadow-sm",
               isBusy && "opacity-90",
             )}>
             {/* Web search toggle */}
@@ -324,9 +327,9 @@ export default function ChatComponent({
               disabled={isBusy}
               title="Toggle Web Search"
               className={cn(
-                "flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200 flex-shrink-0 active:scale-95",
+                "flex items-center justify-center w-10 h-10 rounded-lg transition-all duration-200 flex-shrink-0 active:scale-95 cursor-pointer",
                 webSearch
-                  ? "bg-primary text-primary-foreground shadow-md ring-2 ring-primary/20"
+                  ? "bg-primary text-primary-foreground shadow-sm"
                   : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground",
               )}>
               <FiGlobe className="h-4 w-4" />
@@ -337,7 +340,7 @@ export default function ChatComponent({
               onChange={(e) => setInput(e.target.value)}
               disabled={isBusy || !canChat}
               placeholder={!canChat ? "Chatting is disabled..." : (webSearch ? "Ask using live web data…" : "Ask a question about your document…")}
-              className="flex-1 bg-transparent border-none focus-visible:ring-0 text-sm md:text-base px-2 shadow-none"
+              className="flex-1 bg-transparent border-none focus-visible:ring-0 text-sm md:text-base px-2 shadow-none focus-visible:border-none focus-visible:ring-offset-0"
             />
 
             {/* Send button */}
@@ -346,9 +349,9 @@ export default function ChatComponent({
               size="icon"
               disabled={isBusy || !input.trim()}
               className={cn(
-                "h-10 w-10 rounded-xl transition-all duration-200 flex-shrink-0 active:scale-90",
+                "h-10 w-10 rounded-lg transition-all duration-200 flex-shrink-0 active:scale-90",
                 input.trim()
-                  ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg"
+                  ? "bg-primary hover:bg-primary/95 text-primary-foreground shadow-sm"
                   : "bg-muted text-muted-foreground",
               )}>
               <FaArrowUp className={cn("h-4 w-4 transition-transform duration-200", input.trim() && "scale-110")} />
@@ -357,8 +360,8 @@ export default function ChatComponent({
 
           {/* Keyboard hint */}
           {canChat && (
-            <p className="text-[10px] text-muted-foreground/60 text-center font-medium select-none">
-              Press <kbd className="px-1 py-0.5 bg-muted rounded text-[10px] font-mono border border-border">Enter</kbd> to send
+            <p className="text-[10px] text-muted-foreground/60 text-center font-semibold select-none">
+              Press <kbd className="px-1.5 py-0.5 bg-muted rounded text-[10px] font-mono border border-border">Enter</kbd> to send
             </p>
           )}
         </div>

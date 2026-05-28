@@ -1,3 +1,4 @@
+// UI REDESIGN
 "use client";
 import React from "react";
 import { Button } from "./ui/button";
@@ -43,9 +44,9 @@ const UpgradeButton = ({ isPro }: { isPro: boolean }) => {
       disabled={isPro}
       className={`w-full ${
         isPro
-          ? "bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700"
-          : "bg-primary hover:bg-primary/90"
-      } text-primary-foreground border-none transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] h-10 rounded-lg justify-center font-bold shadow-md`}>
+          ? "bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-700 opacity-90 cursor-default"
+          : "bg-primary hover:bg-primary/95 shadow-sm hover:shadow active:scale-[0.98]"
+      } text-primary-foreground border-0 transition-all duration-200 h-10 rounded-lg justify-center font-semibold`}>
       {isPro ? "Pro Plan Active" : "Upgrade to Pro"}
     </Button>
   );

@@ -1,3 +1,4 @@
+// UI REDESIGN
 "use client";
 
 import { useState } from "react";
@@ -66,9 +67,9 @@ export default function ForgotPasswordForm() {
     <div className="w-full max-w-[380px]">
       {/* Mobile Logo */}
       <div className="lg:hidden mb-8 flex justify-center">
-        <Link href="/" className="flex items-center gap-3">
-          <span className="text-2xl font-bold text-foreground tracking-tight">
-            <span className="text-primary">Docs</span> Chat.ai
+        <Link href="/" className="flex items-center gap-2 transition-transform duration-200 active:scale-95">
+          <span className="text-2xl font-extrabold text-foreground tracking-tight select-none">
+            <span className="text-primary">Docs</span>Chat.ai
           </span>
         </Link>
       </div>

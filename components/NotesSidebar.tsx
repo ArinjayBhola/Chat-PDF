@@ -1,3 +1,4 @@
+// UI REDESIGN
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
@@ -6,7 +7,6 @@ import {
   LuPlus,
   LuNotebook,
   LuX,
-  LuLoaderCircle,
 } from "react-icons/lu";
 import toast from "react-hot-toast";
 import { cn } from "@/lib/utils";
@@ -138,15 +138,20 @@ export default function NotesSidebar({ chatId, isOpen, onClose, refreshKey }: Pr
       <div ref={listRef} className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
-            <LuLoaderCircle className="w-6 h-6 text-primary animate-spin" />
-            <p className="text-sm text-muted-foreground">Loading your notes...</p>
+            <div className="relative flex h-8 w-8">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary/30 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-8 w-8 bg-primary/20 flex items-center justify-center border border-primary/40">
+                <span className="w-2.5 h-2.5 bg-primary rounded-full animate-pulse" />
+              </span>
+            </div>
+            <p className="text-xs font-semibold text-muted-foreground">Loading your notes...</p>
           </div>
         ) : notes.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center gap-4 border-2 border-dashed border-border rounded-2xl">
-            <LuNotebook className="w-8 h-8 text-muted-foreground/40" />
+          <div className="flex flex-col items-center justify-center py-20 text-center gap-4 border border-dashed border-border rounded-lg bg-muted/10">
+            <LuNotebook className="w-8 h-8 text-muted-foreground/30" />
             <div>
-              <p className="text-sm font-semibold text-foreground">No notes yet</p>
-              <p className="text-xs text-muted-foreground mt-1 px-4">
+              <p className="text-sm font-bold text-foreground">No notes yet</p>
+              <p className="text-xs text-muted-foreground mt-1 px-4 leading-relaxed">
                 Saved snippets from chat or your own notes will appear here.
               </p>
             </div>
@@ -157,7 +162,7 @@ export default function NotesSidebar({ chatId, isOpen, onClose, refreshKey }: Pr
             return (
               <div
                 key={note.id}
-                className="group relative p-3 rounded-xl border border-border bg-muted/30 hover:bg-muted/50 transition-all duration-200 shadow-sm"
+                className="group relative p-3 rounded-lg border border-border bg-muted/20 hover:bg-muted/40 transition-all duration-200 shadow-sm"
               >
                 <div className="flex justify-between items-start gap-2 mb-2">
                   <span className={cn("px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider", badge.className)}>
@@ -170,7 +175,7 @@ export default function NotesSidebar({ chatId, isOpen, onClose, refreshKey }: Pr
                     <LuTrash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
-                <p className="text-sm text-foreground/80 whitespace-pre-wrap break-words leading-relaxed">
+                <p className="text-sm text-foreground/80 whitespace-pre-wrap break-words leading-relaxed font-medium">
                   {note.content}
                 </p>
                 <p className="text-[10px] text-muted-foreground mt-2 font-medium">
@@ -183,7 +188,7 @@ export default function NotesSidebar({ chatId, isOpen, onClose, refreshKey }: Pr
       </div>
 
       {/* Input */}
-      <div className="p-4 border-t border-border bg-muted/30">
+      <div className="p-4 border-t border-border bg-muted/10">
         <div className="relative group">
           <textarea
             value={newNote}
@@ -195,14 +200,21 @@ export default function NotesSidebar({ chatId, isOpen, onClose, refreshKey }: Pr
               }
             }}
             placeholder="Add a thought..."
-            className="w-full text-sm p-3 pr-10 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all resize-none shadow-sm min-h-[80px]"
+            className="w-full text-sm p-3 pr-10 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all resize-none shadow-sm min-h-[80px]"
           />
           <button
             onClick={addNote}
             disabled={!newNote.trim() || isAdding}
             className="absolute bottom-3 right-3 p-1.5 rounded-lg bg-primary text-primary-foreground hover:shadow-md disabled:opacity-50 transition-all active:scale-90"
           >
-            {isAdding ? <LuLoaderCircle className="w-4 h-4 animate-spin" /> : <LuPlus className="w-4 h-4" />}
+            {isAdding ? (
+              <svg className="w-4 h-4 animate-spin text-primary-foreground" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+              </svg>
+            ) : (
+              <LuPlus className="w-4 h-4" />
+            )}
           </button>
         </div>
         <p className="text-[10px] text-muted-foreground/60 mt-1.5 text-center font-medium">

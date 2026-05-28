@@ -1,3 +1,4 @@
+// UI REDESIGN
 "use client";
 
 import { signIn } from "next-auth/react";
@@ -60,8 +61,10 @@ export default function SignInForm() {
     <div className="w-full max-w-[380px]">
       {/* Mobile Logo */}
       <div className="lg:hidden mb-8 flex justify-center">
-        <div className="flex items-center gap-3">
-          <span className="text-2xl font-bold text-foreground tracking-tight">Docs Chat.ai</span>
+        <div className="flex items-center gap-2">
+          <span className="text-2xl font-extrabold text-foreground tracking-tight select-none">
+            <span className="text-primary">Docs</span>Chat.ai
+          </span>
         </div>
       </div>
 

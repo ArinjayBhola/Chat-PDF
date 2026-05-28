@@ -1,3 +1,4 @@
+// UI REDESIGN
 "use client";
 
 import React, { useState } from "react";
@@ -129,11 +130,11 @@ export default function ChatLayout({ chat, isOwner, session, isSharedView = fals
       <div className="lg:hidden flex-1 overflow-hidden flex flex-col h-full">
         <div className="flex-1 flex flex-col h-full">
           <div className="px-4 py-3 border-b border-border bg-background/80 backdrop-blur-md sticky top-0 z-30 flex justify-between items-center shadow-sm text-foreground">
-            <div className="flex bg-muted p-1 rounded-xl w-40 h-9">
+            <div className="flex bg-muted p-1 rounded-lg w-40 h-9">
               <button
                 onClick={() => setActiveMobileTab("file")}
                 className={cn(
-                    "flex-1 rounded-lg text-xs font-semibold py-1.5 transition-all duration-200",
+                    "flex-1 rounded-md text-xs font-semibold py-1.5 transition-all duration-200",
                     activeMobileTab === "file"
                       ? "bg-background text-foreground shadow-sm"
                       : "text-muted-foreground hover:text-foreground"

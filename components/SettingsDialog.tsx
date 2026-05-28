@@ -1,3 +1,4 @@
+// UI REDESIGN
 "use client";
 
 import { useState } from "react";
@@ -10,7 +11,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ImSpinner2 } from "react-icons/im";
 import { MdDelete } from "react-icons/md";
 import { toast } from "react-hot-toast";
 import { deleteAccount } from "@/app/actions/delete-account";
@@ -47,49 +47,58 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] rounded-lg">
         <DialogHeader>
-          <DialogTitle>Account Settings</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-xl font-bold tracking-tight">Account Settings</DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground mt-1">
             Manage your account settings and preferences here.
           </DialogDescription>
         </DialogHeader>
         
-        <div className="py-6">
-          <div className="rounded-lg border border-red-200 bg-red-50 dark:bg-red-900/10 dark:border-red-900/20 p-4">
+        <div className="py-4">
+          <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-4">
              <div className="flex items-start gap-4">
-                <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-full">
-                    <MdDelete className="w-5 h-5 text-red-600 dark:text-red-500" />
+                <div className="p-2 bg-destructive/10 rounded-full shrink-0">
+                    <MdDelete className="w-5 h-5 text-destructive" />
                 </div>
                 <div>
-                    <h3 className="text-sm font-semibold text-red-900 dark:text-red-200">
+                    <h3 className="text-sm font-bold text-foreground">
                         Delete Account
                     </h3>
-                     <p className="text-sm text-red-700 dark:text-red-300 mt-1">
+                     <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
                         Permanently delete your account and all associated data. This action cannot be undone.
                     </p>
                 </div>
              </div>
              
-             <div className="mt-4 pt-4 border-t border-red-200 dark:border-red-900/20">
-                 <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
-                     Type <strong>Delete</strong> to confirm:
-                 </p>
-                 <Input 
-                    value={confirmationText}
-                    onChange={(e) => setConfirmationText(e.target.value)}
-                    placeholder="Type 'Delete' to confirm"
-                    className="bg-white dark:bg-slate-950"
-                 />
-                 <Button 
-                    variant="destructive" 
-                    className="w-full mt-4"
-                    disabled={confirmationText !== "Delete" || isDeleting}
-                    onClick={handleDeleteAccount}
-                 >
-                    {isDeleting && <ImSpinner2 className="w-4 h-4 mr-2 animate-spin" />}
-                    Delete Account
-                 </Button>
+             <div className="mt-4 pt-4 border-t border-border">
+                  <p className="text-xs text-muted-foreground mb-3">
+                      Type <strong className="font-semibold text-foreground uppercase">Delete</strong> to confirm:
+                  </p>
+                  <Input 
+                     value={confirmationText}
+                     onChange={(e) => setConfirmationText(e.target.value)}
+                     placeholder="Type 'Delete' to confirm"
+                     className="bg-background border-border h-10 rounded-lg text-sm"
+                  />
+                  <Button 
+                     variant="destructive" 
+                     className="w-full mt-4 h-10 rounded-lg font-semibold"
+                     disabled={confirmationText !== "Delete" || isDeleting}
+                     onClick={handleDeleteAccount}
+                  >
+                    {isDeleting ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <svg className="w-4 h-4 animate-spin text-destructive-foreground" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                        </svg>
+                        Deleting...
+                      </div>
+                    ) : (
+                      "Delete Account"
+                    )}
+                  </Button>
              </div>
           </div>
         </div>

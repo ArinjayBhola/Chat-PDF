@@ -22,8 +22,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-import Script from "next/script";
-
 export const metadata: Metadata = {
   title: "ChatDoc",
   description: "Chat with your documents using AI.",
@@ -70,7 +68,7 @@ export default async function RootLayout({
             <PreferencesProvider>
               <ViewerProvider>
                 <Provider>
-                  <NextTopLoader />
+                  <NextTopLoader showSpinner={false} />
                   {children}
                   <CommandPalette />
                   <Toaster />

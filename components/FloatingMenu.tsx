@@ -1,3 +1,4 @@
+// UI REDESIGN
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
@@ -72,7 +73,7 @@ export function FloatingMenu({ onAction }: FloatingMenuProps) {
   return (
     <div
       ref={menuRef}
-      className="fixed z-[100] flex items-center gap-1 p-1 bg-background/95 backdrop-blur-md border border-border rounded-xl shadow-2xl animate-in fade-in zoom-in-95 duration-200"
+      className="fixed z-[100] flex items-center gap-1 p-1 bg-background/95 backdrop-blur-md border border-border rounded-lg shadow-2xl animate-in fade-in zoom-in-95 duration-200"
       style={{
         top: `${position.top}px`,
         left: `${position.left}px`,

@@ -1,3 +1,4 @@
+// UI REDESIGN
 "use client";
 
 import { uploadToS3 } from "@/lib/s3";
@@ -8,7 +9,6 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { FaInbox } from "react-icons/fa";
-import { RiLoader2Fill } from "react-icons/ri";
 
 type Props = {
   isPro: boolean;
@@ -100,38 +100,44 @@ const FileUpload = ({ isPro, chatCount, children }: Props) => {
     <div className="w-full">
       <div
         {...(isFreeLimitReached ? {} : getRootProps())}
-        className={`group relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed py-10 transition-all duration-200
+        className={`group relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed py-10 transition-all duration-200
           ${
             isFreeLimitReached
-              ? "border-border bg-muted/30 cursor-default"
-              : "border-border bg-muted/30 hover:border-primary/50 hover:bg-primary/5 cursor-pointer"
+              ? "border-border bg-muted/20 cursor-default"
+              : "border-border bg-muted/20 hover:border-primary/50 hover:bg-primary/[0.02] cursor-pointer"
           }`}>
         {!isFreeLimitReached && <input {...getInputProps()} />}
 
         {isUploading ? (
           <div className="flex flex-col items-center animate-in fade-in duration-300">
-            <RiLoader2Fill className="h-10 w-10 text-primary animate-spin" />
-            <p className="mt-4 text-sm font-medium text-muted-foreground">Processing your file...</p>
+            <div className="relative flex h-10 w-10">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary/30 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-10 w-10 bg-primary/20 flex items-center justify-center border border-primary/40">
+                <span className="w-3.5 h-3.5 bg-primary rounded-full animate-pulse" />
+              </span>
+            </div>
+            <p className="mt-4 text-sm font-semibold text-foreground">Processing your file...</p>
+            <p className="mt-1 text-xs text-muted-foreground">Uploading to secure storage...</p>
           </div>
         ) : isFreeLimitReached ? (
           <div className="flex flex-col items-center">
             <div className="rounded-full bg-muted p-4 shadow-sm border border-border">
               <FaInbox className="h-8 w-8 text-muted-foreground" />
             </div>
-            <p className="mt-4 text-sm font-semibold text-foreground">Free limit reached</p>
+            <p className="mt-4 text-sm font-bold text-foreground">Free limit reached</p>
             <p className="mt-1 text-xs text-muted-foreground max-w-[200px] text-center mb-4">
               You can only upload 3 files on the free plan.
             </p>
-            <p className="text-sm font-medium text-primary hover:text-primary/80 hover:underline transition-colors">
+            <p className="text-sm font-semibold text-primary hover:text-primary/80 hover:underline transition-colors">
               Upgrade to upload more
             </p>
           </div>
         ) : (
           <div className="flex flex-col items-center">
-            <div className="rounded-full bg-background p-4 shadow-md border border-border transition-all duration-200 group-hover:scale-110 group-hover:shadow-lg group-hover:border-primary/30">
+            <div className="rounded-full bg-background p-4 shadow-sm border border-border transition-all duration-200 group-hover:scale-105 group-hover:shadow group-hover:border-primary/30">
               <FaInbox className="h-8 w-8 text-primary" />
             </div>
-            <p className="mt-4 text-sm font-semibold text-foreground">Drop file here</p>
+            <p className="mt-4 text-sm font-bold text-foreground">Drop file here</p>
             <p className="mt-1 text-xs text-muted-foreground">PDF, DOCX, TXT, images & more (up to 10MB)</p>
           </div>
         )}

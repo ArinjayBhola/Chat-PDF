@@ -1,3 +1,4 @@
+// UI REDESIGN
 "use client";
 
 import SignUpForm from "@/components/auth/SignUpForm";
@@ -6,13 +7,13 @@ import Link from "next/link";
 export default function SignUpPage() {
   return (
     // Fixed height and hidden overflow absolutely prevents scrollbars
-    <div className="flex h-screen w-full overflow-hidden bg-white dark:bg-slate-950 font-sans">
+    <div className="flex h-screen w-full overflow-hidden bg-background text-foreground font-sans">
       
       {/* LEFT PANEL - Solid dark slate, no gradient */}
       <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 bg-primary text-primary-foreground">
         
-        <Link href="/" className="flex items-center gap-3 w-fit hover:opacity-90 transition">
-          <span className="text-2xl font-bold tracking-tight">Docs Chat.ai</span>
+        <Link href="/" className="flex items-center gap-2 w-fit transition-transform duration-200 active:scale-95">
+          <span className="text-2xl font-extrabold tracking-tight select-none">DocsChat.ai</span>
         </Link>
 
         <div className="max-w-md">

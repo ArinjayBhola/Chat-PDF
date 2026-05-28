@@ -1,3 +1,4 @@
+// UI REDESIGN
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { getServerSession } from "next-auth";
@@ -34,7 +35,7 @@ export default async function Home({
   }
 
   return (
-    <div className="relative isolate min-h-screen bg-background text-foreground animate-in fade-in duration-1000">
+    <div className="relative min-h-screen bg-background text-foreground animate-in fade-in duration-700">
       {paymentStatus && (
         <PaymentSuccessHandler paymentStatus={paymentStatus} />
       )}
@@ -42,20 +43,20 @@ export default async function Home({
       <Navbar isAuth={isAuth} user={session?.user} />
 
       {/* Hero Content */}
-      <div className="mx-auto max-w-5xl px-6 py-24 sm:py-32 lg:px-8">
+      <div className="mx-auto max-w-5xl px-6 py-20 sm:py-28 lg:px-8">
         <div className="text-center">
-          <h1 className="text-5xl font-extrabold tracking-tight text-foreground sm:text-7xl mb-6">
+          <h1 className="text-5xl font-black tracking-tight text-foreground sm:text-6xl mb-6">
             Chat with any <span className="text-primary">Document</span>
           </h1>
-          <p className="mt-6 text-lg tracking-wide leading-8 text-muted-foreground max-w-2xl mx-auto font-medium">
+          <p className="mt-6 text-base sm:text-lg tracking-normal leading-relaxed text-muted-foreground max-w-2xl mx-auto font-medium">
             Join millions of students, researchers and professionals to instantly answer questions and understand research with AI.
           </p>
 
           {!isAuth && (
-            <div className="mt-10 flex items-center justify-center gap-x-6">
+            <div className="mt-10 flex items-center justify-center">
               <Link href={"/sign-in"}>
-                <Button className="rounded-full px-10 h-14 text-lg bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_8px_30px_rgb(var(--primary)_/_0.3)] dark:shadow-[0_8px_30px_rgb(var(--primary)_/_0.5)] transition-all hover:scale-105">
-                  Get Started for Free <MdLogin className="w-5 h-5 ml-2" />
+                <Button className="rounded-full px-8 h-12 text-md bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg hover:shadow-primary/20 transition-all hover:scale-105">
+                  Get Started for Free <MdLogin className="w-4 h-4 ml-2" />
                 </Button>
               </Link>
             </div>
@@ -63,28 +64,27 @@ export default async function Home({
 
           {isAuth && (
             <div className="mt-12 max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-8 duration-700">
-              <div className="relative rounded-3xl border border-border bg-card/50 backdrop-blur-xl p-8 shadow-2xl ring-1 ring-black/5 dark:ring-white/10 group overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none" />
+              <div className="relative rounded-xl border border-border bg-card p-6 sm:p-8 shadow-lg ring-1 ring-border group overflow-hidden">
                 <div className="mb-6 pb-6 border-b border-border flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
-                    <p className={`text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full ${isPro ? "bg-green-500/10 text-green-600" : "bg-primary/10 text-primary"}`}>
+                    <p className={`text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-md ${isPro ? "bg-green-500/10 text-green-600 dark:text-green-500" : "bg-primary/10 text-primary"}`}>
                       {isPro ? "Pro Plan" : "Free Plan"}
                     </p>
-                    <span className="text-sm text-muted-foreground font-medium">
+                    <span className="text-sm text-muted-foreground font-semibold">
                       {isPro ? "Unlimited uploads" : `${chatCount}/3 free uploads used`}
                     </span>
                   </div>
                   <div className="flex items-center gap-3 w-full sm:w-auto">
                     {!isPro && <UpgradeButton isPro={isPro} />}
-                    <Link href="/chat">
-                      <Button className="w-full sm:w-auto rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80">
+                    <Link href="/chat" className="w-full sm:w-auto">
+                      <Button variant="secondary" className="w-full sm:w-auto rounded-lg">
                         Go to Chats
                       </Button>
                     </Link>
                   </div>
                 </div>
 
-                <h2 className="text-2xl font-bold mb-6 text-left">Upload a document</h2>
+                <h2 className="text-lg font-bold mb-4 text-left">Upload a document</h2>
                 
                 <FileUpload
                   isPro={isPro}

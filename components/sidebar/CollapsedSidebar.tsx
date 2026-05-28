@@ -1,3 +1,4 @@
+// UI REDESIGN
 import React, { memo, useState } from "react";
 import Link from "next/link";
 import { FaBars, FaPlus } from "react-icons/fa";

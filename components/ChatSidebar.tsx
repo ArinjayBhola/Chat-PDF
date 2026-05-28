@@ -1,3 +1,4 @@
+// UI REDESIGN
 "use client";
 
 import { DrizzleChat } from "@/lib/db/schema";

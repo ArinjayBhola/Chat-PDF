@@ -1,3 +1,4 @@
+// UI REDESIGN
 import React, { memo } from "react";
 import { LuSearch, LuX } from "react-icons/lu";
 
@@ -14,12 +15,12 @@ const SearchBar = memo(({ value, onChange }: Props) => (
       placeholder="Search chats..."
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="w-full h-8 pl-8 pr-7 text-xs rounded-md bg-muted/50 border border-border/50 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary/50 transition-colors"
+      className="w-full h-8 pl-8 pr-7 text-xs rounded-lg bg-muted border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all duration-200"
     />
     {value && (
       <button
         onClick={() => onChange("")}
-        className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+        className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
       >
         <LuX className="w-3.5 h-3.5" />
       </button>

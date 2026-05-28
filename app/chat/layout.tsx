@@ -1,3 +1,4 @@
+// UI REDESIGN
 import ChatSidebar from "@/components/ChatSidebar";
 import { db } from "@/lib/db";
 import { chats } from "@/lib/db/schema";
@@ -30,16 +31,16 @@ const ChatLayout = async ({ children }: Props) => {
   const isPro = await checkSubscription();
 
   return (
-    <div className="flex flex-col md:flex-row h-screen overflow-hidden bg-white dark:bg-slate-900">
-      <div className="md:hidden flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 z-20">
+    <div className="flex flex-col md:flex-row h-screen overflow-hidden bg-background text-foreground">
+      <div className="md:hidden flex items-center justify-between p-4 border-b border-border bg-background z-20">
         <div className="flex items-center gap-3">
           <MobileNav chats={_chats} isPro={isPro} />
-          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
-            <span className="text-blue-500 dark:text-blue-400">PDF</span> Chat.ai
+          <h1 className="text-lg font-bold tracking-tight text-foreground">
+            <span className="text-primary">Docs</span>Chat.ai
           </h1>
         </div>
         <div className="flex items-center gap-2">
-          <ThemeToggle />
+          <ThemeToggle variant="sidebar" />
           <UserMenu user={session.user} />
         </div>
       </div>

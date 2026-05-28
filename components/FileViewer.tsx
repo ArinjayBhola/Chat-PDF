@@ -1,3 +1,4 @@
+// UI REDESIGN
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -6,9 +7,11 @@ import dynamic from "next/dynamic";
 const NativePDFViewer = dynamic(() => import("./NativePDFViewer"), {
   ssr: false,
   loading: () => (
-    <div className="flex flex-col items-center justify-center p-20 gap-4">
-      <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-      <p className="text-xs font-bold text-muted-foreground animate-pulse">LOADING PDF VIEWER...</p>
+    <div className="flex flex-col items-center justify-center p-20 gap-4 h-full w-full bg-background/50 animate-pulse">
+      <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center border border-primary/20 mb-2">
+        <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+      <p className="text-xs font-bold text-primary tracking-widest uppercase">Loading PDF Viewer...</p>
     </div>
   ),
 });
@@ -116,14 +119,14 @@ function TextFileViewer({ url, fileName }: { url: string; fileName: string }) {
 
   if (error) {
     return (
-      <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground bg-muted/30 gap-3">
-        <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center">
-          <span className="text-destructive text-lg font-bold">!</span>
+      <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground bg-muted/30 gap-3 p-4">
+        <div className="w-10 h-10 rounded-lg bg-destructive/10 flex items-center justify-center border border-destructive/20 shadow-xs">
+          <span className="text-destructive text-md font-bold">!</span>
         </div>
-        <p className="font-medium text-sm">Could not load file preview</p>
+        <p className="font-semibold text-xs text-foreground">Could not load preview</p>
         <button
           onClick={() => { setError(false); setContent(null); }}
-          className="text-xs text-primary hover:text-primary/80 font-semibold transition-colors"
+          className="text-xs text-primary hover:text-primary/80 font-bold transition-colors cursor-pointer"
         >
           Try again
         </button>
@@ -133,9 +136,15 @@ function TextFileViewer({ url, fileName }: { url: string; fileName: string }) {
 
   if (content === null) {
     return (
-      <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground bg-muted/30 gap-3">
-        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-        <p className="font-medium text-sm">Loading preview...</p>
+      <div className="w-full h-full flex flex-col justify-center text-muted-foreground bg-muted/30 p-6">
+        <div className="w-full space-y-4 animate-pulse">
+          <div className="h-4 bg-muted-foreground/15 rounded w-1/4" />
+          <div className="h-2.5 bg-muted-foreground/10 rounded w-full" />
+          <div className="h-2.5 bg-muted-foreground/10 rounded w-full" />
+          <div className="h-2.5 bg-muted-foreground/10 rounded w-5/6" />
+          <div className="h-2.5 bg-muted-foreground/10 rounded w-4/5" />
+          <div className="h-2.5 bg-muted-foreground/10 rounded w-full" />
+        </div>
       </div>
     );
   }
@@ -145,7 +154,7 @@ function TextFileViewer({ url, fileName }: { url: string; fileName: string }) {
       <div className="text-xs font-bold text-primary mb-4 uppercase tracking-widest border-b border-border/50 pb-2">
         {fileName}
       </div>
-      <pre className="text-sm text-foreground whitespace-pre-wrap font-mono leading-relaxed bg-background p-4 rounded-xl border border-border shadow-inner">
+      <pre className="text-xs text-foreground whitespace-pre-wrap font-mono leading-relaxed bg-background p-4 rounded-lg border border-border shadow-xs">
         {content}
       </pre>
     </div>
