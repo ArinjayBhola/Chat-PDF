@@ -1,10 +1,12 @@
-import { Pinecone, PineconeRecord, RecordMetadata } from "@pinecone-database/pinecone";
+import { PineconeRecord, RecordMetadata } from "@pinecone-database/pinecone";
 import { downloadFromS3 } from "./s3-server";
 import { RecursiveCharacterTextSplitter, Document } from "@pinecone-database/doc-splitter";
 import { getEmbeddings } from "./embeddings";
 import md5 from "md5";
 import { convertToAscii } from "./utils";
 import { extractText, ExtractedPage } from "./text-extractor";
+import { getPineconeIndex } from "./pinecone-client";
+import pLimit from "p-limit";
 
 export async function loadS3IntoPinecode(file_key: string) {
   // 1. Download file from S3
@@ -19,33 +21,20 @@ export async function loadS3IntoPinecode(file_key: string) {
   // 3. Split into documents
   const documents = await Promise.all(pages.map(prepareDocument));
 
-  // 3. Vectorize and embed the documents
+  // 3. Vectorize and embed the documents.
+  // Keep a fixed number of embedding calls in flight at all times (continuous
+  // concurrency) rather than lock-step batches that stall on the slowest call
+  // in each batch. Peak request rate is unchanged, so rate limits stay safe.
   const allDocuments = documents.flat();
-  const vectors: PineconeRecord<RecordMetadata>[] = [];
-
-  // Batch processing for embeddings to avoid rate limits
-  const EMBEDDING_BATCH_SIZE = 5;
-  for (let i = 0; i < allDocuments.length; i += EMBEDDING_BATCH_SIZE) {
-    const batch = allDocuments.slice(i, i + EMBEDDING_BATCH_SIZE);
-    const batchVectors = await Promise.all(batch.map(embedDocument));
-    vectors.push(...batchVectors);
-    console.log(
-      `Embedded batch ${Math.floor(i / EMBEDDING_BATCH_SIZE) + 1}/${Math.ceil(
-        allDocuments.length / EMBEDDING_BATCH_SIZE,
-      )}`,
-    );
-  }
+  const EMBEDDING_CONCURRENCY = 5;
+  const limit = pLimit(EMBEDDING_CONCURRENCY);
+  const vectors: PineconeRecord<RecordMetadata>[] = await Promise.all(
+    allDocuments.map((doc) => limit(() => embedDocument(doc))),
+  );
 
   // 4. Use chunked upsert to upload the vectors in chunks (to avoid hitting rate limits)
-  const pc = new Pinecone({
-    apiKey: process.env.PINECONE_API_KEY || "",
-  });
-
-  const indexName = process.env.PINECONE_INDEX_NAME || "chatpdf";
-
   const namespace = convertToAscii(file_key);
-  const pineconeIndex = pc.index(indexName);
-  const index = pineconeIndex.namespace(namespace);
+  const index = getPineconeIndex().namespace(namespace);
 
   let BATCH_SIZE = 10; // Reduced from 100 to avoid 2MB limit
   const MAX_REQUEST_SIZE = 2 * 1024 * 1024; // 2MB in bytes

@@ -23,12 +23,14 @@ const ChatLayout = async ({ children }: Props) => {
     return redirect("/sign-in");
   }
 
-  const _chats = await db
-    .select()
-    .from(chats)
-    .where(eq(chats.userId, session.user.id))
-    .orderBy(desc(chats.createdAt));
-  const isPro = await checkSubscription();
+  const [_chats, isPro] = await Promise.all([
+    db
+      .select()
+      .from(chats)
+      .where(eq(chats.userId, session.user.id))
+      .orderBy(desc(chats.createdAt)),
+    checkSubscription(),
+  ]);
 
   return (
     <div className="flex flex-col md:flex-row h-screen overflow-hidden bg-background text-foreground">

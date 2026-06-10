@@ -7,9 +7,9 @@ import { authOptions } from "@/lib/auth-options";
 import { db } from "@/lib/db";
 import { chats } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { Pinecone } from "@pinecone-database/pinecone";
 import { convertToAscii } from "@/lib/utils";
 import { getEmbeddings } from "@/lib/embeddings";
+import { getPineconeIndex } from "@/lib/pinecone-client";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -117,8 +117,6 @@ export async function POST(req: Request) {
   }
 
   // Pull a broad sample of chunks across the document
-  const pinecone = new Pinecone({ apiKey: process.env.PINECONE_API_KEY || "" });
-  const indexName = process.env.PINECONE_INDEX_NAME || "chatpdf";
   const ns = convertToAscii(chat.fileKey);
 
   let chunks: Meta[] = [];
@@ -126,8 +124,7 @@ export async function POST(req: Request) {
     const queryEmbedding = await getEmbeddings(
       "main topics, key concepts, sections, headings, structure, summary, overview, conclusion"
     );
-    const result = await pinecone
-      .index(indexName)
+    const result = await getPineconeIndex()
       .namespace(ns)
       .query({
         topK: 60,

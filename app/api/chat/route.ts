@@ -14,6 +14,29 @@ export const runtime = "nodejs";
 
 const exa = new Exa(process.env.EXA_API_KEY as string);
 
+// Cache Gemini availability across requests so we don't pay for a full "ping"
+// round-trip before every message. We only re-probe once the cache goes stale.
+const GEMINI_HEALTH_TTL_MS = 60_000;
+let geminiHealthyUntil = 0;
+
+async function isGeminiHealthy(): Promise<boolean> {
+  if (Date.now() < geminiHealthyUntil) return true;
+  try {
+    await generateText({
+      model: google("gemini-2.5-flash"),
+      prompt: "ping",
+      maxTokens: 1,
+      maxRetries: 0,
+    } as any);
+    geminiHealthyUntil = Date.now() + GEMINI_HEALTH_TTL_MS;
+    return true;
+  } catch (e) {
+    console.warn("[MODEL_STATS] Gemini health probe failed:", e instanceof Error ? e.message : e);
+    geminiHealthyUntil = 0;
+    return false;
+  }
+}
+
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
   const { messages, chatId, body } = await req.json();
@@ -35,11 +58,15 @@ export async function POST(req: Request) {
 
   const fileKey = chat.fileKey;
   const lastMessage = messages[messages.length - 1];
+  const lastText = lastMessage.parts[0].text;
 
-  await db.insert(_messages).values({
+  // Persist the user's message; this is independent of building the prompt
+  // context, so run them concurrently instead of blocking the stream on the
+  // DB write first.
+  const saveUserMessage = db.insert(_messages).values({
     id: crypto.randomUUID(),
     chatsId: chatId,
-    content: lastMessage.parts[0].text,
+    content: lastText,
     createdAt: new Date(),
     role: "user",
     senderId: session?.user?.id,
@@ -49,12 +76,15 @@ export async function POST(req: Request) {
   let promptContent = "";
 
   if (webSearch) {
-    const result = await exa.searchAndContents(lastMessage.parts[0].text, {
-      type: "neural",
-      useAutoprompt: true,
-      numResults: 3,
-      text: true,
-    });
+    const [, result] = await Promise.all([
+      saveUserMessage,
+      exa.searchAndContents(lastText, {
+        type: "neural",
+        useAutoprompt: true,
+        numResults: 3,
+        text: true,
+      }),
+    ]);
 
     const searchContext = result.results
       .map((r: any) => `Title: ${r.title}\nURL: ${r.url}\nContent: ${r.text}`)
@@ -70,7 +100,10 @@ export async function POST(req: Request) {
       END WEB SEARCH RESULTS
       `;
   } else {
-    const context = await getContext(lastMessage.parts[0].text.replace(/\n/g, " "), fileKey);
+    const [, context] = await Promise.all([
+      saveUserMessage,
+      getContext(lastText.replace(/\n/g, " "), fileKey),
+    ]);
 
     promptContent = `You are a helpful and expert AI assistant.
       
@@ -113,17 +146,10 @@ export async function POST(req: Request) {
     // UNCOMMENT THE LINE BELOW TO TEST GROQ FALLBACK
     // throw new Error("Simulated Gemini Failure for testing fallback");
 
-    console.log("[MODEL_STATS] Attempting Gemini 2.5 Flash...");
-    
-    // Probe Gemini
-    await generateText({ 
-      model: google("gemini-2.5-flash"), 
-      prompt: "ping", 
-      maxTokens: 1,
-      maxRetries: 0 
-    } as any);
-
-    console.log("[MODEL_STATS] Gemini probe successful. Starting stream...");
+    // Use a cached health check instead of probing Gemini on every request.
+    if (!(await isGeminiHealthy())) {
+      throw new Error("Gemini unavailable (cached health check)");
+    }
 
     const result = streamText({
       model: google("gemini-2.5-flash"),
