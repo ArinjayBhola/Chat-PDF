@@ -3,6 +3,7 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import { useChat } from "@ai-sdk/react";
+import { useSession } from "next-auth/react";
 import { DefaultChatTransport } from "ai";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
@@ -33,15 +34,9 @@ export default function ChatComponent({
   onNoteAdded,
   isSharedView = false,
 }: Props) {
-  const { data: sessionData } = useQuery({
-    queryKey: ["session"],
-    queryFn: async () => {
-      const res = await axios.get("/api/auth/session");
-      return res.data;
-    },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    refetchOnWindowFocus: false,
-  });
+  // Session is already hydrated by the root SessionProvider, so read it from
+  // context instead of issuing a separate /api/auth/session request per chat.
+  const { data: sessionData } = useSession();
 
   const canChat = isOwner || (isShared && sharePermission === "edit" && sessionData?.user);
   const showLoginPrompt = isShared && !sessionData?.user && sharePermission === "edit";

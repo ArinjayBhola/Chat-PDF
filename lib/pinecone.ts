@@ -1,7 +1,7 @@
 import { PineconeRecord, RecordMetadata } from "@pinecone-database/pinecone";
 import { downloadFromS3 } from "./s3-server";
 import { RecursiveCharacterTextSplitter, Document } from "@pinecone-database/doc-splitter";
-import { getEmbeddings } from "./embeddings";
+import { getEmbeddings, getEmbeddingsBatch } from "./embeddings";
 import md5 from "md5";
 import { convertToAscii } from "./utils";
 import { extractText, ExtractedPage } from "./text-extractor";
@@ -22,15 +22,23 @@ export async function loadS3IntoPinecode(file_key: string) {
   const documents = await Promise.all(pages.map(prepareDocument));
 
   // 3. Vectorize and embed the documents.
-  // Keep a fixed number of embedding calls in flight at all times (continuous
-  // concurrency) rather than lock-step batches that stall on the slowest call
-  // in each batch. Peak request rate is unchanged, so rate limits stay safe.
+  // Embed many chunks per API call (batchEmbedContents) instead of one request
+  // per chunk, and run a few of those batch calls concurrently. This is the
+  // dominant cost of "upload -> ready to chat", so it dominates upload latency.
   const allDocuments = documents.flat();
-  const EMBEDDING_CONCURRENCY = 5;
-  const limit = pLimit(EMBEDDING_CONCURRENCY);
-  const vectors: PineconeRecord<RecordMetadata>[] = await Promise.all(
-    allDocuments.map((doc) => limit(() => embedDocument(doc))),
+  const EMBED_BATCH_SIZE = 50; // texts per batch request
+  const EMBED_BATCH_CONCURRENCY = 3; // concurrent batch requests
+  const limit = pLimit(EMBED_BATCH_CONCURRENCY);
+
+  const docBatches: Document[][] = [];
+  for (let i = 0; i < allDocuments.length; i += EMBED_BATCH_SIZE) {
+    docBatches.push(allDocuments.slice(i, i + EMBED_BATCH_SIZE));
+  }
+
+  const batchedVectors = await Promise.all(
+    docBatches.map((batch) => limit(() => embedDocuments(batch))),
   );
+  const vectors: PineconeRecord<RecordMetadata>[] = batchedVectors.flat();
 
   // 4. Use chunked upsert to upload the vectors in chunks (to avoid hitting rate limits)
   const namespace = convertToAscii(file_key);
@@ -84,46 +92,60 @@ export async function loadS3IntoPinecode(file_key: string) {
 
 // ---------- Helper functions ----------
 
+// Validate an embedding vector and assemble a Pinecone record for a document.
+function buildVector(doc: Document, embeddings: unknown): PineconeRecord<RecordMetadata> {
+  // Validate embeddings format - must be a flat array of numbers
+  if (!Array.isArray(embeddings)) {
+    throw new Error(`Embeddings must be an array, got ${typeof embeddings}`);
+  }
+
+  if (embeddings.length === 0) {
+    throw new Error("Embeddings array is empty");
+  }
+
+  // Ensure all values are numbers
+  const validEmbeddings = embeddings.map((v: unknown) => {
+    if (typeof v !== "number" || isNaN(v)) {
+      throw new Error(`Invalid embedding value: ${v}`);
+    }
+    return v;
+  });
+
+  // Validate embedding dimension (Pinecone index expects 1536 for this setup)
+  // Common embedding dimensions: 384, 512, 768, 1024, 1536
+  if (validEmbeddings.length > 2000) {
+    throw new Error(
+      `Embedding dimension ${validEmbeddings.length} is too large. This usually indicates incorrect tensor extraction. Expected around 768 or 1536.`,
+    );
+  }
+
+  return {
+    id: md5(doc.pageContent),
+    values: validEmbeddings,
+    metadata: {
+      text: String(doc.metadata.text || doc.pageContent || ""),
+      pageNumber: Number(doc.metadata.pageNumber || 0),
+    },
+  };
+}
+
 async function embedDocument(doc: Document) {
   try {
     const embeddings = await getEmbeddings(doc.pageContent);
-    const hash = md5(doc.pageContent);
-
-    // Validate embeddings format - must be a flat array of numbers
-    if (!Array.isArray(embeddings)) {
-      throw new Error(`Embeddings must be an array, got ${typeof embeddings}`);
-    }
-
-    if (embeddings.length === 0) {
-      throw new Error("Embeddings array is empty");
-    }
-
-    // Ensure all values are numbers
-    const validEmbeddings = embeddings.map((v: unknown) => {
-      if (typeof v !== "number" || isNaN(v)) {
-        throw new Error(`Invalid embedding value: ${v}`);
-      }
-      return v;
-    });
-
-    // Validate embedding dimension (Pinecone index expects 1536 for this setup)
-    // Common embedding dimensions: 384, 512, 768, 1024, 1536
-    if (validEmbeddings.length > 2000) {
-      throw new Error(
-        `Embedding dimension ${validEmbeddings.length} is too large. This usually indicates incorrect tensor extraction. Expected around 768 or 1536.`,
-      );
-    }
-
-    return {
-      id: hash,
-      values: validEmbeddings,
-      metadata: {
-        text: String(doc.metadata.text || doc.pageContent || ""),
-        pageNumber: Number(doc.metadata.pageNumber || 0),
-      },
-    };
+    return buildVector(doc, embeddings);
   } catch (error) {
     console.log("error embedding document", error);
+    throw error;
+  }
+}
+
+// Embed a group of documents in a single batch request.
+async function embedDocuments(docs: Document[]): Promise<PineconeRecord<RecordMetadata>[]> {
+  try {
+    const embeddings = await getEmbeddingsBatch(docs.map((d) => d.pageContent));
+    return docs.map((doc, i) => buildVector(doc, embeddings[i]));
+  } catch (error) {
+    console.log("error embedding document batch", error);
     throw error;
   }
 }
