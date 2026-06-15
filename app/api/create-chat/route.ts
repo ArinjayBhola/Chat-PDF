@@ -48,14 +48,15 @@ export async function POST(req: Request) {
       const baseUrl = process.env.APP_URL || process.env.NEXTAUTH_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://chat.arinjay.dev");
 
       if (baseUrl.includes("localhost")) {
-        // Run locally without QStash
+        // Run locally without QStash (Awaited to prevent Next.js from killing the background task)
         const { loadS3IntoPinecode } = await import("@/lib/pinecone");
-        loadS3IntoPinecode(file_key)
-          .then(() => db.update(chats).set({ pdfStatus: "SUCCESS" }).where(eq(chats.id, insertedChatId)).execute())
-          .catch((e) => {
-            console.error("Local processing error:", e);
-            db.update(chats).set({ pdfStatus: "FAILED" }).where(eq(chats.id, insertedChatId)).execute();
-          });
+        try {
+          await loadS3IntoPinecode(file_key);
+          await db.update(chats).set({ pdfStatus: "SUCCESS" }).where(eq(chats.id, insertedChatId));
+        } catch (e) {
+          console.error("Local processing error:", e);
+          await db.update(chats).set({ pdfStatus: "FAILED" }).where(eq(chats.id, insertedChatId));
+        }
       } else {
         const { Client } = await import("@upstash/qstash");
         const qstashClient = new Client({

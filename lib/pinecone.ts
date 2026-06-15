@@ -1,7 +1,7 @@
 import { PineconeRecord, RecordMetadata } from "@pinecone-database/pinecone";
 import { downloadFromS3 } from "./s3-server";
 import { RecursiveCharacterTextSplitter, Document } from "@pinecone-database/doc-splitter";
-import { getEmbeddings, getEmbeddingsBatch } from "./embeddings";
+import { getEmbeddingsBatch } from "./embeddings";
 import md5 from "md5";
 import { convertToAscii } from "./utils";
 import { extractText, ExtractedPage } from "./text-extractor";
@@ -127,16 +127,6 @@ function buildVector(doc: Document, embeddings: unknown): PineconeRecord<RecordM
       pageNumber: Number(doc.metadata.pageNumber || 0),
     },
   };
-}
-
-async function embedDocument(doc: Document) {
-  try {
-    const embeddings = await getEmbeddings(doc.pageContent);
-    return buildVector(doc, embeddings);
-  } catch (error) {
-    console.log("error embedding document", error);
-    throw error;
-  }
 }
 
 // Embed a group of documents in a single batch request.

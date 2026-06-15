@@ -3,6 +3,7 @@
 
 import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 
 const NativePDFViewer = dynamic(() => import("./NativePDFViewer"), {
   ssr: false,
@@ -69,7 +70,7 @@ const FileViewer = ({ file_url, file_name, file_key, refreshKey = 0 }: Props) =>
   if (category === "image") {
     return (
       <div className="w-full h-full flex items-center justify-center bg-card/50 overflow-auto p-4 border-l border-border backdrop-blur-sm">
-        <img
+        <Image
           key={refreshKey}
           src={validUrl}
           alt={file_name}
@@ -88,18 +89,29 @@ const FileViewer = ({ file_url, file_name, file_key, refreshKey = 0 }: Props) =>
   }
 
   if (category === "pdf") {
-    // Use proxy for PDFs to avoid CORS issues with S3
     const proxyUrl = `/api/pdf-proxy?key=${encodeURIComponent(file_key || "")}`;
     return <NativePDFViewer key={refreshKey} url={proxyUrl} />;
   }
 
-  // Other documents (DOCX, XLSX, PPTX) — use Google Docs Viewer fallback
+  // Other documents (DOCX, XLSX, PPTX)
   return (
-    <iframe
-      key={refreshKey}
-      src={`https://docs.google.com/gview?url=${validUrl}&embedded=true`}
-      className="w-full h-full"
-    />
+    <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground bg-muted/30 gap-4 p-8 border-l border-border">
+      <div className="w-16 h-16 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20 shadow-sm">
+        <span className="text-primary text-2xl font-bold">!</span>
+      </div>
+      <p className="font-bold text-lg text-foreground tracking-tight">Preview Not Supported</p>
+      <p className="text-sm text-center max-w-sm">
+        We currently do not support rich previews for Microsoft Office or proprietary document formats. 
+      </p>
+      <a 
+        href={validUrl} 
+        target="_blank" 
+        rel="noopener noreferrer"
+        className="mt-4 px-6 py-2.5 bg-primary text-primary-foreground text-sm font-bold rounded-full hover:bg-primary/90 transition-colors shadow-md"
+      >
+        Download File
+      </a>
+    </div>
   );
 };
 

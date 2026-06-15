@@ -1,4 +1,3 @@
-// UI REDESIGN
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
@@ -16,6 +15,7 @@ import { FiGlobe } from "react-icons/fi";
 import { FaArrowUp } from "react-icons/fa";
 import { LuLoaderCircle, LuArrowUp, LuChevronsDown } from "react-icons/lu";
 import { IoSparklesOutline } from "react-icons/io5";
+import { useRouter } from "next/navigation";
 
 type Props = {
   chatId: string;
@@ -44,9 +44,20 @@ export default function ChatComponent({
   const showLoginPrompt = isShared && !sessionData?.user && sharePermission === "edit";
 
   const queryClient = useQueryClient();
+  const router = useRouter();
   const [input, setInput] = useState("");
   const [webSearch, setWebSearch] = useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
+
+  // Poll for status update if it's processing
+  useEffect(() => {
+    if (pdfStatus === "PROCESSING") {
+      const interval = setInterval(() => {
+        router.refresh(); // This will re-fetch Server Components and update pdfStatus
+      }, 3000);
+      return () => clearInterval(interval);
+    }
+  }, [pdfStatus, router]);
 
   // Scroll navigation state
   const [showScrollTop, setShowScrollTop] = useState(false);

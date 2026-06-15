@@ -83,7 +83,8 @@ async function extractSpreadsheet(filePath: string): Promise<ExtractedPage[]> {
   }
 
   const XLSX = await import("xlsx");
-  const workbook = XLSX.readFile(filePath);
+  const fileBuffer = fs.readFileSync(filePath);
+  const workbook = XLSX.read(fileBuffer, { type: "buffer" });
   const pages: ExtractedPage[] = [];
 
   workbook.SheetNames.forEach((sheetName, index) => {
@@ -151,13 +152,13 @@ async function extractImage(filePath: string): Promise<ExtractedPage[]> {
       .sharpen()
       .toFile(processedImagePath);
 
-    const { createWorker } = await import("tesseract.js");
+    const { createWorker, PSM, OEM } = await import("tesseract.js");
     const worker = await createWorker("eng");
     
     try {
-      await (worker as any).setParameters({
-        tessedit_pageseg_mode: "1",
-        tessedit_ocr_engine_mode: "1",
+      await worker.setParameters({
+        tessedit_pageseg_mode: PSM.AUTO_OSD,
+        tessedit_ocr_engine_mode: OEM.LSTM_ONLY,
       });
 
       const { data: { text } } = await worker.recognize(processedImagePath);
