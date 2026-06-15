@@ -55,7 +55,7 @@ export default async function Home({
           {!isAuth && (
             <div className="mt-10 flex items-center justify-center">
               <Link href={"/sign-in"}>
-                <Button className="rounded-full px-8 h-12 text-md bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg hover:shadow-primary/20 transition-all hover:scale-105">
+                <Button className="rounded-md px-8 h-12 text-md bg-foreground text-background hover:bg-foreground/90 transition-colors">
                   Get Started for Free <MdLogin className="w-4 h-4 ml-2" />
                 </Button>
               </Link>
@@ -64,7 +64,7 @@ export default async function Home({
 
           {isAuth && (
             <div className="mt-12 max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-8 duration-700">
-              <div className="relative rounded-xl border border-border bg-card p-6 sm:p-8 shadow-lg ring-1 ring-border group overflow-hidden">
+              <div className="relative rounded-md border border-border bg-card p-6 sm:p-8 overflow-hidden">
                 <div className="mb-6 pb-6 border-b border-border flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <p className={`text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-md ${isPro ? "bg-green-500/10 text-green-600 dark:text-green-500" : "bg-primary/10 text-primary"}`}>

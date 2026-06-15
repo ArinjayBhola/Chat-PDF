@@ -31,7 +31,7 @@ const FileUpload = ({ isPro, chatCount, children }: Props) => {
     },
   });
 
-  const { getRootProps, getInputProps } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: {
       "application/pdf": [".pdf"],
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
@@ -101,11 +101,13 @@ const FileUpload = ({ isPro, chatCount, children }: Props) => {
     <div className="w-full">
       <div
         {...(isFreeLimitReached || isUploading ? {} : getRootProps())}
-        className={`group relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed py-10 transition-all duration-200
+        className={`group relative flex flex-col items-center justify-center rounded-md border py-10 transition-colors duration-200
           ${
             isFreeLimitReached || isUploading
               ? "border-border bg-muted/20 cursor-default"
-              : "border-border bg-muted/20 hover:border-primary/50 hover:bg-primary/[0.02] cursor-pointer"
+              : isDragActive
+              ? "border-foreground bg-muted/50 cursor-pointer"
+              : "border-border bg-background hover:border-foreground hover:bg-muted/10 cursor-pointer"
           }`}>
         {!(isFreeLimitReached || isUploading) && <input {...getInputProps()} />}
 
@@ -135,10 +137,12 @@ const FileUpload = ({ isPro, chatCount, children }: Props) => {
           </div>
         ) : (
           <div className="flex flex-col items-center">
-            <div className="rounded-full bg-background p-4 shadow-sm border border-border transition-all duration-200 group-hover:scale-105 group-hover:shadow group-hover:border-primary/30">
-              <FaInbox className="h-8 w-8 text-primary" />
+            <div className={`p-4 transition-colors duration-200 ${isDragActive ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground'}`}>
+              <FaInbox className="h-8 w-8" />
             </div>
-            <p className="mt-4 text-sm font-bold text-foreground">Drop file here</p>
+            <p className="mt-2 text-sm font-semibold text-foreground">
+              {isDragActive ? "Drop to upload" : "Drop file here"}
+            </p>
             <p className="mt-1 text-xs text-muted-foreground">PDF, DOCX, TXT, images & more (up to 10MB)</p>
           </div>
         )}

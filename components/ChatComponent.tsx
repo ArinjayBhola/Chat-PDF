@@ -133,6 +133,18 @@ export default function ChatComponent({
     }
   }, [data, setMessages]);
 
+  /* Listen for clear chat event */
+  useEffect(() => {
+    const handleClearChat = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail.chatId === chatId) {
+        setMessages([]);
+      }
+    };
+    window.addEventListener("clear-chat", handleClearChat);
+    return () => window.removeEventListener("clear-chat", handleClearChat);
+  }, [chatId, setMessages]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || status !== "ready") return;
@@ -337,7 +349,7 @@ export default function ChatComponent({
             id="chat-form"
             onSubmit={handleSubmit}
             className={cn(
-              "flex items-center gap-2 bg-card p-1.5 rounded-lg border border-border shadow-xs transition-all duration-200 focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary/40 focus-within:shadow-sm",
+              "flex items-center gap-2 bg-background p-2 rounded-xl border border-border shadow-sm transition-all duration-200 focus-within:ring-1 focus-within:ring-foreground/20 focus-within:border-foreground/30",
               isBusy && "opacity-90",
             )}>
             {/* Web search toggle */}
@@ -347,10 +359,10 @@ export default function ChatComponent({
               disabled={isBusy || pdfStatus === "PROCESSING"}
               title="Toggle Web Search"
               className={cn(
-                "flex items-center justify-center w-10 h-10 rounded-lg transition-all duration-200 flex-shrink-0 active:scale-95 cursor-pointer",
+                "flex items-center justify-center w-8 h-8 rounded-lg transition-colors duration-200 flex-shrink-0 cursor-pointer ml-1",
                 webSearch
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground",
+                  ? "bg-foreground text-background"
+                  : "bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground",
               )}>
               <FiGlobe className="h-4 w-4" />
             </button>
@@ -360,7 +372,7 @@ export default function ChatComponent({
               onChange={(e) => setInput(e.target.value)}
               disabled={isBusy || !canChat || pdfStatus === "PROCESSING"}
               placeholder={!canChat ? "Chatting is disabled..." : (pdfStatus === "PROCESSING" ? "Document is processing..." : (webSearch ? "Ask using live web data…" : "Ask a question about your document…"))}
-              className="flex-1 bg-transparent border-none focus-visible:ring-0 text-sm md:text-base px-2 shadow-none focus-visible:border-none focus-visible:ring-offset-0"
+              className="flex-1 bg-transparent border-none focus-visible:ring-0 text-[15px] px-2 shadow-none focus-visible:border-none focus-visible:ring-offset-0 placeholder:text-muted-foreground/60"
             />
 
             {/* Send button */}
@@ -369,12 +381,12 @@ export default function ChatComponent({
               size="icon"
               disabled={isBusy || !input.trim() || pdfStatus === "PROCESSING"}
               className={cn(
-                "h-10 w-10 rounded-lg transition-all duration-200 flex-shrink-0 active:scale-90",
+                "h-8 w-8 rounded-lg transition-all duration-200 flex-shrink-0 mr-1",
                 input.trim()
-                  ? "bg-primary hover:bg-primary/95 text-primary-foreground shadow-sm"
-                  : "bg-muted text-muted-foreground",
+                  ? "bg-foreground hover:bg-foreground/90 text-background shadow-sm"
+                  : "bg-muted text-muted-foreground opacity-50",
               )}>
-              <FaArrowUp className={cn("h-4 w-4 transition-transform duration-200", input.trim() && "scale-110")} />
+              <FaArrowUp className={cn("h-3.5 w-3.5 transition-transform duration-200", input.trim() && "scale-110")} />
             </Button>
           </form>
 

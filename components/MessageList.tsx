@@ -33,14 +33,10 @@ type RowProps = {
   onRegenerate: () => void;
 };
 
-// Each row is memoized so that, while a response streams in, only the message
-// whose text actually changed re-renders — not the entire conversation.
 const MessageRow = React.memo(function MessageRow({
-  message,
   text,
   isUser,
   senderName,
-  chatAppearance,
   chatId,
   isSharedView,
   canRegenerate,
@@ -51,47 +47,35 @@ const MessageRow = React.memo(function MessageRow({
 
   return (
     <div
-      className={cn("group/msg flex flex-col w-full animate-in fade-in slide-in-from-bottom-2 duration-300", {
-        "items-end": isUser,
-        "items-start": !isUser,
+      className={cn("group/msg flex w-full animate-in fade-in duration-300 py-5 border-b border-border/30 last:border-0", {
+        "bg-black/[0.02] dark:bg-white/[0.02]": !isUser,
       })}>
-      {isUser && senderName && (
-        <span className="text-[10px] font-bold text-muted-foreground mb-1 mr-11 uppercase tracking-wider">
-          {senderName}
-        </span>
-      )}
-      <div
-        className={cn("flex gap-3 max-w-[85%] lg:max-w-[75%]", {
-          "flex-row-reverse": isUser,
-          "flex-row": !isUser,
-        })}>
+      <div className="flex gap-4 max-w-4xl mx-auto w-full px-4">
         {/* Avatar */}
         <div
           className={cn(
-            "flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center shadow-xs select-none mt-1 transition-transform duration-200 group-hover/msg:scale-105",
+            "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center select-none shadow-sm",
             isUser
-              ? "bg-primary text-primary-foreground border border-transparent"
-              : "bg-muted border border-border text-muted-foreground",
+              ? "bg-foreground text-background"
+              : "bg-background border border-border/50 text-foreground ring-1 ring-black/5 dark:ring-white/5",
           )}>
           {isUser ? <CiUser className="h-4.5 w-4.5" /> : <IoSparklesOutline className="h-4 w-4" />}
         </div>
 
-        <div className="flex flex-col gap-1 w-full">
-          {/* Message Bubble */}
-          <div
-            className={cn("px-4.5 py-3 shadow-xs text-sm sm:text-[15px] leading-relaxed tracking-normal transition-shadow duration-200 group-hover/msg:shadow-sm", {
-              // Modern
-              "bg-primary text-primary-foreground rounded-lg rounded-tr-none shadow-xs": chatAppearance === "modern" && isUser,
-              "bg-card text-foreground border border-border rounded-lg rounded-tl-none w-fit": chatAppearance === "modern" && !isUser,
-              // Classic
-              "bg-primary/10 text-foreground border border-primary/20 rounded-lg w-fit": chatAppearance === "classic" && isUser,
-              "bg-muted text-foreground border border-border rounded-lg w-fit": chatAppearance === "classic" && !isUser,
-            })}>
-            <div className="markdown-prose whitespace-pre-wrap font-medium leading-relaxed">{text}</div>
+        <div className="flex flex-col gap-1 w-full min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-foreground tracking-wide">
+              {isUser ? (senderName || "YOU") : "AI"}
+            </span>
+          </div>
+          
+          {/* Message Content */}
+          <div className="text-[15px] leading-relaxed tracking-normal text-foreground markdown-prose whitespace-pre-wrap mt-1">
+            {text}
           </div>
 
           {/* Message Actions */}
-          <div className="flex items-center gap-1 mt-1 px-1 opacity-0 group-hover/msg:opacity-100 transition-all duration-200 translate-y-1 group-hover/msg:translate-y-0">
+          <div className="flex items-center gap-1 mt-2 opacity-0 group-hover/msg:opacity-100 transition-opacity duration-200">
             {!isUser && (
               <button
                 title="Copy message"
@@ -101,9 +85,9 @@ const MessageRow = React.memo(function MessageRow({
                   toast.success("Copied to clipboard");
                   setTimeout(() => setCopied(false), 2000);
                 }}
-                className="p-1.5 text-muted-foreground hover:text-foreground rounded-md hover:bg-muted transition-all duration-150 active:scale-95 cursor-pointer"
+                className="p-1.5 text-muted-foreground hover:text-foreground rounded-md hover:bg-muted transition-colors cursor-pointer"
               >
-                {copied ? <IoCheckmarkOutline className="w-3.5 h-3.5 text-primary" /> : <IoCopyOutline className="w-3.5 h-3.5" />}
+                {copied ? <IoCheckmarkOutline className="w-3.5 h-3.5 text-foreground" /> : <IoCopyOutline className="w-3.5 h-3.5" />}
               </button>
             )}
             {!isSharedView && chatId && (
@@ -118,7 +102,7 @@ const MessageRow = React.memo(function MessageRow({
                     toast.error("Failed to save note");
                   }
                 }}
-                className="p-1.5 text-muted-foreground hover:text-foreground rounded-md hover:bg-muted transition-all duration-150 active:scale-95 cursor-pointer"
+                className="p-1.5 text-muted-foreground hover:text-foreground rounded-md hover:bg-muted transition-colors cursor-pointer"
               >
                 <LuNotebook className="w-3.5 h-3.5" />
               </button>
@@ -127,7 +111,7 @@ const MessageRow = React.memo(function MessageRow({
               <button
                 title="Regenerate response"
                 onClick={onRegenerate}
-                className="p-1.5 text-muted-foreground hover:text-foreground rounded-md hover:bg-muted transition-all duration-150 active:scale-95 cursor-pointer"
+                className="p-1.5 text-muted-foreground hover:text-foreground rounded-md hover:bg-muted transition-colors cursor-pointer"
               >
                 <CiRedo className="w-4 h-4" />
               </button>
@@ -157,7 +141,7 @@ const MessageList = ({ messages, reload, status, chatId, onNoteAdded, isSharedVi
   const lastId = messages[messages.length - 1].id;
 
   return (
-    <div className="flex flex-col gap-5 px-2 sm:px-4 py-4">
+    <div className="flex flex-col w-full">
       {messages.map((message) => {
         const text = message.parts
           ?.filter((part) => part.type === "text")
@@ -165,8 +149,8 @@ const MessageList = ({ messages, reload, status, chatId, onNoteAdded, isSharedVi
           .join("") ?? "";
 
         const isUser = message.role === "user";
-        // @ts-ignore - senderName is added by our backend
-        const senderName = message.senderName;
+        // @ts-expect-error Vercel AI SDK does not include senderName in UIMessage type yet
+        const senderName = message.senderName as string | undefined;
         const canRegenerate = !!reload && status !== "streaming" && message.id === lastId;
 
         return (

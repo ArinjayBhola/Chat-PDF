@@ -41,7 +41,6 @@ const ExpandedSidebar = memo(({ className, onToggle, chats, chatId, isPro, onDel
   const [searchQuery, setSearchQuery] = useState("");
   const [comparisonsExpanded, setComparisonsExpanded] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const currentChat = chats.find((c) => c.id === chatId);
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
 
@@ -194,8 +193,8 @@ const ExpandedSidebar = memo(({ className, onToggle, chats, chatId, isPro, onDel
                         <div className={cn(
                           "rounded-lg p-3 flex items-start gap-2.5 transition-all duration-200",
                           isActive
-                            ? "bg-primary/10 text-primary shadow-sm"
-                            : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                            ? "bg-black/10 dark:bg-white/10 text-foreground font-semibold shadow-sm"
+                            : "text-muted-foreground hover:bg-black/5 dark:hover:bg-white/5 hover:text-foreground font-medium"
                         )}>
                           <LuGitCompareArrows className={cn(
                             "w-4 h-4 flex-shrink-0 mt-0.5",
@@ -213,7 +212,6 @@ const ExpandedSidebar = memo(({ className, onToggle, chats, chatId, isPro, onDel
                               ))}
                             </div>
                           </div>
-                          {isActive && <div className="absolute right-0 top-1 bottom-1 w-1 bg-primary rounded-l-full" />}
                         </div>
                       </Link>
 

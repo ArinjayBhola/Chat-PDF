@@ -1,4 +1,3 @@
-// UI REDESIGN
 "use client";
 
 import React, { useState } from "react";
@@ -11,10 +10,13 @@ import { Button } from "@/components/ui/button";
 import { ShareDialog } from "./ShareDialog";
 import { cn } from "@/lib/utils";
 import { useViewer } from "./providers/ViewerContext";
-import { LuFileBox, LuFileX, LuShare2, LuRotateCcw, LuNotebook, LuBrain } from "react-icons/lu";
+import { LuFileBox, LuFileX, LuShare2, LuRotateCcw, LuNotebook, LuBrain, LuTrash2 } from "react-icons/lu";
+import toast from "react-hot-toast";
+import axios from "axios";
 import NotesSidebar from "@/components/NotesSidebar";
 import { FloatingMenu, SelectionAction } from "./FloatingMenu";
 import MindMapDialog from "@/components/MindMapDialog";
+import ClearChatModal from "@/components/ClearChatModal";
 
 type Props = {
   chat: DrizzleChat;
@@ -28,6 +30,8 @@ export default function ChatLayout({ chat, isOwner, session, isSharedView = fals
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isNotesOpen, setIsNotesOpen] = useState(false);
   const [isMindMapOpen, setIsMindMapOpen] = useState(false);
+  const [isClearChatOpen, setIsClearChatOpen] = useState(false);
+  const [isClearingChat, setIsClearingChat] = useState(false);
   const [notesRefreshKey, setNotesRefreshKey] = useState(0);
   const [activeMobileTab, setActiveMobileTab] = useState<"file" | "chat">("chat");
 
@@ -106,6 +110,18 @@ export default function ChatLayout({ chat, isOwner, session, isSharedView = fals
           <span className="hidden sm:inline text-xs font-semibold">Share</span>
         </Button>
       )}
+      {isOwner && (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setIsClearChatOpen(true)}
+          className="flex items-center gap-2 h-8 px-2.5 sm:px-3 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all duration-200 active:scale-95"
+          title="Clear Chat"
+        >
+          <LuTrash2 className="w-4 h-4" />
+          <span className="hidden sm:inline text-xs font-semibold">Clear</span>
+        </Button>
+      )}
       <Button
         variant="ghost"
         size="sm"
@@ -159,7 +175,7 @@ export default function ChatLayout({ chat, isOwner, session, isSharedView = fals
 
           <div className="flex-1 relative overflow-hidden">
             <div className={cn("absolute inset-0 transition-all duration-300", activeMobileTab === "file" ? "opacity-100 translate-x-0 z-10" : "opacity-0 -translate-x-full -z-10 pointer-events-none")}>
-              <div className="w-full h-full p-2 bg-background">
+              <div className="w-full h-full p-2 bg-background document-viewer-container">
                 <FileViewer
                   file_url={chat.fileUrl || ""}
                   file_name={chat.fileName}
@@ -209,7 +225,7 @@ export default function ChatLayout({ chat, isOwner, session, isSharedView = fals
                 <ResizableSplit
                   hideLeft={hideDocument}
                   leftPanel={
-                    <div className="w-full h-full overflow-hidden border-r border-border bg-muted/30">
+                    <div className="w-full h-full overflow-hidden border-r border-border bg-muted/30 document-viewer-container">
                       <FileViewer
                         file_url={chat.fileUrl || ""}
                         file_name={chat.fileName}
@@ -282,6 +298,25 @@ export default function ChatLayout({ chat, isOwner, session, isSharedView = fals
           fileName={chat.fileName}
         />
       )}
+      <ClearChatModal
+        isOpen={isClearChatOpen}
+        onClose={() => setIsClearChatOpen(false)}
+        chatName={chat.fileName}
+        loading={isClearingChat}
+        onConfirm={async () => {
+          setIsClearingChat(true);
+          try {
+            await axios.post("/api/chats/clear", { chatId: chat.id });
+            window.dispatchEvent(new CustomEvent("clear-chat", { detail: { chatId: chat.id } }));
+            toast.success("Chat cleared!");
+            setIsClearChatOpen(false);
+          } catch {
+            toast.error("Failed to clear chat");
+          } finally {
+            setIsClearingChat(false);
+          }
+        }}
+      />
       <FloatingMenu onAction={handleSelectionAction} />
     </div>
   );

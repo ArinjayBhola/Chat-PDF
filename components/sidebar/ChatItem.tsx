@@ -1,7 +1,6 @@
 // UI REDESIGN
 import React, { memo } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { FiFileText, FiImage, FiTrash, FiEdit2 } from "react-icons/fi";
 import { LuFileSpreadsheet, LuPresentation, LuFileText, LuPin, LuPinOff } from "react-icons/lu";
 import { cn } from "@/lib/utils";
@@ -66,7 +65,6 @@ export const ChatItem = memo(
     onDelete: (e: React.MouseEvent, chatId: string, chatName: string) => void;
     onTogglePin?: (chatId: string, isPinned: boolean) => void;
   }) => {
-    const router = useRouter();
     const queryClient = useQueryClient();
     const [isEditing, setIsEditing] = React.useState(false);
     const [editName, setEditName] = React.useState(chat.fileName);
@@ -121,9 +119,9 @@ export const ChatItem = memo(
           onClick={(e) => isEditing && e.preventDefault()}
           className="block">
           <div
-            className={cn("rounded-lg p-3 flex items-center transition-all duration-200", {
-              "bg-primary/10 text-primary shadow-sm font-semibold": isActive,
-              "text-muted-foreground hover:text-foreground hover:bg-muted/50 font-medium": !isActive,
+            className={cn("rounded-md p-2 flex items-center transition-none", {
+              "bg-black/10 dark:bg-white/10 text-foreground font-semibold shadow-sm": isActive,
+              "text-muted-foreground hover:bg-black/5 dark:hover:bg-white/5 hover:text-foreground font-medium": !isActive,
             })}>
             <FileIcon name={chat.fileName} className="mr-3 w-4 h-4 flex-shrink-0" />
             {isEditing ? (
@@ -142,7 +140,6 @@ export const ChatItem = memo(
               </p>
             )}
 
-            {isActive && <div className="absolute right-0 top-1 bottom-1 w-1 bg-primary rounded-l-full" />}
           </div>
         </Link>
 
@@ -198,12 +195,11 @@ export const CollapsedChatItem = memo(({ chat, isActive }: { chat: DrizzleChat; 
   >
     <div
       className={cn(
-        "p-3 rounded-lg transition-colors flex items-center justify-center",
-        isActive ? "bg-primary/10 text-primary shadow-sm" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
+        "p-2 rounded-md transition-colors flex items-center justify-center",
+        isActive ? "bg-black/10 dark:bg-white/10 text-foreground shadow-sm" : "text-muted-foreground hover:bg-black/5 dark:hover:bg-white/5 hover:text-foreground",
       )}>
       <FileIcon name={chat.fileName} className="w-5 h-5" />
     </div>
-    {isActive && <div className="absolute right-[-4px] top-1 bottom-1 w-1 bg-primary rounded-l-full" />}
   </Link>
 ));
 CollapsedChatItem.displayName = "CollapsedChatItem";

@@ -1,17 +1,18 @@
-// UI REDESIGN
 import Link from "next/link";
 import { Button } from "./ui/button";
 import UserMenu from "./UserMenu";
 
+import { User } from "next-auth";
+
 type NavbarProps = {
   isAuth: boolean;
-  user?: any;
+  user?: User;
   hideSettingsButton?: boolean;
 };
 
 export default function Navbar({ isAuth, user, hideSettingsButton }: NavbarProps) {
   return (
-    <nav className="flex items-center justify-between px-6 py-4 md:px-8 border-b border-border bg-background/80 backdrop-blur-md sticky top-0 z-50">
+    <nav className="flex items-center justify-between px-6 py-4 md:px-8 border-b border-border bg-background sticky top-0 z-50">
       <div className="flex lg:flex-1">
         <Link href="/" className="flex items-center gap-2 transition-transform duration-200 active:scale-95">
           <span className="font-extrabold text-xl tracking-tight text-foreground select-none">
@@ -23,7 +24,7 @@ export default function Navbar({ isAuth, user, hideSettingsButton }: NavbarProps
         {isAuth ? (
           <>
             <Link href="/chat">
-              <Button variant="default" className="text-sm font-semibold hidden sm:inline-flex shadow-md">
+              <Button className="rounded-md text-sm font-medium hidden sm:inline-flex bg-foreground text-background hover:bg-foreground/90 transition-colors">
                 Go to Chats
               </Button>
             </Link>
@@ -40,11 +41,11 @@ export default function Navbar({ isAuth, user, hideSettingsButton }: NavbarProps
                 </Button>
               </Link>
             )}
-            <UserMenu user={user} />
+            <UserMenu user={user!} />
           </>
         ) : (
           <Link href="/sign-in">
-            <Button variant="default" className="text-sm font-semibold shadow-md">
+            <Button className="rounded-md text-sm font-medium bg-foreground text-background hover:bg-foreground/90 transition-colors">
               Sign In
             </Button>
           </Link>

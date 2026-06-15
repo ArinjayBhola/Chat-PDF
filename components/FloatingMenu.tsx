@@ -1,8 +1,6 @@
-// UI REDESIGN
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
-import { cn } from "@/lib/utils";
 import { LuSparkles, LuLanguages, LuTextQuote } from "react-icons/lu";
 
 export type SelectionAction = "explain" | "summarize" | "translate";
@@ -20,6 +18,17 @@ export function FloatingMenu({ onAction }: FloatingMenuProps) {
     const handleSelectionChange = () => {
       const selection = window.getSelection();
       if (!selection || selection.isCollapsed || !selection.toString().trim()) {
+        setPosition(null);
+        setSelectedText("");
+        return;
+      }
+
+      const anchorNode = selection.anchorNode;
+      const isWithinViewer = anchorNode?.nodeType === Node.ELEMENT_NODE 
+          ? (anchorNode as Element).closest('.document-viewer-container')
+          : anchorNode?.parentElement?.closest('.document-viewer-container');
+
+      if (!isWithinViewer) {
         setPosition(null);
         setSelectedText("");
         return;
