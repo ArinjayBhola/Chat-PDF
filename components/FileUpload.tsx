@@ -66,8 +66,9 @@ const FileUpload = ({ isPro, chatCount, children }: Props) => {
             queryClient.invalidateQueries({ queryKey: ["chats-list"] });
             router.push(`/chat/${chat_id}`);
           },
-          onError: (error: any) => {
-            if (error.response?.status === 403) {
+          onError: (error: unknown) => {
+            const axiosError = error as { response?: { status: number } };
+            if (axiosError.response?.status === 403) {
               toast.error("Free limit reached! Upgrade to Pro to upload more.");
             } else {
               toast.error("Error creating chat");
@@ -99,14 +100,14 @@ const FileUpload = ({ isPro, chatCount, children }: Props) => {
   return (
     <div className="w-full">
       <div
-        {...(isFreeLimitReached ? {} : getRootProps())}
+        {...(isFreeLimitReached || isUploading ? {} : getRootProps())}
         className={`group relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed py-10 transition-all duration-200
           ${
-            isFreeLimitReached
+            isFreeLimitReached || isUploading
               ? "border-border bg-muted/20 cursor-default"
               : "border-border bg-muted/20 hover:border-primary/50 hover:bg-primary/[0.02] cursor-pointer"
           }`}>
-        {!isFreeLimitReached && <input {...getInputProps()} />}
+        {!(isFreeLimitReached || isUploading) && <input {...getInputProps()} />}
 
         {isUploading ? (
           <div className="flex flex-col items-center animate-in fade-in duration-300">

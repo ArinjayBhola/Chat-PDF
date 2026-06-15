@@ -14,7 +14,7 @@ import { dbMessageToUIMessage } from "@/lib/message-mapper";
 import { cn } from "@/lib/utils";
 import { FiGlobe } from "react-icons/fi";
 import { FaArrowUp } from "react-icons/fa";
-import { LuLoaderCircle, LuArrowUp, LuArrowDown, LuChevronsDown } from "react-icons/lu";
+import { LuLoaderCircle, LuArrowUp, LuChevronsDown } from "react-icons/lu";
 import { IoSparklesOutline } from "react-icons/io5";
 
 type Props = {
@@ -24,6 +24,7 @@ type Props = {
   sharePermission?: "view" | "edit";
   onNoteAdded?: () => void;
   isSharedView?: boolean;
+  pdfStatus?: string;
 };
 
 export default function ChatComponent({
@@ -33,6 +34,7 @@ export default function ChatComponent({
   sharePermission,
   onNoteAdded,
   isSharedView = false,
+  pdfStatus = "SUCCESS",
 }: Props) {
   // Session is already hydrated by the root SessionProvider, so read it from
   // context instead of issuing a separate /api/auth/session request per chat.
@@ -143,8 +145,9 @@ export default function ChatComponent({
 
   /* Handle Selection Actions from Floating Menu */
   useEffect(() => {
-    const handleSelectionAction = (e: any) => {
-      const { action, text, targetChatId } = e.detail;
+    const handleSelectionAction = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const { action, text, targetChatId } = customEvent.detail;
       if (targetChatId && targetChatId !== chatId) return;
 
       let prompt = "";
@@ -190,7 +193,6 @@ export default function ChatComponent({
     // Extract text from the custom parts structure used in this project
     const previousQuestion = lastUserMessage.parts
       ?.filter((part) => part.type === "text")
-      // @ts-ignore
       .map((part) => part.text)
       .join("") || "";
 
@@ -300,6 +302,18 @@ export default function ChatComponent({
              </div>
           )}
 
+          {pdfStatus === "PROCESSING" && (
+             <div className="p-3 mb-2 rounded-lg bg-primary/10 border border-primary/20 flex flex-col items-center justify-center animate-pulse gap-2">
+                <LuLoaderCircle className="w-5 h-5 text-primary animate-spin" />
+                <p className="text-xs text-primary font-bold uppercase tracking-wider">
+                  Processing Document...
+                </p>
+                <p className="text-[10px] text-primary/70 text-center font-medium">
+                  We are extracting and indexing the text. You can chat once it&apos;s done. Please refresh the page in a few moments.
+                </p>
+             </div>
+          )}
+
           {/* Mode indicator */}
           {webSearch && (
             <div className="flex items-center gap-2 text-[10px] text-primary bg-primary/10 border border-primary/20 px-2.5 py-1 rounded-md w-fit animate-in fade-in slide-in-from-bottom-1 duration-200 font-bold uppercase tracking-wider">
@@ -319,7 +333,7 @@ export default function ChatComponent({
             <button
               type="button"
               onClick={() => setWebSearch((v) => !v)}
-              disabled={isBusy}
+              disabled={isBusy || pdfStatus === "PROCESSING"}
               title="Toggle Web Search"
               className={cn(
                 "flex items-center justify-center w-10 h-10 rounded-lg transition-all duration-200 flex-shrink-0 active:scale-95 cursor-pointer",
@@ -333,8 +347,8 @@ export default function ChatComponent({
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              disabled={isBusy || !canChat}
-              placeholder={!canChat ? "Chatting is disabled..." : (webSearch ? "Ask using live web data…" : "Ask a question about your document…")}
+              disabled={isBusy || !canChat || pdfStatus === "PROCESSING"}
+              placeholder={!canChat ? "Chatting is disabled..." : (pdfStatus === "PROCESSING" ? "Document is processing..." : (webSearch ? "Ask using live web data…" : "Ask a question about your document…"))}
               className="flex-1 bg-transparent border-none focus-visible:ring-0 text-sm md:text-base px-2 shadow-none focus-visible:border-none focus-visible:ring-offset-0"
             />
 
@@ -342,7 +356,7 @@ export default function ChatComponent({
             <Button
               type="submit"
               size="icon"
-              disabled={isBusy || !input.trim()}
+              disabled={isBusy || !input.trim() || pdfStatus === "PROCESSING"}
               className={cn(
                 "h-10 w-10 rounded-lg transition-all duration-200 flex-shrink-0 active:scale-90",
                 input.trim()
@@ -354,7 +368,7 @@ export default function ChatComponent({
           </form>
 
           {/* Keyboard hint */}
-          {canChat && (
+          {canChat && pdfStatus !== "PROCESSING" && (
             <p className="text-[10px] text-muted-foreground/60 text-center font-semibold select-none">
               Press <kbd className="px-1.5 py-0.5 bg-muted rounded text-[10px] font-mono border border-border">Enter</kbd> to send
             </p>

@@ -176,6 +176,7 @@ export default function ChatLayout({ chat, isOwner, session, isSharedView = fals
                 sharePermission={chat.sharePermission as "view" | "edit"}
                 onNoteAdded={handleNoteAdded}
                 isSharedView={isSharedView}
+                pdfStatus={chat.pdfStatus}
               />
             </div>
           </div>
@@ -231,6 +232,7 @@ export default function ChatLayout({ chat, isOwner, session, isSharedView = fals
                         sharePermission={chat.sharePermission as "view" | "edit"}
                         onNoteAdded={handleNoteAdded}
                         isSharedView={isSharedView}
+                        pdfStatus={chat.pdfStatus}
                       />
                     </div>
                   }
