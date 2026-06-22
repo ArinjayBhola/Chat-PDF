@@ -47,24 +47,24 @@ const MessageRow = React.memo(function MessageRow({
 
   return (
     <div
-      className={cn("group/msg flex w-full animate-in fade-in duration-300 py-5 border-b border-border/30 last:border-0", {
-        "bg-black/[0.02] dark:bg-white/[0.02]": !isUser,
+      className={cn("group/msg flex w-full animate-in fade-in duration-300 py-5 border-b border-border/40 last:border-0", {
+        "bg-muted/40": !isUser,
       })}>
       <div className="flex gap-4 max-w-4xl mx-auto w-full px-4">
         {/* Avatar */}
         <div
           className={cn(
-            "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center select-none shadow-sm",
+            "flex-shrink-0 w-8 h-8 rounded-xl flex items-center justify-center select-none shadow-sm",
             isUser
-              ? "bg-foreground text-background"
-              : "bg-background border border-border/50 text-foreground ring-1 ring-black/5 dark:ring-white/5",
+              ? "bg-card border border-border text-foreground"
+              : "bg-primary text-primary-foreground",
           )}>
           {isUser ? <CiUser className="h-4.5 w-4.5" /> : <IoSparklesOutline className="h-4 w-4" />}
         </div>
 
         <div className="flex flex-col gap-1 w-full min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-foreground tracking-wide">
+            <span className={cn("text-xs font-bold tracking-wide", isUser ? "text-foreground" : "text-primary")}>
               {isUser ? (senderName || "YOU") : "AI"}
             </span>
           </div>

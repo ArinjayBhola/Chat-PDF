@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { LuFileText } from "react-icons/lu";
 import axios from "axios";
 
 export default function ForgotPasswordForm() {
@@ -67,9 +68,12 @@ export default function ForgotPasswordForm() {
     <div className="w-full max-w-[380px]">
       {/* Mobile Logo */}
       <div className="lg:hidden mb-8 flex justify-center">
-        <Link href="/" className="flex items-center gap-2 transition-transform duration-200 active:scale-95">
-          <span className="text-2xl font-extrabold text-foreground tracking-tight select-none">
-            <span className="text-primary">Docs</span>Chat.ai
+        <Link href="/" className="flex items-center gap-2.5 transition-transform duration-200 active:scale-95">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+            <LuFileText className="h-5 w-5" />
+          </span>
+          <span className="text-xl font-bold text-foreground tracking-tight select-none">
+            <span className="text-primary">Docs</span>Chat
           </span>
         </Link>
       </div>
@@ -102,7 +106,7 @@ export default function ForgotPasswordForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="h-11 rounded-lg bg-background border-border transition focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+              className="h-11"
               placeholder="name@example.com"
             />
           </div>
@@ -110,7 +114,7 @@ export default function ForgotPasswordForm() {
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full h-11 mt-2 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-lg transition"
+            className="w-full h-11 mt-2"
           >
             {isLoading ? (
               <div className="flex items-center gap-2">
@@ -160,7 +164,7 @@ export default function ForgotPasswordForm() {
             onChange={(e) => setOtp(e.target.value)}
             required
             maxLength={6}
-            className="h-11 rounded-lg bg-background border-border transition focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 text-center text-2xl tracking-[0.5em] font-mono"
+            className="h-11 text-center text-2xl tracking-[0.4em] font-mono"
             placeholder="000000"
           />
         </div>
@@ -176,7 +180,7 @@ export default function ForgotPasswordForm() {
               onChange={(e) => setNewPassword(e.target.value)}
               required
               minLength={6}
-              className="h-11 rounded-lg bg-background border-border transition focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 pr-10"
+              className="h-11 pr-10"
               placeholder="••••••••"
             />
             <button
@@ -201,7 +205,7 @@ export default function ForgotPasswordForm() {
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
               minLength={6}
-              className="h-11 rounded-lg bg-background border-border transition focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 pr-10"
+              className="h-11 pr-10"
               placeholder="••••••••"
             />
             <button

@@ -119,7 +119,7 @@ export default function NotesSidebar({ chatId, isOpen, onClose, refreshKey }: Pr
   if (!isOpen) return null;
 
   return (
-    <div className="w-80 h-full border-l border-border flex flex-col bg-background shadow-xl transition-all duration-300 ease-in-out">
+    <div className="w-80 h-full border-l border-border flex flex-col bg-background transition-all duration-300 ease-in-out">
       {/* Header */}
       <div className="px-4 py-4 border-b border-border flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -147,7 +147,7 @@ export default function NotesSidebar({ chatId, isOpen, onClose, refreshKey }: Pr
             <p className="text-xs font-semibold text-muted-foreground">Loading your notes...</p>
           </div>
         ) : notes.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center gap-4 border border-dashed border-border rounded-lg bg-muted/10">
+          <div className="flex flex-col items-center justify-center py-20 text-center gap-4 border border-dashed border-border rounded-2xl bg-muted/20">
             <LuNotebook className="w-8 h-8 text-muted-foreground/30" />
             <div>
               <p className="text-sm font-bold text-foreground">No notes yet</p>
@@ -162,7 +162,7 @@ export default function NotesSidebar({ chatId, isOpen, onClose, refreshKey }: Pr
             return (
               <div
                 key={note.id}
-                className="group relative p-3 rounded-lg border border-border bg-muted/20 hover:bg-muted/40 transition-all duration-200 shadow-sm"
+                className="group relative p-3 rounded-xl border border-border bg-card hover:bg-accent/40 transition-all duration-200 shadow-xs"
               >
                 <div className="flex justify-between items-start gap-2 mb-2">
                   <span className={cn("px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider", badge.className)}>
@@ -200,7 +200,7 @@ export default function NotesSidebar({ chatId, isOpen, onClose, refreshKey }: Pr
               }
             }}
             placeholder="Add a thought..."
-            className="w-full text-sm p-3 pr-10 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all resize-none shadow-sm min-h-[80px]"
+            className="w-full text-sm p-3 pr-10 rounded-xl border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary/40 transition-all resize-none shadow-xs min-h-[80px]"
           />
           <button
             onClick={addNote}

@@ -247,7 +247,7 @@ export default function ChatComponent({
           {/* Empty State - No Messages Yet */}
           {messages.length === 0 && (
             <div className="flex flex-col items-center justify-center gap-4 text-center p-8 mb-4 max-w-lg mx-auto">
-              <div className="bg-primary/10 p-4.5 rounded-lg border border-primary/20 shadow-xs animate-in zoom-in duration-500">
+              <div className="bg-primary/10 p-5 rounded-2xl border border-primary/15 shadow-xs animate-in zoom-in duration-500">
                 <IoSparklesOutline className="h-8 w-8 text-primary" />
               </div>
               <div>
@@ -349,7 +349,7 @@ export default function ChatComponent({
             id="chat-form"
             onSubmit={handleSubmit}
             className={cn(
-              "flex items-center gap-2 bg-background p-2 rounded-xl border border-border shadow-sm transition-all duration-200 focus-within:ring-1 focus-within:ring-foreground/20 focus-within:border-foreground/30",
+              "flex items-center gap-2 bg-card p-2 rounded-2xl border border-border shadow-sm transition-all duration-200 focus-within:ring-2 focus-within:ring-ring focus-within:border-primary/50",
               isBusy && "opacity-90",
             )}>
             {/* Web search toggle */}
@@ -359,10 +359,10 @@ export default function ChatComponent({
               disabled={isBusy || pdfStatus === "PROCESSING"}
               title="Toggle Web Search"
               className={cn(
-                "flex items-center justify-center w-8 h-8 rounded-lg transition-colors duration-200 flex-shrink-0 cursor-pointer ml-1",
+                "flex items-center justify-center w-8 h-8 rounded-xl transition-colors duration-200 flex-shrink-0 cursor-pointer ml-1",
                 webSearch
-                  ? "bg-foreground text-background"
-                  : "bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground",
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-transparent text-muted-foreground hover:bg-accent hover:text-foreground",
               )}>
               <FiGlobe className="h-4 w-4" />
             </button>
@@ -381,9 +381,9 @@ export default function ChatComponent({
               size="icon"
               disabled={isBusy || !input.trim() || pdfStatus === "PROCESSING"}
               className={cn(
-                "h-8 w-8 rounded-lg transition-all duration-200 flex-shrink-0 mr-1",
+                "h-8 w-8 rounded-xl transition-all duration-200 flex-shrink-0 mr-1",
                 input.trim()
-                  ? "bg-foreground hover:bg-foreground/90 text-background shadow-sm"
+                  ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm"
                   : "bg-muted text-muted-foreground opacity-50",
               )}>
               <FaArrowUp className={cn("h-3.5 w-3.5 transition-transform duration-200", input.trim() && "scale-110")} />

@@ -25,7 +25,7 @@ const CollapsedSidebar = memo(({ className, onToggle, chats, chatId, isPro }: Pr
   return (
     <div
       className={cn(
-        "h-screen w-[64px] bg-sidebar border-r border-sidebar-border shadow-xl flex flex-col items-center py-4 gap-6",
+        "h-screen w-[64px] bg-sidebar border-r border-sidebar-border flex flex-col items-center py-4 gap-6",
         "transition-all duration-300 ease-in-out",
         className,
       )}>

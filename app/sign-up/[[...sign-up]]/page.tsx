@@ -3,17 +3,21 @@
 
 import SignUpForm from "@/components/auth/SignUpForm";
 import Link from "next/link";
+import { LuFileText } from "react-icons/lu";
 
 export default function SignUpPage() {
   return (
     // Fixed height and hidden overflow absolutely prevents scrollbars
     <div className="flex h-screen w-full overflow-hidden bg-background text-foreground font-sans">
-      
-      {/* LEFT PANEL - Solid dark slate, no gradient */}
+
+      {/* LEFT PANEL - Solid indigo */}
       <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 bg-primary text-primary-foreground">
-        
-        <Link href="/" className="flex items-center gap-2 w-fit transition-transform duration-200 active:scale-95">
-          <span className="text-2xl font-extrabold tracking-tight select-none">DocsChat.ai</span>
+
+        <Link href="/" className="flex items-center gap-2.5 w-fit transition-transform duration-200 active:scale-95">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/15">
+            <LuFileText className="h-5 w-5" />
+          </span>
+          <span className="text-xl font-bold tracking-tight select-none">DocsChat</span>
         </Link>
 
         <div className="max-w-md">
@@ -23,12 +27,14 @@ export default function SignUpPage() {
           <p className="text-primary-foreground/80 text-lg leading-relaxed mb-8">
             Upload a file. Ask questions. Get instant answers. No more scrolling through hundreds of pages.
           </p>
-          <div className="inline-block px-4 py-2 bg-black/20 rounded-full text-sm font-medium text-white/90">
-            Trusted by students, researchers & professionals
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full text-sm font-medium text-white/90">
+            <span className="h-1.5 w-1.5 rounded-full bg-white/80" />
+            Trusted by students, researchers &amp; professionals
           </div>
         </div>
 
         <div className="text-sm text-primary-foreground/60">
+          &copy; {new Date().getFullYear()} DocsChat
         </div>
       </div>
 

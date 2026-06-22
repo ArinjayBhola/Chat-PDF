@@ -58,10 +58,10 @@ export default function UserMenu({ user }: UserMenuProps) {
 
         {isOpen && (
           <div className={cn(
-            "absolute right-0 mt-2 w-56 bg-card rounded-lg shadow-md border border-border py-1.5 z-50 overflow-hidden",
+            "absolute right-0 mt-2 w-56 bg-popover rounded-2xl shadow-lg border border-border py-1.5 z-50 overflow-hidden",
             "animate-in fade-in slide-in-from-top-2 duration-150"
           )}>
-            <div className="flex items-center gap-3 p-3 bg-muted/20 border-b border-border">
+            <div className="flex items-center gap-3 p-3 bg-muted/40 border-b border-border">
               {user.image ? (
                 <Image
                   src={user.image}

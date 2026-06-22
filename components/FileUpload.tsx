@@ -101,13 +101,13 @@ const FileUpload = ({ isPro, chatCount, children }: Props) => {
     <div className="w-full">
       <div
         {...(isFreeLimitReached || isUploading ? {} : getRootProps())}
-        className={`group relative flex flex-col items-center justify-center rounded-md border py-10 transition-colors duration-200
+        className={`group relative flex flex-col items-center justify-center rounded-2xl border border-dashed py-12 transition-colors duration-200
           ${
             isFreeLimitReached || isUploading
-              ? "border-border bg-muted/20 cursor-default"
+              ? "border-border bg-muted/30 cursor-default"
               : isDragActive
-              ? "border-foreground bg-muted/50 cursor-pointer"
-              : "border-border bg-background hover:border-foreground hover:bg-muted/10 cursor-pointer"
+              ? "border-primary bg-primary/5 cursor-pointer"
+              : "border-border bg-muted/20 hover:border-primary/60 hover:bg-primary/5 cursor-pointer"
           }`}>
         {!(isFreeLimitReached || isUploading) && <input {...getInputProps()} />}
 
@@ -137,11 +137,11 @@ const FileUpload = ({ isPro, chatCount, children }: Props) => {
           </div>
         ) : (
           <div className="flex flex-col items-center">
-            <div className={`p-4 transition-colors duration-200 ${isDragActive ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground'}`}>
-              <FaInbox className="h-8 w-8" />
+            <div className={`flex h-14 w-14 items-center justify-center rounded-2xl border border-border transition-colors duration-200 ${isDragActive ? 'bg-primary/10 text-primary' : 'bg-card text-muted-foreground group-hover:text-primary'}`}>
+              <FaInbox className="h-6 w-6" />
             </div>
-            <p className="mt-2 text-sm font-semibold text-foreground">
-              {isDragActive ? "Drop to upload" : "Drop file here"}
+            <p className="mt-4 text-sm font-semibold text-foreground">
+              {isDragActive ? "Drop to upload" : "Drop file here or click to browse"}
             </p>
             <p className="mt-1 text-xs text-muted-foreground">PDF, DOCX, TXT, images & more (up to 10MB)</p>
           </div>

@@ -2,17 +2,21 @@
 
 import Link from "next/link";
 import ForgotPasswordForm from "@/components/auth/ForgotPasswordForm";
+import { LuFileText } from "react-icons/lu";
 
 export default function ForgotPasswordPage() {
   return (
     // Fixed height and hidden overflow absolutely prevents scrollbars
-    <div className="flex h-screen w-full overflow-hidden bg-white dark:bg-slate-950 font-sans">
-      
-      {/* LEFT PANEL - Solid dark slate, uniform with Sign Up */}
+    <div className="flex h-screen w-full overflow-hidden bg-background text-foreground font-sans">
+
+      {/* LEFT PANEL - Solid indigo */}
       <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 bg-primary text-primary-foreground">
-        
-        <Link href="/" className="flex items-center gap-3 w-fit hover:opacity-90 transition">
-          <span className="text-2xl font-bold tracking-tight">Docs Chat.ai</span>
+
+        <Link href="/" className="flex items-center gap-2.5 w-fit transition-transform duration-200 active:scale-95">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/15">
+            <LuFileText className="h-5 w-5" />
+          </span>
+          <span className="text-xl font-bold tracking-tight select-none">DocsChat</span>
         </Link>
 
         <div className="max-w-md">
@@ -22,12 +26,14 @@ export default function ForgotPasswordPage() {
           <p className="text-primary-foreground/80 text-lg leading-relaxed mb-8">
             Forgot your password? No problem. Verify your email to regain access to your documents and chats securely.
           </p>
-          <div className="inline-block px-4 py-2 bg-black/20 rounded-full text-sm font-medium text-white/90">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full text-sm font-medium text-white/90">
+            <span className="h-1.5 w-1.5 rounded-full bg-white/80" />
             Welcome back to your workspace
           </div>
         </div>
 
         <div className="text-sm text-primary-foreground/60">
+          &copy; {new Date().getFullYear()} DocsChat
         </div>
       </div>
 

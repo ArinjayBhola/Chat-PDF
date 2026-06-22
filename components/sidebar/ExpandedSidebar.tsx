@@ -98,7 +98,7 @@ const ExpandedSidebar = memo(({ className, onToggle, chats, chatId, isPro, onDel
   return (
     <div
       className={cn(
-        "w-[280px] h-screen p-4 bg-sidebar flex flex-col border-r border-sidebar-border shadow-xl",
+        "w-[280px] h-screen p-4 bg-sidebar flex flex-col border-r border-sidebar-border",
         "transition-all duration-300 ease-in-out",
         className,
       )}>
@@ -109,7 +109,7 @@ const ExpandedSidebar = memo(({ className, onToggle, chats, chatId, isPro, onDel
         chatCount={chats.length}>
         {({ isUploading }) => (
           <Button
-            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground border-none shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] h-10 rounded-lg justify-start px-4"
+            className="w-full h-10 justify-start px-4"
             disabled={isUploading}>
             {isUploading ? (
               <RiLoader2Fill className="mr-2 w-4 h-4 animate-spin" />
@@ -193,8 +193,8 @@ const ExpandedSidebar = memo(({ className, onToggle, chats, chatId, isPro, onDel
                         <div className={cn(
                           "rounded-lg p-3 flex items-start gap-2.5 transition-all duration-200",
                           isActive
-                            ? "bg-black/10 dark:bg-white/10 text-foreground font-semibold shadow-sm"
-                            : "text-muted-foreground hover:bg-black/5 dark:hover:bg-white/5 hover:text-foreground font-medium"
+                            ? "bg-primary/10 text-primary font-semibold"
+                            : "text-muted-foreground hover:bg-accent hover:text-foreground font-medium"
                         )}>
                           <LuGitCompareArrows className={cn(
                             "w-4 h-4 flex-shrink-0 mt-0.5",

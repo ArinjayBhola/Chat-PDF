@@ -118,7 +118,7 @@ const ChatSidebar = ({ chats: initialChats, chatId: propChatId, className, isPro
 
       <div
         className={cn(
-          "h-screen relative flex-shrink-0 transition-all duration-300 ease-in-out bg-sidebar border-r shadow-xl overflow-hidden",
+          "h-screen relative flex-shrink-0 transition-all duration-300 ease-in-out bg-sidebar border-r overflow-hidden",
           isOpen ? "w-[280px] border-sidebar-border" : "w-[64px] border-sidebar-border"
         )}
       >

@@ -11,7 +11,7 @@ import UpgradeButton from "./UpgradeButton";
 import { Button } from "./ui/button";
 import { FiLoader } from "react-icons/fi";
 import { cn } from "@/lib/utils";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaGoogle } from "react-icons/fa";
 import {
   Dialog,
   DialogContent,
@@ -27,9 +27,10 @@ type Props = {
   isPro: boolean;
   expiryDate: Date | null;
   chatCount: number;
+  hasPassword: boolean;
 };
 
-export default function SettingsClient({ email, isPro, expiryDate, chatCount }: Props) {
+export default function SettingsClient({ email, isPro, expiryDate, chatCount, hasPassword }: Props) {
   const router = useRouter();
 
   const formatDateWithOrdinal = (dateString: string | Date) => {
@@ -41,7 +42,7 @@ export default function SettingsClient({ email, isPro, expiryDate, chatCount }: 
     return `${day}${suffix} ${month} ${year}`;
   };
   const [activeTab, setActiveTab] = useState<"account" | "interface" | "subscription">("account");
-  const { interfaceSize, setInterfaceSize, themeColor, setThemeColor, chatAppearance, setChatAppearance, typography, setTypography } = usePreferences();
+  const { interfaceSize, setInterfaceSize, chatAppearance, setChatAppearance, typography, setTypography } = usePreferences();
   const { theme, setTheme } = useTheme();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -188,6 +189,7 @@ export default function SettingsClient({ email, isPro, expiryDate, chatCount }: 
         {/* Account Tab */}
         {activeTab === "account" && (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            {hasPassword ? (
             <div>
               <h2 className="text-xl font-bold mb-4">Change Password</h2>
               <p className="text-muted-foreground text-sm mb-6">
@@ -266,6 +268,17 @@ export default function SettingsClient({ email, isPro, expiryDate, chatCount }: 
                 </div>
               )}
             </div>
+            ) : (
+            <div>
+              <h2 className="text-xl font-bold mb-4">Change Password</h2>
+              <div className="rounded-xl border border-border bg-muted/40 p-4 flex items-start gap-3 max-w-xl">
+                <FaGoogle className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  You signed in with <span className="font-semibold text-foreground">Google</span>, so your password is managed by Google. There&apos;s no password to change here.
+                </p>
+              </div>
+            </div>
+            )}
 
             <div className="pt-8 border-t border-border">
               <h2 className="text-xl font-bold text-destructive mb-4">Danger Zone</h2>
@@ -338,33 +351,13 @@ export default function SettingsClient({ email, isPro, expiryDate, chatCount }: 
             </div>
 
             <div className="pt-8 border-t border-border">
-              <h2 className="text-xl font-bold mb-4">Theme Color</h2>
-              <p className="text-muted-foreground text-sm mb-6">Select your primary accent color for the platform.</p>
-              
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                {["default", "red", "amber", "rose"].map((c) => (
-                  <button
-                    key={c}
-                    onClick={() => setThemeColor(c as any)}
-                    className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all cursor-pointer ${themeColor === c ? "border-primary bg-muted" : "border-border hover:bg-muted/50"}`}
-                  >
-                    <div className="w-5 h-5 rounded-md" style={{
-                      backgroundColor: c === 'default' ? '#2563EB' : c === 'red' ? '#ef4444' : c === 'amber' ? '#f59e0b' : '#f43f5e'
-                    }} />
-                    <span className={cn("capitalize font-semibold text-xs", themeColor === 'red' && c === 'red' && "text-red-500")}>{c}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="pt-8 border-t border-border">
               <h2 className="text-xl font-bold mb-4">Light / Dark Mode</h2>
               <div className="flex gap-4">
                 {["light", "dark", "system"].map((m) => (
                   <button
                     key={m}
                     onClick={() => setTheme(m)}
-                    className={`px-4 py-2 rounded-lg border font-medium transition capitalize ${theme === m ? "bg-foreground text-background border-foreground" : "bg-card text-foreground border-border hover:bg-muted"}`}
+                    className={`px-4 py-2 rounded-lg border font-medium transition capitalize ${theme === m ? "bg-primary text-primary-foreground border-primary" : "bg-card text-foreground border-border hover:bg-muted"}`}
                   >
                     {m}
                   </button>

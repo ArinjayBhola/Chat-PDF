@@ -8,6 +8,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FaGoogle, FaEye, FaEyeSlash } from "react-icons/fa";
+import { LuFileText } from "react-icons/lu";
 
 export default function SignInForm() {
   const router = useRouter();
@@ -61,9 +62,12 @@ export default function SignInForm() {
     <div className="w-full max-w-[380px]">
       {/* Mobile Logo */}
       <div className="lg:hidden mb-8 flex justify-center">
-        <div className="flex items-center gap-2">
-          <span className="text-2xl font-extrabold text-foreground tracking-tight select-none">
-            <span className="text-primary">Docs</span>Chat.ai
+        <div className="flex items-center gap-2.5">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+            <LuFileText className="h-5 w-5" />
+          </span>
+          <span className="text-xl font-bold text-foreground tracking-tight select-none">
+            <span className="text-primary">Docs</span>Chat
           </span>
         </div>
       </div>
@@ -89,7 +93,7 @@ export default function SignInForm() {
         onClick={handleGoogleSignIn}
         disabled={isLoading}
         variant="outline"
-        className="w-full h-11 bg-card border-border text-foreground hover:bg-muted font-medium rounded-lg mb-6 shadow-sm"
+        className="w-full h-11 font-semibold mb-6"
       >
         <FaGoogle className="mr-2 w-4 h-4 text-muted-foreground" />
         Sign in with Google
@@ -120,7 +124,7 @@ export default function SignInForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="h-11 rounded-lg bg-background border-border transition focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 pr-10"
+            className="h-11 pr-10"
             placeholder="name@example.com"
           />
         </div>
@@ -140,7 +144,7 @@ export default function SignInForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="h-11 rounded-lg bg-background border-border transition focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 pr-10"
+              className="h-11 pr-10"
               placeholder="••••••••"
             />
             <button
@@ -157,7 +161,7 @@ export default function SignInForm() {
         <Button
           type="submit"
           disabled={isLoading}
-          className="w-full h-11 mt-2 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-lg transition"
+          className="w-full h-11 mt-2"
         >
           {isLoading ? (
             <div className="flex items-center gap-2">

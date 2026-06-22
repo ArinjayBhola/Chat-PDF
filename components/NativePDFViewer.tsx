@@ -118,7 +118,7 @@ export default function NativePDFViewer({ url, refreshKey = 0 }: Props) {
 
       {/* PDF Content */}
       <div className="flex-1 overflow-auto p-4 bg-card custom-scrollbar">
-        <div className="relative shadow-2xl ring-1 ring-border rounded-sm bg-white overflow-hidden h-fit w-fit mx-auto">
+        <div className="relative shadow-lg ring-1 ring-border/60 rounded-lg bg-white overflow-hidden h-fit w-fit mx-auto">
           <Document
             file={url}
             onLoadSuccess={onDocumentLoadSuccess}

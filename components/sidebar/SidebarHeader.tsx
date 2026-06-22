@@ -1,6 +1,7 @@
 // UI REDESIGN
 import React, { memo } from "react";
 import { FaBars, FaLongArrowAltLeft } from "react-icons/fa";
+import { LuFileText } from "react-icons/lu";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -16,9 +17,12 @@ const SidebarHeader = memo(({ onToggle }: { onToggle: () => void }) => {
           aria-label="Go back">
           <FaLongArrowAltLeft className="w-4.5 h-4.5" />
         </button>
-        <Link href="/" className="transition-transform duration-200 active:scale-95">
-          <h1 className="text-lg font-extrabold text-foreground tracking-tight select-none">
-            <span className="text-primary">Docs</span>Chat.ai
+        <Link href="/" className="flex items-center gap-2 transition-transform duration-200 active:scale-95">
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <LuFileText className="h-4 w-4" />
+          </span>
+          <h1 className="text-base font-bold text-foreground tracking-tight select-none">
+            <span className="text-primary">Docs</span>Chat
           </h1>
         </Link>
       </div>

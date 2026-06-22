@@ -253,7 +253,7 @@ export default function CompareView({ chatIds, documents, allChats }: Props) {
 
           {!checkingExisting && messages.length === 0 && (
             <div className="flex flex-col items-center justify-center gap-4 text-center p-8 mb-4 max-w-lg mx-auto">
-              <div className="bg-primary/10 p-4.5 rounded-lg border border-primary/20 shadow-xs animate-in zoom-in duration-500">
+              <div className="bg-primary/10 p-5 rounded-2xl border border-primary/15 shadow-xs animate-in zoom-in duration-500">
                 <LuGitCompareArrows className="h-8 w-8 text-primary" />
               </div>
               <div>
@@ -362,7 +362,7 @@ export default function CompareView({ chatIds, documents, allChats }: Props) {
           <form
             onSubmit={handleSubmit}
             className={cn(
-              "flex items-center gap-2 bg-card p-1.5 rounded-2xl border border-border shadow-sm transition-all focus-within:ring-2 focus-within:ring-primary/20",
+              "flex items-center gap-2 bg-card p-1.5 rounded-2xl border border-border shadow-sm transition-all focus-within:ring-2 focus-within:ring-ring focus-within:border-primary/50",
               isBusy && "opacity-90",
             )}>
             <Input

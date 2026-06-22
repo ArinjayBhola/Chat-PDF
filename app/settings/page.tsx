@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth-options";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { chats, userSubscriptions } from "@/lib/db/schema";
+import { users } from "@/lib/db/auth-schema";
 import { eq } from "drizzle-orm";
 import SettingsClient from "@/components/SettingsClient";
 import { checkSubscription } from "@/lib/subscription";
@@ -26,6 +27,14 @@ export default async function SettingsPage() {
 
   const expiryDate = subData[0]?.subscriptionEndDate || null;
 
+  // Determine if this is a credentials account (Google/OAuth accounts have no password)
+  const userRow = await db
+    .select({ password: users.password })
+    .from(users)
+    .where(eq(users.id, session.user.id))
+    .limit(1);
+  const hasPassword = !!userRow[0]?.password;
+
   // Fetch chats
   const userChats = await db.select({ id: chats.id }).from(chats).where(eq(chats.userId, session.user.id));
   const isAuth = !!session?.user;
@@ -35,11 +44,12 @@ export default async function SettingsPage() {
       <Navbar isAuth={isAuth} user={session?.user} hideSettingsButton={true} />
 
       <div className="max-w-6xl mx-auto py-10 px-6 lg:px-8">
-        <SettingsClient 
-          email={session.user.email} 
-          isPro={isPro} 
-          expiryDate={expiryDate} 
-          chatCount={userChats.length} 
+        <SettingsClient
+          email={session.user.email}
+          isPro={isPro}
+          expiryDate={expiryDate}
+          chatCount={userChats.length}
+          hasPassword={hasPassword}
         />
       </div>
     </div>

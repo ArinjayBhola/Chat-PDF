@@ -68,7 +68,7 @@ export default async function RootLayout({
             <PreferencesProvider>
               <ViewerProvider>
                 <Provider>
-                  <NextTopLoader showSpinner={false} />
+                  <NextTopLoader showSpinner={false} color="#6d5ae6" shadow="0 0 10px #6d5ae6,0 0 5px #6d5ae6" />
                   {children}
                   <CommandPalette />
                   <Toaster />

@@ -146,13 +146,13 @@ export default function ChatLayout({ chat, isOwner, session, isSharedView = fals
       <div className="lg:hidden flex-1 overflow-hidden flex flex-col h-full">
         <div className="flex-1 flex flex-col h-full">
           <div className="px-4 py-3 border-b border-border bg-background/80 backdrop-blur-md sticky top-0 z-30 flex justify-between items-center shadow-sm text-foreground">
-            <div className="flex bg-muted p-1 rounded-lg w-40 h-9">
+            <div className="flex bg-muted p-1 rounded-xl w-40 h-9">
               <button
                 onClick={() => setActiveMobileTab("file")}
                 className={cn(
-                    "flex-1 rounded-md text-xs font-semibold py-1.5 transition-all duration-200",
+                    "flex-1 rounded-lg text-xs font-semibold py-1.5 transition-all duration-200",
                     activeMobileTab === "file"
-                      ? "bg-background text-foreground shadow-sm"
+                      ? "bg-card text-foreground shadow-sm"
                       : "text-muted-foreground hover:text-foreground"
                 )}
               >
@@ -163,7 +163,7 @@ export default function ChatLayout({ chat, isOwner, session, isSharedView = fals
                 className={cn(
                     "flex-1 rounded-lg text-xs font-semibold py-1.5 transition-all duration-200",
                     activeMobileTab === "chat"
-                      ? "bg-background text-foreground shadow-sm"
+                      ? "bg-card text-foreground shadow-sm"
                       : "text-muted-foreground hover:text-foreground"
                 )}
               >
@@ -238,8 +238,8 @@ export default function ChatLayout({ chat, isOwner, session, isSharedView = fals
                     <div className={cn(
                       "w-full h-full bg-background flex flex-col",
                       hideDocument
-                        ? "max-w-5xl mx-auto border-x border-border shadow-xl ring-1 ring-border/50"
-                        : "border-l border-border shadow-2xl z-10"
+                        ? "max-w-5xl mx-auto border-x border-border"
+                        : "border-l border-border z-10"
                     )}>
                       <ChatComponent
                         chatId={chat.id}

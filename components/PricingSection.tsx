@@ -51,7 +51,7 @@ const PricingSection = ({ isPro }: { isPro: boolean }) => {
               </div>
               <Button
                 variant="outline"
-                className="mt-8 w-full border-border text-foreground hover:bg-muted font-semibold h-10 rounded-lg cursor-not-allowed opacity-60"
+                className="mt-8 w-full font-semibold h-10 cursor-not-allowed opacity-60"
                 disabled>
                 Current Plan
               </Button>

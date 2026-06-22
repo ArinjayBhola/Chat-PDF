@@ -302,7 +302,7 @@ export default function MindMapDialog({ chatId, isOpen, onClose, fileName }: Pro
           onMouseUp={stopPan}
           onMouseLeave={stopPan}
           className={cn(
-            "flex-1 relative overflow-hidden bg-[radial-gradient(circle_at_center,var(--muted)_0%,var(--background)_70%)]",
+            "flex-1 relative overflow-hidden bg-muted/40",
             isPanning ? "cursor-grabbing" : "cursor-grab"
           )}
         >

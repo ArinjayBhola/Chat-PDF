@@ -119,9 +119,9 @@ export const ChatItem = memo(
           onClick={(e) => isEditing && e.preventDefault()}
           className="block">
           <div
-            className={cn("rounded-md p-2 flex items-center transition-none", {
-              "bg-black/10 dark:bg-white/10 text-foreground font-semibold shadow-sm": isActive,
-              "text-muted-foreground hover:bg-black/5 dark:hover:bg-white/5 hover:text-foreground font-medium": !isActive,
+            className={cn("rounded-lg p-2 flex items-center transition-colors duration-150", {
+              "bg-primary/10 text-primary font-semibold": isActive,
+              "text-muted-foreground hover:bg-accent hover:text-foreground font-medium": !isActive,
             })}>
             <FileIcon name={chat.fileName} className="mr-3 w-4 h-4 flex-shrink-0" />
             {isEditing ? (
@@ -195,8 +195,8 @@ export const CollapsedChatItem = memo(({ chat, isActive }: { chat: DrizzleChat; 
   >
     <div
       className={cn(
-        "p-2 rounded-md transition-colors flex items-center justify-center",
-        isActive ? "bg-black/10 dark:bg-white/10 text-foreground shadow-sm" : "text-muted-foreground hover:bg-black/5 dark:hover:bg-white/5 hover:text-foreground",
+        "p-2 rounded-lg transition-colors flex items-center justify-center",
+        isActive ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground",
       )}>
       <FileIcon name={chat.fileName} className="w-5 h-5" />
     </div>

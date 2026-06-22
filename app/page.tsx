@@ -45,47 +45,51 @@ export default async function Home({
       {/* Hero Content */}
       <div className="mx-auto max-w-5xl px-6 py-20 sm:py-28 lg:px-8">
         <div className="text-center">
-          <h1 className="text-5xl font-black tracking-tight text-foreground sm:text-6xl mb-6">
+          <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-xs font-semibold text-muted-foreground shadow-xs">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+            AI-powered document chat
+          </div>
+          <h1 className="mb-6 text-5xl font-extrabold tracking-tight text-foreground sm:text-6xl">
             Chat with any <span className="text-primary">Document</span>
           </h1>
-          <p className="mt-6 text-base sm:text-lg tracking-normal leading-relaxed text-muted-foreground max-w-2xl mx-auto font-medium">
+          <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed tracking-normal text-muted-foreground sm:text-lg">
             Join millions of students, researchers and professionals to instantly answer questions and understand research with AI.
           </p>
 
           {!isAuth && (
             <div className="mt-10 flex items-center justify-center">
               <Link href={"/sign-in"}>
-                <Button className="rounded-md px-8 h-12 text-md bg-foreground text-background hover:bg-foreground/90 transition-colors">
-                  Get Started for Free <MdLogin className="w-4 h-4 ml-2" />
+                <Button className="h-12 px-8 text-base">
+                  Get Started for Free <MdLogin className="ml-1 h-4 w-4" />
                 </Button>
               </Link>
             </div>
           )}
 
           {isAuth && (
-            <div className="mt-12 max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-8 duration-700">
-              <div className="relative rounded-md border border-border bg-card p-6 sm:p-8 overflow-hidden">
-                <div className="mb-6 pb-6 border-b border-border flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="mx-auto mt-12 max-w-2xl animate-in fade-in slide-in-from-bottom-8 duration-700">
+              <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8">
+                <div className="mb-6 flex flex-col items-center justify-between gap-4 border-b border-border pb-6 sm:flex-row">
                   <div className="flex items-center gap-3">
-                    <p className={`text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-md ${isPro ? "bg-green-500/10 text-green-600 dark:text-green-500" : "bg-primary/10 text-primary"}`}>
+                    <p className={`rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider ${isPro ? "bg-green-500/10 text-green-600 dark:text-green-500" : "bg-primary/10 text-primary"}`}>
                       {isPro ? "Pro Plan" : "Free Plan"}
                     </p>
-                    <span className="text-sm text-muted-foreground font-semibold">
+                    <span className="text-sm font-semibold text-muted-foreground">
                       {isPro ? "Unlimited uploads" : `${chatCount}/3 free uploads used`}
                     </span>
                   </div>
-                  <div className="flex items-center gap-3 w-full sm:w-auto">
+                  <div className="flex w-full items-center gap-3 sm:w-auto">
                     {!isPro && <UpgradeButton isPro={isPro} />}
                     <Link href="/chat" className="w-full sm:w-auto">
-                      <Button variant="secondary" className="w-full sm:w-auto rounded-lg">
+                      <Button variant="secondary" className="w-full sm:w-auto">
                         Go to Chats
                       </Button>
                     </Link>
                   </div>
                 </div>
 
-                <h2 className="text-lg font-bold mb-4 text-left">Upload a document</h2>
-                
+                <h2 className="mb-4 text-left text-lg font-bold">Upload a document</h2>
+
                 <FileUpload
                   isPro={isPro}
                   chatCount={chatCount}

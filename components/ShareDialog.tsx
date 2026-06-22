@@ -94,7 +94,7 @@ export function ShareDialog({ open, onOpenChange, chatId, initialData }: ShareDi
             </div>
             <button
               onClick={() => setIsShared(!isShared)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 ${
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
                 isShared ? "bg-primary" : "bg-muted"
               }`}
             >
@@ -144,7 +144,7 @@ export function ShareDialog({ open, onOpenChange, chatId, initialData }: ShareDi
                 </div>
                 <button
                   onClick={() => setAllowPublic(!allowPublic)}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 ${
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
                     allowPublic ? "bg-primary" : "bg-muted"
                   }`}
                 >
