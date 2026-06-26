@@ -1,11 +1,20 @@
 import { db } from "@/lib/db";
-import { users, chats } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { 
+  users, 
+  chats, 
+  messages, 
+  notes, 
+  comparisons, 
+  comparisonMessages, 
+  userSubscriptions, 
+  folders 
+} from "@/lib/db/schema";
+import { eq, inArray } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 
-export async function DELETE(req: Request) {
+export async function DELETE() {
   try {
     const session = await getServerSession(authOptions);
 
@@ -13,12 +22,6 @@ export async function DELETE(req: Request) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    // Since users.id is what accounts/chats reference, and auth-schema cascades accounts onDelete,
-    // we just need to delete the user. Wait,chats are referenced by user_id which is a text matching users.id or clerk id.
-    // Actually, in schema.ts chats don't have a cascading foreign key, they just have userId: text("user_id").
-    // We should delete chats explicitly if we want a clean wipe.
-    
-    // The user's ID might be in session.user.id if NextAuth is configured, or we can look it up by email.
     const dbUser = await db.select().from(users).where(eq(users.email, session.user.email)).limit(1);
     
     if (!dbUser || dbUser.length === 0) {
@@ -27,8 +30,30 @@ export async function DELETE(req: Request) {
     
     const userId = dbUser[0].id;
 
-    // Delete chats associated with this user
+    // 1. Get user's chats to delete associated messages
+    const userChats = await db.select({ id: chats.id }).from(chats).where(eq(chats.userId, userId));
+    const chatIds = userChats.map(c => c.id);
+
+    if (chatIds.length > 0) {
+      await db.delete(messages).where(inArray(messages.chatsId, chatIds));
+    }
+
+    // 2. Get user's comparisons to delete associated messages
+    const userComparisons = await db.select({ id: comparisons.id }).from(comparisons).where(eq(comparisons.userId, userId));
+    const comparisonIds = userComparisons.map(c => c.id);
+
+    if (comparisonIds.length > 0) {
+      await db.delete(comparisonMessages).where(inArray(comparisonMessages.comparisonId, comparisonIds));
+    }
+
+    // 3. Delete records directly tied to userId
+    await db.delete(notes).where(eq(notes.userId, userId));
+    await db.delete(comparisons).where(eq(comparisons.userId, userId));
+    await db.delete(userSubscriptions).where(eq(userSubscriptions.userId, userId));
+    
+    // 4. Delete chats and then folders
     await db.delete(chats).where(eq(chats.userId, userId));
+    await db.delete(folders).where(eq(folders.userId, userId));
 
     // Finally delete the user itself
     await db.delete(users).where(eq(users.id, userId));
