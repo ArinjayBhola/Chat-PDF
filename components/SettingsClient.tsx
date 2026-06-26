@@ -11,6 +11,7 @@ import UpgradeButton from "./UpgradeButton";
 import { Button } from "./ui/button";
 import { FiLoader } from "react-icons/fi";
 import { cn } from "@/lib/utils";
+import { signOut } from "next-auth/react";
 import { FaEye, FaEyeSlash, FaGoogle } from "react-icons/fa";
 import {
   Dialog,
@@ -134,7 +135,7 @@ export default function SettingsClient({ email, isPro, expiryDate, chatCount, ha
       setIsLoading(true);
       await axios.delete("/api/auth/delete-account");
       toast.success("Account deleted successfully");
-      router.push("/sign-up");
+      await signOut({ callbackUrl: "/sign-up" });
     } catch (error: any) {
       toast.error(error.response?.data?.error || "Failed to delete account");
     } finally {
