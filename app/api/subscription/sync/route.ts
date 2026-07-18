@@ -61,8 +61,14 @@ export async function GET(req: Request) {
 
     if (payments.items && payments.items.length > 0) {
       const lastPayment = payments.items[0];
-      
-      if (lastPayment.status === "succeeded") {
+
+      // Only honour a recent payment. Without this, any old succeeded payment
+      // (even one already refunded/expired) would re-grant 30 days every time
+      // the user hits this sync endpoint.
+      const paymentDate = lastPayment.created_at ? new Date(lastPayment.created_at).getTime() : 0;
+      const isRecent = paymentDate > Date.now() - 31 * 24 * 60 * 60 * 1000;
+
+      if (lastPayment.status === "succeeded" && isRecent) {
         const subscriptionEndDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
         await db

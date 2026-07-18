@@ -96,6 +96,14 @@ export const comparisonMessages = pgTable("comparison_messages", {
   createdAtIdx: index("comparison_messages_created_at_idx").on(table.createdAt),
 }));
 
+// One row per webhook delivery we've already applied, keyed on the provider's
+// "webhook-id" header, so retried/duplicate deliveries are processed once.
+export const processedWebhookEvents = pgTable("processed_webhook_events", {
+  id: text("id").primaryKey(),
+  eventType: text("event_type"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const userSubscriptions = pgTable("user_subscriptions", {
   id: uuid("id").primaryKey(),
   userId: text("user_id").notNull().unique(),

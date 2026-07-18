@@ -5,8 +5,8 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 const s3Client = new S3Client({
   region: process.env.NEXT_PUBLIC_AWS_REGION,
   credentials: {
-    accessKeyId: process.env.NEXT_PUBLIC_AWS_S3_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.NEXT_PUBLIC_AWS_S3_SECRET_ACCESS_KEY!,
+    accessKeyId: (process.env.AWS_S3_ACCESS_KEY_ID || process.env.NEXT_PUBLIC_AWS_S3_ACCESS_KEY_ID)!,
+    secretAccessKey: (process.env.AWS_S3_SECRET_ACCESS_KEY || process.env.NEXT_PUBLIC_AWS_S3_SECRET_ACCESS_KEY)!,
   },
 });
 
@@ -14,7 +14,11 @@ export async function POST(req: Request) {
   try {
     const { file_name, file_type } = await req.json();
 
-    const file_key = "uploads/" + Date.now().toString() + file_name.replace(" ", "_");
+    // Sanitize the whole name: replace() with a string only swaps the first
+    // match, leaving later spaces/odd chars in the S3 key. Strip everything
+    // that isn't safe for a key.
+    const safeName = String(file_name).replace(/[^a-zA-Z0-9._-]+/g, "_");
+    const file_key = "uploads/" + Date.now().toString() + "-" + safeName;
 
     const params = {
       Bucket: process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME!,

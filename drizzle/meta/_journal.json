@@ -5,43 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1771704007316,
-      "tag": "0000_amazing_blacklash",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1772561700287,
-      "tag": "0001_keen_paladin",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1772877481636,
-      "tag": "0002_charming_doctor_strange",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1772889970024,
-      "tag": "0003_living_stingray",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1775295194932,
-      "tag": "0004_redundant_metal_master",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1775298117455,
-      "tag": "0005_lovely_meteorite",
+      "when": 1784354351996,
+      "tag": "0000_baseline",
       "breakpoints": true
     }
   ]

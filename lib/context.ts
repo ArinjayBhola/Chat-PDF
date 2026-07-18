@@ -7,7 +7,7 @@ export async function getMatchesFromEmbeddings(embeddings: number[], fileKey: st
   try {
     const namespace = convertToAscii(fileKey);
     const queryResult = await index.namespace(namespace).query({
-      topK: 12,
+      topK: 8,
       vector: embeddings,
       includeMetadata: true,
     });
@@ -29,6 +29,16 @@ export async function getContext(query: string, fileKey: string) {
     pageNumber: number;
   };
 
-  const docs = qualifyingDocs.map((match) => (match.metadata as Metadata).text);
-  return docs.join("\n").substring(0, 12000);
+  // De-duplicate chunks (overlapping splits often return near-identical text)
+  // and cap total length. ~8000 chars keeps enough grounding while cutting the
+  // per-request prompt token cost.
+  const seen = new Set<string>();
+  const docs: string[] = [];
+  for (const match of qualifyingDocs) {
+    const text = (match.metadata as Metadata).text;
+    if (!text || seen.has(text)) continue;
+    seen.add(text);
+    docs.push(text);
+  }
+  return docs.join("\n").substring(0, 8000);
 }

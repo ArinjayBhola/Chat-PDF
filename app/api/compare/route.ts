@@ -90,12 +90,16 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Select 2 to 3 documents" }, { status: 400 });
   }
 
-  // Fetch all chats and verify ownership
+  // Fetch all chats and verify ownership. Query them concurrently instead of
+  // one-at-a-time round trips.
+  const chatResults = await Promise.all(
+    chatIds.map((id: string) => db.select().from(chats).where(eq(chats.id, id))),
+  );
   const chatRecords = [];
-  for (const id of chatIds) {
-    const result = await db.select().from(chats).where(eq(chats.id, id));
+  for (let i = 0; i < chatResults.length; i++) {
+    const result = chatResults[i];
     if (result.length === 0) {
-      return NextResponse.json({ error: `Chat ${id} not found` }, { status: 404 });
+      return NextResponse.json({ error: `Chat ${chatIds[i]} not found` }, { status: 404 });
     }
     if (result[0].userId !== session.user.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
@@ -179,7 +183,10 @@ ${contextBlock}`;
     content: systemPrompt,
   };
 
-  const conversationMessages: UIMessage[] = messages.map((m: any) => {
+  // Cap history so the (large) multi-document context block isn't re-sent
+  // alongside an ever-growing message list every follow-up turn.
+  const MAX_HISTORY_MESSAGES = 10;
+  const conversationMessages: UIMessage[] = messages.slice(-MAX_HISTORY_MESSAGES).map((m: any) => {
     if (m.parts) return m;
     return {
       role: m.role,
@@ -188,9 +195,14 @@ ${contextBlock}`;
     };
   });
 
+  // convertToModelMessages is async here — it must be awaited before spreading,
+  // otherwise a Promise gets spread into the messages array and the stream fails.
+  const coreMessages = await convertToModelMessages(conversationMessages);
+
   const result = streamText({
     model: google("gemini-2.5-flash"),
-    messages: [prompt, ...convertToModelMessages(conversationMessages)],
+    messages: [prompt, ...coreMessages],
+    maxOutputTokens: 2000,
     experimental_transform: smoothStream(),
     async onFinish({ text }) {
       if (comparisonId) {

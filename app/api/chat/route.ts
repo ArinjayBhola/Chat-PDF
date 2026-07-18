@@ -25,7 +25,10 @@ async function isGeminiHealthy(): Promise<boolean> {
     await generateText({
       model: google("gemini-2.5-flash"),
       prompt: "ping",
-      maxTokens: 1,
+      // AI SDK v5+ renamed maxTokens -> maxOutputTokens. The old key was
+      // silently ignored, so the probe was generating a full-length reply and
+      // burning quota. Cap it to 1 token.
+      maxOutputTokens: 1,
       maxRetries: 0,
     } as any);
     geminiHealthyUntil = Date.now() + GEMINI_HEALTH_TTL_MS;
@@ -128,7 +131,15 @@ export async function POST(req: Request) {
     content: promptContent,
   };
 
-  const conversationMessages: UIMessage[] = messages.map((m: any) => {
+  // Only send the tail of the conversation to the model. The client's useChat
+  // posts the entire history every turn, so without a cap the prompt (system
+  // context + every past message) grows unbounded — slower responses and
+  // hitting provider rate limits far sooner. The retrieval CONTEXT BLOCK
+  // carries the document knowledge, so a short recent window is enough.
+  const MAX_HISTORY_MESSAGES = 10;
+  const recentMessages = messages.slice(-MAX_HISTORY_MESSAGES);
+
+  const conversationMessages: UIMessage[] = recentMessages.map((m: any) => {
     if (m.parts) return m;
 
     return {
@@ -156,13 +167,23 @@ export async function POST(req: Request) {
       system: promptContent,
       messages: coreMessages,
       maxRetries: 0,
+      maxOutputTokens: 1500,
       experimental_transform: smoothStream(),
       async onFinish({ text }) {
         await saveMessageToDb(chatId, text, "system");
       },
     });
 
-    return result.toUIMessageStreamResponse();
+    // streamText resolves before the model finishes, so a Gemini failure that
+    // happens mid-stream lands here (in the response stream) rather than in the
+    // catch below. Surface it as readable text instead of a silently broken
+    // stream. (Provider errors before any token still hit the catch/Groq path.)
+    return result.toUIMessageStreamResponse({
+      onError: (error) => {
+        console.warn("!!! GEMINI STREAM ERROR !!!", error instanceof Error ? error.message : error);
+        return "⚠️ The response was interrupted. Please resend your message.";
+      },
+    });
   } catch (e) {
     console.warn("!!! GEMINI FAILURE !!!", e instanceof Error ? e.message : e);
     console.log("[MODEL_STATS] Falling back to Groq Llama 3.3...");
@@ -171,13 +192,19 @@ export async function POST(req: Request) {
         model: groq("llama-3.3-70b-versatile"),
         system: promptContent,
         messages: coreMessages,
+        maxOutputTokens: 1500,
         experimental_transform: smoothStream(),
         async onFinish({ text }) {
           await saveMessageToDb(chatId, text, "system");
         },
       });
       console.log("[MODEL_STATS] Groq stream initialized successfully.");
-      return result.toUIMessageStreamResponse();
+      return result.toUIMessageStreamResponse({
+        onError: (error) => {
+          console.error("[MODEL_STATS] Groq stream error:", error instanceof Error ? error.message : error);
+          return "⚠️ AI service is currently unavailable. Please try again later.";
+        },
+      });
     } catch (groqError) {
       console.error("[MODEL_STATS] FATAL: Groq fallback also failed!", groqError);
       return createUIMessageStreamResponse({
