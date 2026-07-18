@@ -53,6 +53,22 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async signIn({ user, account, profile }) {
       if (account?.provider === "google") {
+        // If this Google sign-in was started from "Connect Google" in settings,
+        // a cookie holds the initiating account's email. Refuse to link a
+        // Google account whose email doesn't match — otherwise the user would
+        // silently end up on a different/new account.
+        try {
+          const { cookies } = await import("next/headers");
+          const cookieStore = await cookies();
+          const pendingLinkEmail = cookieStore.get("pending_google_link")?.value;
+          if (pendingLinkEmail && user.email !== pendingLinkEmail) {
+            console.warn("[GOOGLE_LINK] Email mismatch, refusing link:", pendingLinkEmail, "vs", user.email);
+            return false; // → redirected to pages.error (/settings) with error=AccessDenied
+          }
+        } catch (e) {
+          console.warn("[GOOGLE_LINK] Could not read link cookie:", e instanceof Error ? e.message : e);
+        }
+
         // Check if user exists
         const existingUser = await db.select().from(users).where(eq(users.email, user.email!)).limit(1);
 
@@ -129,7 +145,10 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/sign-in",
     signOut: "/",
-    error: "/sign-in",
+    // Sign-in errors (including a refused Google link from settings) land here.
+    // The signed-in user keeps their session, so /settings renders the error;
+    // unauthenticated errors fall through to /sign-in via the page guard.
+    error: "/settings",
   },
   session: {
     strategy: "jwt",

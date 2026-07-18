@@ -1,8 +1,8 @@
 // UI REDESIGN
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { usePreferences } from "./providers/PreferencesContext";
@@ -11,8 +11,8 @@ import UpgradeButton from "./UpgradeButton";
 import { Button } from "./ui/button";
 import { FiLoader } from "react-icons/fi";
 import { cn } from "@/lib/utils";
-import { signOut } from "next-auth/react";
-import { FaEye, FaEyeSlash, FaGoogle } from "react-icons/fa";
+import { signIn, signOut } from "next-auth/react";
+import { FaCheckCircle, FaEye, FaEyeSlash, FaGoogle } from "react-icons/fa";
 import {
   Dialog,
   DialogContent,
@@ -29,10 +29,12 @@ type Props = {
   expiryDate: Date | null;
   chatCount: number;
   hasPassword: boolean;
+  hasGoogle: boolean;
 };
 
-export default function SettingsClient({ email, isPro, expiryDate, chatCount, hasPassword }: Props) {
+export default function SettingsClient({ email, isPro, expiryDate, chatCount, hasPassword, hasGoogle }: Props) {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const formatDateWithOrdinal = (dateString: string | Date) => {
     const d = new Date(dateString);
@@ -59,6 +61,84 @@ export default function SettingsClient({ email, isPro, expiryDate, chatCount, ha
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
+
+  // Set-password (for Google users without a password yet)
+  const [setPw, setSetPw] = useState("");
+  const [setPwConfirm, setSetPwConfirm] = useState("");
+  const [showSetPw, setShowSetPw] = useState(false);
+  const [showSetPwConfirm, setShowSetPwConfirm] = useState(false);
+  const [isSettingPw, setIsSettingPw] = useState(false);
+  const [isConnectingGoogle, setIsConnectingGoogle] = useState(false);
+  const [isDisconnectingGoogle, setIsDisconnectingGoogle] = useState(false);
+
+  // Surface the result of the "Connect Google" redirect flow.
+  useEffect(() => {
+    const glink = searchParams.get("glink");
+    const error = searchParams.get("error");
+    if (glink === "success") {
+      toast.success("Google account connected.");
+      router.replace("/settings");
+    } else if (error) {
+      toast.error(
+        "Couldn't connect Google: the Google account's email must match your account email.",
+      );
+      router.replace("/settings");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
+  const handleSetPassword = async () => {
+    if (setPw.length < 8) {
+      toast.error("Password must be at least 8 characters");
+      return;
+    }
+    if (setPw !== setPwConfirm) {
+      toast.error("Passwords do not match");
+      return;
+    }
+    try {
+      setIsSettingPw(true);
+      await axios.post("/api/auth/set-password", { newPassword: setPw });
+      toast.success("Password set. You can now sign in with email and password.");
+      setSetPw("");
+      setSetPwConfirm("");
+      router.refresh();
+    } catch (error: any) {
+      toast.error(error.response?.data?.error || "Failed to set password");
+    } finally {
+      setIsSettingPw(false);
+    }
+  };
+
+  const handleConnectGoogle = async () => {
+    try {
+      setIsConnectingGoogle(true);
+      // Records the current account's email in an httpOnly cookie so the
+      // NextAuth callback can reject a Google account with a different email.
+      await axios.post("/api/auth/link-google/start");
+      await signIn("google", { callbackUrl: "/settings?glink=success" });
+    } catch (error: any) {
+      toast.error("Failed to start Google connection");
+      setIsConnectingGoogle(false);
+    }
+  };
+
+  const handleDisconnectGoogle = async () => {
+    if (!hasPassword) {
+      toast.error("Set a password first — it's your only other way to sign in.");
+      return;
+    }
+    try {
+      setIsDisconnectingGoogle(true);
+      await axios.delete("/api/auth/link-google");
+      toast.success("Google account disconnected.");
+      router.refresh();
+    } catch (error: any) {
+      toast.error(error.response?.data?.error || "Failed to disconnect Google");
+    } finally {
+      setIsDisconnectingGoogle(false);
+    }
+  };
 
   const calculateProRataRefund = () => {
     if (!expiryDate) return { amount: 0, daysLeft: 0, percentage: 0 };
@@ -271,15 +351,103 @@ export default function SettingsClient({ email, isPro, expiryDate, chatCount, ha
             </div>
             ) : (
             <div>
-              <h2 className="text-xl font-bold mb-4">Change Password</h2>
-              <div className="rounded-xl border border-border bg-muted/40 p-4 flex items-start gap-3 max-w-xl">
-                <FaGoogle className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  You signed in with <span className="font-semibold text-foreground">Google</span>, so your password is managed by Google. There&apos;s no password to change here.
-                </p>
+              <h2 className="text-xl font-bold mb-4">Set a Password</h2>
+              <p className="text-muted-foreground text-sm mb-6">
+                You signed in with <span className="font-semibold text-foreground">Google</span>. Set a password to also sign in with your email <span className="font-medium text-foreground">{email}</span>.
+              </p>
+              <div className="space-y-4 max-w-sm bg-muted/30 p-4 rounded-lg border border-border">
+                <div className="relative">
+                  <label className="text-sm font-medium mb-1 block">New Password</label>
+                  <input
+                    type={showSetPw ? "text" : "password"}
+                    value={setPw}
+                    onChange={(e) => setSetPw(e.target.value)}
+                    className="w-full h-11 pr-10 rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary/30 outline-none px-3 transition-all"
+                    placeholder="At least 8 characters"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowSetPw(!showSetPw)}
+                    className="absolute bottom-3 right-3 text-muted-foreground hover:text-foreground"
+                  >
+                    {showSetPw ? <FaEyeSlash /> : <FaEye />}
+                  </button>
+                </div>
+                <div className="relative">
+                  <label className="text-sm font-medium mb-1 block">Confirm New Password</label>
+                  <input
+                    type={showSetPwConfirm ? "text" : "password"}
+                    value={setPwConfirm}
+                    onChange={(e) => setSetPwConfirm(e.target.value)}
+                    className="w-full h-11 pr-10 rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary/30 outline-none px-3 transition-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowSetPwConfirm(!showSetPwConfirm)}
+                    className="absolute bottom-3 right-3 text-muted-foreground hover:text-foreground"
+                  >
+                    {showSetPwConfirm ? <FaEyeSlash /> : <FaEye />}
+                  </button>
+                </div>
+                <Button
+                  onClick={handleSetPassword}
+                  disabled={isSettingPw || setPw.length < 8 || setPw !== setPwConfirm}
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground mt-2"
+                >
+                  {isSettingPw && <FiLoader className="w-4 h-4 mr-2 animate-spin" />}
+                  Set Password
+                </Button>
               </div>
             </div>
             )}
+
+            {/* Login Methods */}
+            <div className="pt-8 border-t border-border">
+              <h2 className="text-xl font-bold mb-4">Login Methods</h2>
+              <p className="text-muted-foreground text-sm mb-6">
+                Manage how you sign in to your account.
+              </p>
+              <div className="rounded-xl border border-border bg-muted/30 p-4 flex items-center justify-between gap-4 max-w-xl">
+                <div className="flex items-center gap-3 min-w-0">
+                  <FaGoogle className="w-5 h-5 text-foreground shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-foreground">Google</p>
+                    <p className="text-xs text-muted-foreground">
+                      {hasGoogle
+                        ? "Connected — you can sign in with Google."
+                        : "Not connected (Google is the easiest way to log in)."}
+                    </p>
+                  </div>
+                </div>
+                {hasGoogle ? (
+                  <div className="flex items-center gap-3 shrink-0">
+                    <span className="flex items-center gap-1.5 text-sm font-semibold text-green-600 dark:text-green-400">
+                      <FaCheckCircle className="w-4 h-4" />
+                      Connected
+                    </span>
+                    <Button
+                      variant="outline"
+                      onClick={handleDisconnectGoogle}
+                      disabled={isDisconnectingGoogle}
+                      className="border-destructive/30 text-destructive hover:bg-destructive/10 hover:border-destructive"
+                    >
+                      {isDisconnectingGoogle && <FiLoader className="w-4 h-4 mr-2 animate-spin" />}
+                      Disconnect
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    variant="outline"
+                    onClick={handleConnectGoogle}
+                    disabled={isConnectingGoogle}
+                    className="shrink-0"
+                  >
+                    {isConnectingGoogle && <FiLoader className="w-4 h-4 mr-2 animate-spin" />}
+                    Connect Google
+                  </Button>
+                )}
+              </div>
+            </div>
 
             <div className="pt-8 border-t border-border">
               <h2 className="text-xl font-bold text-destructive mb-4">Danger Zone</h2>

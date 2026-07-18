@@ -3,8 +3,8 @@ import { authOptions } from "@/lib/auth-options";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { chats, userSubscriptions } from "@/lib/db/schema";
-import { users } from "@/lib/db/auth-schema";
-import { eq } from "drizzle-orm";
+import { users, accounts } from "@/lib/db/auth-schema";
+import { and, eq } from "drizzle-orm";
 import SettingsClient from "@/components/SettingsClient";
 import { checkSubscription } from "@/lib/subscription";
 
@@ -35,6 +35,14 @@ export default async function SettingsPage() {
     .limit(1);
   const hasPassword = !!userRow[0]?.password;
 
+  // Is a Google account already linked?
+  const googleAccount = await db
+    .select({ userId: accounts.userId })
+    .from(accounts)
+    .where(and(eq(accounts.userId, session.user.id), eq(accounts.provider, "google")))
+    .limit(1);
+  const hasGoogle = googleAccount.length > 0;
+
   // Fetch chats
   const userChats = await db.select({ id: chats.id }).from(chats).where(eq(chats.userId, session.user.id));
   const isAuth = !!session?.user;
@@ -50,6 +58,7 @@ export default async function SettingsPage() {
           expiryDate={expiryDate}
           chatCount={userChats.length}
           hasPassword={hasPassword}
+          hasGoogle={hasGoogle}
         />
       </div>
     </div>

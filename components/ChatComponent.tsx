@@ -139,11 +139,15 @@ export default function ChatComponent({
       const customEvent = e as CustomEvent;
       if (customEvent.detail.chatId === chatId) {
         setMessages([]);
+        // Also empty the cached query, otherwise the "Sync DB messages" effect
+        // repopulates from the stale 5-min cache and the cleared messages come
+        // back when the user revisits the chat.
+        queryClient.setQueryData(["chat-messages", chatId], { messages: [] });
       }
     };
     window.addEventListener("clear-chat", handleClearChat);
     return () => window.removeEventListener("clear-chat", handleClearChat);
-  }, [chatId, setMessages]);
+  }, [chatId, setMessages, queryClient]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
