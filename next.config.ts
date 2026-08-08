@@ -4,9 +4,6 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   serverExternalPackages: [
     "@huggingface/transformers",
     "onnxruntime-node",
@@ -22,6 +19,7 @@ const nextConfig: NextConfig = {
     }
     return config;
   },
+  turbopack: {},
 };
 
 export default nextConfig;
