@@ -9,6 +9,9 @@ import SettingsClient from "@/components/SettingsClient";
 import { checkSubscription } from "@/lib/subscription";
 
 import Navbar from "@/components/Navbar";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { LuLibrary } from "react-icons/lu";
 
 export default async function SettingsPage() {
   const session = await getServerSession(authOptions);
@@ -52,6 +55,14 @@ export default async function SettingsPage() {
       <Navbar isAuth={isAuth} user={session?.user} hideSettingsButton={true} />
 
       <div className="max-w-6xl mx-auto py-10 px-6 lg:px-8">
+        <div className="mb-6 flex justify-end">
+          <Link href="/library">
+            <Button variant="outline" className="gap-2">
+              <LuLibrary className="h-4 w-4" />
+              Open Library
+            </Button>
+          </Link>
+        </div>
         <SettingsClient
           email={session.user.email}
           isPro={isPro}

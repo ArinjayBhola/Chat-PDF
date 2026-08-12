@@ -13,6 +13,8 @@ import { eq, inArray } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
+import { cleanupChatAssets } from "@/lib/chat-cleanup";
+import { otps } from "@/lib/db/auth-schema";
 
 export async function DELETE() {
   try {
@@ -31,8 +33,11 @@ export async function DELETE() {
     const userId = dbUser[0].id;
 
     // 1. Get user's chats to delete associated messages
-    const userChats = await db.select({ id: chats.id }).from(chats).where(eq(chats.userId, userId));
+    const userChats = await db.select().from(chats).where(eq(chats.userId, userId));
     const chatIds = userChats.map(c => c.id);
+
+    // Remove every external document asset before removing its database owner.
+    await Promise.all(userChats.map((chat) => cleanupChatAssets(chat.fileKey)));
 
     if (chatIds.length > 0) {
       await db.delete(messages).where(inArray(messages.chatsId, chatIds));
@@ -54,6 +59,7 @@ export async function DELETE() {
     // 4. Delete chats and then folders
     await db.delete(chats).where(eq(chats.userId, userId));
     await db.delete(folders).where(eq(folders.userId, userId));
+    await db.delete(otps).where(eq(otps.email, dbUser[0].email));
 
     // Finally delete the user itself
     await db.delete(users).where(eq(users.id, userId));

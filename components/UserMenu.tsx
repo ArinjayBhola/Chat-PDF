@@ -7,6 +7,8 @@ import { useState, useRef, useEffect } from "react";
 import { MdLogout } from "react-icons/md";
 import ThemeToggle from "./ThemeToggle";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
+import { LuLibrary } from "react-icons/lu";
 
 interface UserMenuProps {
   user: {
@@ -89,6 +91,12 @@ export default function UserMenu({ user }: UserMenuProps) {
             </div>
 
             <div className="border-t border-border my-1" />
+
+            <div className="px-1.5 py-0.5">
+              <Link href="/library" onClick={() => setIsOpen(false)} className="w-full px-2.5 py-2 text-left text-sm text-foreground hover:bg-muted rounded-md transition-colors flex items-center gap-2.5 font-medium">
+                <LuLibrary className="w-4 h-4 text-muted-foreground" /> Library
+              </Link>
+            </div>
 
             <div className="px-1.5 py-0.5">
               <button

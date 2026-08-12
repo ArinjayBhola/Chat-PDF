@@ -1,11 +1,12 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { chats, messages, userSubscriptions, users } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { chats, messages, userSubscriptions, users, notes, comparisons, comparisonMessages, folders } from "@/lib/db/schema";
+import { otps } from "@/lib/db/auth-schema";
+import { eq, inArray } from "drizzle-orm";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
-import { deleteFromS3 } from "@/lib/s3-server";
+import { cleanupChatAssets } from "@/lib/chat-cleanup";
 
 export async function deleteAccount() {
   try {
@@ -28,14 +29,26 @@ export async function deleteAccount() {
     // 1. Get all chats to clean up S3 files
     const userChats = await db.select().from(chats).where(eq(chats.userId, userId));
 
-    // 2. Delete S3 files and related messages
+    const chatIds = userChats.map((chat) => chat.id);
+    const userComparisons = await db.select({ id: comparisons.id }).from(comparisons).where(eq(comparisons.userId, userId));
+    const comparisonIds = userComparisons.map((comparison) => comparison.id);
+
+    // 2. Delete external assets and chat-related rows
     for (const chat of userChats) {
       if (chat.fileKey) {
-        await deleteFromS3(chat.fileKey);
+        await cleanupChatAssets(chat.fileKey);
       }
-      // Delete messages for this chat
-      await db.delete(messages).where(eq(messages.chatsId, chat.id));
     }
+    if (chatIds.length) {
+      await db.delete(messages).where(inArray(messages.chatsId, chatIds));
+      await db.delete(notes).where(inArray(notes.chatId, chatIds));
+    }
+    if (comparisonIds.length) {
+      await db.delete(comparisonMessages).where(inArray(comparisonMessages.comparisonId, comparisonIds));
+    }
+    await db.delete(comparisons).where(eq(comparisons.userId, userId));
+    await db.delete(folders).where(eq(folders.userId, userId));
+    await db.delete(otps).where(eq(otps.email, user.email));
 
     // 3. Delete chats
     await db.delete(chats).where(eq(chats.userId, userId));

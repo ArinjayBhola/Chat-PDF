@@ -61,10 +61,29 @@ export const authOptions: NextAuthOptions = {
           const { cookies } = await import("next/headers");
           const cookieStore = await cookies();
           const pendingLinkEmail = cookieStore.get("pending_google_link")?.value;
+          const isExplicitLink = Boolean(pendingLinkEmail);
           if (pendingLinkEmail && user.email !== pendingLinkEmail) {
             console.warn("[GOOGLE_LINK] Email mismatch, refusing link:", pendingLinkEmail, "vs", user.email);
             return false; // → redirected to pages.error (/settings) with error=AccessDenied
           }
+
+          // A credentials account must not be silently linked merely because
+          // the user chose Google on the normal sign-in screen. Linking is
+          // allowed only after Settings explicitly created this cookie.
+          const existingUser = await db.select().from(users).where(eq(users.email, user.email!)).limit(1);
+          if (existingUser.length > 0) {
+            const existingGoogleAccount = await db
+              .select()
+              .from(accounts)
+              .where(eq(accounts.userId, existingUser[0].id))
+              .limit(10);
+            const hasGoogleAccount = existingGoogleAccount.some((row) => row.provider === "google");
+            if (existingUser[0].password && !hasGoogleAccount && !isExplicitLink) {
+              console.warn("[GOOGLE_LINK] Refusing implicit link for credentials account:", user.email);
+              return false;
+            }
+          }
+          cookieStore.delete("pending_google_link");
         } catch (e) {
           console.warn("[GOOGLE_LINK] Could not read link cookie:", e instanceof Error ? e.message : e);
         }
@@ -110,7 +129,7 @@ export const authOptions: NextAuthOptions = {
             .where(eq(accounts.userId, existingUser[0].id))
             .limit(1);
 
-          if (existingAccount.length === 0) {
+          if (!existingAccount.some((row) => row.provider === "google")) {
             // Create account link for existing user
             await db.insert(accounts).values({
               userId: existingUser[0].id,

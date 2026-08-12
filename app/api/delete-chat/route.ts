@@ -2,21 +2,16 @@ import { db } from "@/lib/db";
 import { chats, messages, notes } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
-import { Pinecone } from "@pinecone-database/pinecone";
-import { convertToAscii } from "@/lib/utils";
-import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
-
-const s3Client = new S3Client({
-  region: process.env.NEXT_PUBLIC_AWS_REGION,
-  credentials: {
-    accessKeyId: (process.env.AWS_S3_ACCESS_KEY_ID || process.env.NEXT_PUBLIC_AWS_S3_ACCESS_KEY_ID)!,
-    secretAccessKey: (process.env.AWS_S3_SECRET_ACCESS_KEY || process.env.NEXT_PUBLIC_AWS_S3_SECRET_ACCESS_KEY)!,
-  },
-});
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth-options";
+import { cleanupChatAssets } from "@/lib/chat-cleanup";
 
 export async function DELETE(req: Request) {
   try {
     const { chatId } = await req.json();
+
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     if (!chatId) {
       return NextResponse.json({ error: "Chat ID is required" }, { status: 400 });
@@ -28,40 +23,16 @@ export async function DELETE(req: Request) {
     if (chat.length === 0) {
         return NextResponse.json({ error: "Chat not found" }, { status: 404 });
     }
+
+    if (chat[0].userId !== session.user.id) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
     
     const fileKey = chat[0].fileKey;
 
     // Parallelize deletions from Pinecone, S3, and database (notes and messages)
     await Promise.all([
-      // 2. Delete vectors from Pinecone
-      (async () => {
-        try {
-          const pc = new Pinecone({
-            apiKey: process.env.PINECONE_API_KEY!,
-          });
-          const index = pc.index(process.env.PINECONE_INDEX_NAME!);
-          const namespace = convertToAscii(fileKey);
-          await index.namespace(namespace).deleteAll();
-        } catch (pineconeError) {
-          console.error("Error deleting from Pinecone:", pineconeError);
-        }
-      })(),
-
-      // 3. Delete file from S3
-      (async () => {
-        try {
-          const params = {
-            Bucket: process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME!,
-            Key: fileKey,
-          };
-          
-          const command = new DeleteObjectCommand(params);
-          await s3Client.send(command);
-        } catch (s3Error) {
-          console.error("Error deleting from S3:", s3Error);
-        }
-      })(),
-
+      cleanupChatAssets(fileKey),
       // 4. Delete notes (references chats.id via foreign key)
       db.delete(notes).where(eq(notes.chatId, chatId)),
 
@@ -81,4 +52,3 @@ export async function DELETE(req: Request) {
     );
   }
 }
-
