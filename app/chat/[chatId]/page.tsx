@@ -25,7 +25,7 @@ const page = async ({ params, searchParams }: {
   ]);
 
   if (_chats.length === 0) {
-    return redirect("/");
+    return redirect("/chat");
   }
 
   const currentChat = _chats[0];

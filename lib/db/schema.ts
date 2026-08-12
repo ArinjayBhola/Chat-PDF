@@ -31,6 +31,7 @@ export const chats = pgTable("chats", {
   allowPublicView: text("allow_public_view").notNull().default("false"),
   folderId: uuid("folder_id").references(() => folders.id, { onDelete: "set null" }),
   isPinned: text("is_pinned").notNull().default("false"),
+  fileDeleted: text("file_deleted").notNull().default("false"),
 }, (table) => ({
   userIdIdx: index("chats_user_id_idx").on(table.userId),
   createdAtIdx: index("chats_created_at_idx").on(table.createdAt),

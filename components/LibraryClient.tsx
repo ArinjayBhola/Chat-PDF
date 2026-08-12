@@ -8,6 +8,7 @@ import { LuFileText, LuTrash2, LuArrowLeft } from "react-icons/lu";
 import { MdDelete } from "react-icons/md";
 import { ImSpinner2 } from "react-icons/im";
 import { Button } from "@/components/ui/button";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Dialog,
   DialogContent,
@@ -21,6 +22,7 @@ type FileItem = { id: string; fileName: string; createdAt: string; pdfStatus: st
 
 export default function LibraryClient() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [files, setFiles] = useState<FileItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
@@ -44,8 +46,9 @@ export default function LibraryClient() {
       await axios.delete("/api/library", { data: { chatId: id } });
       setFiles((current) => current.filter((file) => file.id !== id));
       setDeleteTarget(null);
-      toast.success("File and chat deleted");
-      router.refresh();
+      toast.success("File deleted");
+      await queryClient.invalidateQueries({ queryKey: ["chats-list"] });
+      router.push("/chat");
     } catch {
       toast.error("Failed to delete file");
     } finally {
@@ -65,7 +68,7 @@ export default function LibraryClient() {
         </DialogHeader>
         <div className="flex items-start gap-3 rounded-xl border border-destructive/20 bg-destructive/5 p-4">
           <div className="shrink-0 rounded-lg bg-destructive/10 p-2"><MdDelete className="h-5 w-5 text-destructive" /></div>
-          <div className="min-w-0"><h3 className="break-words text-sm font-bold">Delete &quot;{deleteTarget?.fileName}&quot;</h3><p className="mt-1 text-xs leading-relaxed text-muted-foreground">This will permanently delete the file, its chat, messages, notes, and associated search data.</p></div>
+          <div className="min-w-0"><h3 className="break-words text-sm font-bold">Delete &quot;{deleteTarget?.fileName}&quot;</h3><p className="mt-1 text-xs leading-relaxed text-muted-foreground">This permanently removes the uploaded file from your Library. Your chat, messages, notes, and search data will remain available.</p></div>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => setDeleteTarget(null)} disabled={!!deleting}>Cancel</Button>

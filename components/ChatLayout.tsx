@@ -34,6 +34,7 @@ export default function ChatLayout({ chat, isOwner, session, isSharedView = fals
   const [isClearingChat, setIsClearingChat] = useState(false);
   const [notesRefreshKey, setNotesRefreshKey] = useState(0);
   const [activeMobileTab, setActiveMobileTab] = useState<"file" | "chat">("chat");
+  const fileDeleted = chat.fileDeleted === "true";
 
   const shareData = {
     isShared: chat.isShared === "true",
@@ -176,12 +177,18 @@ export default function ChatLayout({ chat, isOwner, session, isSharedView = fals
           <div className="flex-1 relative overflow-hidden">
             <div className={cn("absolute inset-0 transition-all duration-300", activeMobileTab === "file" ? "opacity-100 translate-x-0 z-10" : "opacity-0 -translate-x-full -z-10 pointer-events-none")}>
               <div className="w-full h-full p-2 bg-background document-viewer-container">
-                <FileViewer
-                  file_url={chat.fileUrl || ""}
-                  file_name={chat.fileName}
-                  file_key={chat.fileKey}
-                  refreshKey={currentRefreshKey}
-                />
+                {fileDeleted ? (
+                  <div className="flex h-full items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 p-6 text-center text-sm text-muted-foreground">
+                    This file was deleted from your Library. Your chat history is still available.
+                  </div>
+                ) : (
+                  <FileViewer
+                    file_url={chat.fileUrl || ""}
+                    file_name={chat.fileName}
+                    file_key={chat.fileKey}
+                    refreshKey={currentRefreshKey}
+                  />
+                )}
               </div>
             </div>
             <div className={cn("absolute inset-0 transition-all duration-300", activeMobileTab === "chat" ? "opacity-100 translate-x-0 z-10" : "opacity-0 translate-x-full -z-10 pointer-events-none")}>
@@ -226,12 +233,18 @@ export default function ChatLayout({ chat, isOwner, session, isSharedView = fals
                   hideLeft={hideDocument}
                   leftPanel={
                     <div className="w-full h-full overflow-hidden border-r border-border bg-muted/30 document-viewer-container">
-                      <FileViewer
-                        file_url={chat.fileUrl || ""}
-                        file_name={chat.fileName}
-                        file_key={chat.fileKey}
-                        refreshKey={currentRefreshKey}
-                      />
+                      {fileDeleted ? (
+                        <div className="flex h-full items-center justify-center p-8 text-center text-sm text-muted-foreground">
+                          This file was deleted from your Library.<br />Your chat history is still available.
+                        </div>
+                      ) : (
+                        <FileViewer
+                          file_url={chat.fileUrl || ""}
+                          file_name={chat.fileName}
+                          file_key={chat.fileKey}
+                          refreshKey={currentRefreshKey}
+                        />
+                      )}
                     </div>
                   }
                   rightPanel={
