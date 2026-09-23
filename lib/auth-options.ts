@@ -79,8 +79,9 @@ export const authOptions: NextAuthOptions = {
               .limit(10);
             const hasGoogleAccount = existingGoogleAccount.some((row) => row.provider === "google");
             if (existingUser[0].password && !hasGoogleAccount && !isExplicitLink) {
-              console.warn("[GOOGLE_LINK] Refusing implicit link for credentials account:", user.email);
-              return false;
+              // Allow implicit linking instead of refusing it
+              // console.warn("[GOOGLE_LINK] Refusing implicit link for credentials account:", user.email);
+              // return false;
             }
           }
           cookieStore.delete("pending_google_link");

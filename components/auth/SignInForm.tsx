@@ -126,6 +126,7 @@ export default function SignInForm() {
             required
             className="h-11 pr-10"
             placeholder="name@example.com"
+            suppressHydrationWarning
           />
         </div>
 
