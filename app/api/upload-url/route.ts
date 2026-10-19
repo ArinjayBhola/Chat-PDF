@@ -1,3 +1,5 @@
+import { db } from "@/lib/db";
+import { userUploads } from "@/lib/db/schema";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { NextResponse } from "next/server";
@@ -33,6 +35,7 @@ export async function POST(req: Request) {
     const command = new PutObjectCommand(params);
     const uploadUrl = await getSignedUrl(s3Client, command, { expiresIn: 60 });
 
+    await db.insert(userUploads).values({ fileKey: file_key, userId: session.user.id });
     return NextResponse.json({
       uploadUrl,
       file_key,

@@ -12,3 +12,9 @@ test("IST migration produces exactly the create and backfill statements", () => 
  assert.match(statements[0],/^CREATE TABLE IF NOT EXISTS daily_activity_ist/);
  assert.match(statements[1],/^INSERT INTO daily_activity_ist/);
 });
+
+test("marked migrations preserve procedural SQL bodies", () => {
+ const statements=migrationStatements(readFileSync(new URL("../drizzle/0005_account_deletion.sql",import.meta.url),"utf8"));
+ assert.equal(statements.filter(s=>s.startsWith("CREATE OR REPLACE FUNCTION")).length,1);
+ assert.match(statements.find(s=>s.startsWith("CREATE OR REPLACE FUNCTION"))!,/END \$\$;/);
+});

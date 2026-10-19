@@ -1,3 +1,5 @@
+import { startProcessing } from "./processing-lease";
+import { unlink } from "node:fs/promises";
 import { PineconeRecord, RecordMetadata } from "@pinecone-database/pinecone";
 import { downloadFromS3 } from "./s3-server";
 import { RecursiveCharacterTextSplitter, Document } from "@pinecone-database/doc-splitter";
@@ -9,12 +11,16 @@ import { getPineconeIndex } from "./pinecone-client";
 import pLimit from "p-limit";
 
 export async function loadS3IntoPinecode(file_key: string) {
+  const lease=await startProcessing(file_key);
+  let temporaryFile: string | null = null;
+  try {
   // 1. Download file from S3
   const file_name = await downloadFromS3(file_key);
   if (!file_name) {
     throw new Error("Failed to download file from S3");
   }
 
+  temporaryFile=file_name;
   // 2. Extract text using unified extractor (handles PDF, DOCX, XLSX, images, etc.)
   const pages = await extractText(file_name);
 
@@ -68,6 +74,7 @@ export async function loadS3IntoPinecode(file_key: string) {
     }
 
     try {
+      await lease.renew();
       await index.upsert(batch);
       console.log(`Uploaded batch ${batchNumber} (${batch.length} vectors, ~${(batchSize / 1024).toFixed(2)}KB)`);
       i += batch.length;
@@ -87,6 +94,9 @@ export async function loadS3IntoPinecode(file_key: string) {
       }
       throw error;
     }
+  }
+  } finally {
+    try { if (temporaryFile) await unlink(temporaryFile); } finally { await lease.release(); }
   }
 }
 

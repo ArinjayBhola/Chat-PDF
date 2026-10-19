@@ -1,3 +1,4 @@
+import { accountStream } from "@/lib/account-stream";
 import { recordModelUsage, recordProviderError } from "@/lib/analytics";
 import { getContext } from "@/lib/context";
 import { db } from "@/lib/db";
@@ -154,6 +155,7 @@ export async function POST(req: Request) {
   // Pre-convert messages once
   const coreMessages = await convertToModelMessages(conversationMessages);
 
+  const live=accountStream(session!.user.id,req.signal);
   // Manual fallback for streaming
   try {
     // UNCOMMENT THE LINE BELOW TO TEST GROQ FALLBACK
@@ -165,14 +167,17 @@ export async function POST(req: Request) {
     }
 
     const result = streamText({
+      abortSignal: live.signal,
+      onAbort: () => { live.dispose(); },
       model: google("gemini-2.5-flash"),
-      onError: async ({ error }) => { await recordProviderError("google", "gemini-2.5-flash", "chat", error); },
+      onError: async ({ error }) => { live.dispose(); await recordProviderError("google", "gemini-2.5-flash", "chat", error); },
       system: promptContent,
       messages: coreMessages,
       maxRetries: 0,
       maxOutputTokens: 1500,
       experimental_transform: smoothStream(),
       async onFinish({ text }) {
+        live.dispose();
         await saveMessageToDb(chatId, text, "system");
           await recordModelUsage(session!.user.id, "gemini-2.5-flash", "chat");
       },
@@ -189,17 +194,21 @@ export async function POST(req: Request) {
       },
     });
   } catch (e) {
+    if (live.signal.aborted) {live.dispose();return new NextResponse(null,{status:401});}
     console.warn("!!! GEMINI FAILURE !!!", e instanceof Error ? e.message : e);
     console.log("[MODEL_STATS] Falling back to Groq Llama 3.3...");
     try {
       const result = streamText({
+      abortSignal: live.signal,
+      onAbort: () => { live.dispose(); },
         model: groq("llama-3.3-70b-versatile"),
-      onError: async ({ error }) => { await recordProviderError("groq", "llama-3.3-70b-versatile", "chat", error); },
+      onError: async ({ error }) => { live.dispose(); await recordProviderError("groq", "llama-3.3-70b-versatile", "chat", error); },
         system: promptContent,
         messages: coreMessages,
         maxOutputTokens: 1500,
         experimental_transform: smoothStream(),
         async onFinish({ text }) {
+        live.dispose();
           await saveMessageToDb(chatId, text, "system");
             await recordModelUsage(session!.user.id, "llama-3.3-70b-versatile", "chat");
         },
@@ -212,6 +221,7 @@ export async function POST(req: Request) {
         },
       });
     } catch (groqError) {
+      live.dispose();
       console.error("[MODEL_STATS] FATAL: Groq fallback also failed!", groqError);
       return createUIMessageStreamResponse({
         id: crypto.randomUUID(),

@@ -10,7 +10,7 @@ export const userSystemEnum = pgEnum("user_system_enum", ["system", "user"]);
 export const folders = pgTable("folders", {
   id: uuid("id").primaryKey(),
   name: text("name").notNull(),
-  userId: text("user_id").notNull(),
+  userId: text("user_id").notNull().references(() => analyticsUsers.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (table) => ({
   userIdIdx: index("folders_user_id_idx").on(table.userId),
@@ -24,7 +24,7 @@ export const chats = pgTable("chats", {
   fileName: text("pdf_name").notNull(),
   fileUrl: text("pdf_url").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-  userId: text("user_id").notNull(),
+  userId: text("user_id").notNull().references(() => analyticsUsers.id, { onDelete: "cascade" }),
   fileKey: text("file_key").notNull(),
   fileSizeBytes: bigint("file_size_bytes", { mode: "number" }),
   pdfStatus: text("pdf_status").notNull().default("SUCCESS"), // 'PROCESSING' | 'SUCCESS' | 'FAILED'
@@ -63,7 +63,7 @@ export const notes = pgTable("notes", {
   chatId: uuid("chat_id")
     .references(() => chats.id)
     .notNull(),
-  userId: text("user_id").notNull(),
+  userId: text("user_id").notNull().references(() => analyticsUsers.id, { onDelete: "cascade" }),
   content: text("content").notNull(),
   source: text("source").notNull().default("manual"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -77,7 +77,7 @@ export type DrizzleNote = typeof notes.$inferSelect;
 
 export const comparisons = pgTable("comparisons", {
   id: uuid("id").primaryKey(),
-  userId: text("user_id").notNull(),
+  userId: text("user_id").notNull().references(() => analyticsUsers.id, { onDelete: "cascade" }),
   chatIdsKey: text("chat_ids_key").notNull(), // sorted comma-separated chat IDs
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (table) => ({
@@ -110,7 +110,7 @@ export const processedWebhookEvents = pgTable("processed_webhook_events", {
 
 export const userSubscriptions = pgTable("user_subscriptions", {
   id: uuid("id").primaryKey(),
-  userId: text("user_id").notNull().unique(),
+  userId: text("user_id").notNull().unique().references(() => analyticsUsers.id, { onDelete: "cascade" }),
   dodoPaymentId: text("dodo_payment_id"),
   dodoSubscriptionId: text("dodo_subscription_id"),
   dodoCustomerId: text("dodo_customer_id"),
@@ -152,3 +152,14 @@ export const dailyActivityIst = pgTable("daily_activity_ist", {
  userId: text("user_id").notNull().references(() => analyticsUsers.id, { onDelete: "cascade" }),
  day: date("day").notNull().default(sql`(now() AT TIME ZONE 'Asia/Kolkata')::date`),
 }, t => ({ pk: primaryKey({ columns: [t.userId,t.day] }) }));
+
+export const userUploads = pgTable("user_uploads", {
+ fileKey: text("file_key").primaryKey(), userId: text("user_id").notNull().references(() => analyticsUsers.id, { onDelete: "cascade" }),
+ createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+export const deletionAssets = pgTable("deletion_assets", {
+ userId: text("user_id").notNull().references(() => analyticsUsers.id, { onDelete: "cascade" }), fileKey: text("file_key").notNull(), cleanedAt: timestamp("cleaned_at"),
+}, t => ({ pk: primaryKey({ columns: [t.userId,t.fileKey] }) }));
+export const processingLeases = pgTable("processing_leases", {
+ id: uuid("id").primaryKey(), userId: text("user_id").notNull().references(() => analyticsUsers.id, { onDelete: "cascade" }), expiresAt: timestamp("expires_at").notNull(),
+});

@@ -1,7 +1,8 @@
+import DeleteUserButton from "@/components/admin/DeleteUserButton";
 import { bytes, time, adminDate } from "@/lib/admin-format";
 
 type UserRow = {
- id: string; name: string; email: string; joined: string | null; lastLogin: string | null;
+ deleting: boolean; id: string; name: string; email: string; joined: string | null; lastLogin: string | null;
  documents: number; chats: number; prompts: number; storage: number; active: number; model: string | null;
 };
 function AccountDate({ value }: { value: string | null }) {
@@ -11,7 +12,7 @@ function AccountDate({ value }: { value: string | null }) {
  return <div className="whitespace-nowrap tabular-nums"><p className="text-sm font-medium">{day}</p><p className="mt-1 text-xs text-muted-foreground">{clock} IST</p></div>;
 }
 function Identity({ user }: { user: UserRow }) {
- return <div className="flex min-w-0 items-center gap-3"><span aria-hidden="true" className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">{user.name.trim().charAt(0).toUpperCase() || "U"}</span><div className="min-w-0"><p className="font-medium leading-5">{user.name}</p><p className="mt-1 break-all text-xs text-muted-foreground">{user.email}</p></div></div>;
+ return <div className="flex min-w-0 items-center gap-3"><span aria-hidden="true" className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">{user.name.trim().charAt(0).toUpperCase() || "U"}</span><div className="min-w-0"><p className="font-medium leading-5">{user.name}</p><p className="mt-1 break-all text-xs text-muted-foreground">{user.email}</p>{user.deleting && <p className="mt-2 text-xs font-medium text-destructive">Access disabled / deletion pending</p>}<DeleteUserButton userId={user.id} email={user.email} pending={user.deleting}/></div></div>;
 }
 function Usage({ user }: { user: UserRow }) {
  return <div><div className="flex gap-4">{[["Docs",user.documents],["Chats",user.chats],["Prompts",user.prompts]].map(([label,n])=><div key={label}><p className="text-sm font-semibold tabular-nums">{n}</p><p className="mt-1 text-[11px] text-muted-foreground">{label}</p></div>)}</div><details className="mt-3 text-xs"><summary className="cursor-pointer text-muted-foreground hover:text-foreground">More details</summary><dl className="mt-2 space-y-2 text-xs"><div><dt className="text-muted-foreground">Top model</dt><dd className="mt-1 break-words">{user.model || "Not recorded"}</dd></div><div><dt className="text-muted-foreground">Username</dt><dd className="mt-1">Not set</dd></div></dl></details></div>;

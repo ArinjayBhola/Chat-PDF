@@ -1,3 +1,4 @@
+import { accountStream } from "@/lib/account-stream";
 import { recordModelUsage, recordProviderError } from "@/lib/analytics";
 import { getContext } from "@/lib/context";
 import { db } from "@/lib/db";
@@ -200,13 +201,17 @@ ${contextBlock}`;
   // otherwise a Promise gets spread into the messages array and the stream fails.
   const coreMessages = await convertToModelMessages(conversationMessages);
 
+  const live=accountStream(session.user.id,req.signal);
   const result = streamText({
+    abortSignal: live.signal,
+    onAbort: () => { live.dispose(); },
     model: google("gemini-2.5-flash"),
-      onError: async ({ error }) => { await recordProviderError("google", "gemini-2.5-flash", "compare", error); },
+      onError: async ({ error }) => { live.dispose(); await recordProviderError("google", "gemini-2.5-flash", "compare", error); },
     messages: [prompt, ...coreMessages],
     maxOutputTokens: 2000,
     experimental_transform: smoothStream(),
     async onFinish({ text }) {
+      live.dispose();
       await recordModelUsage(session.user.id, "gemini-2.5-flash", "compare");
       if (comparisonId) {
         await db.insert(comparisonMessages).values({

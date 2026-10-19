@@ -7,7 +7,7 @@ import { migrationStatements } from "../lib/migration-statements";
 async function main() {
  if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL is missing from your environment or .env file");
  const sql = neon(process.env.DATABASE_URL);
- for (const file of ["0002_admin_analytics.sql", "0003_admin_monitoring.sql", "0004_admin_ist.sql"]) {
+ for (const file of ["0002_admin_analytics.sql", "0003_admin_monitoring.sql", "0004_admin_ist.sql", "0005_account_deletion.sql"]) {
   const path = fileURLToPath(new URL("../drizzle/" + file, import.meta.url));
   const statements = migrationStatements(readFileSync(path, "utf8"));
   for (const [index, statement] of statements.entries()) {

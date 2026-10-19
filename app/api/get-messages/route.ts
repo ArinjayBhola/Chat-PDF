@@ -24,14 +24,8 @@ export async function POST(req: Request) {
   const isOwner = session?.user?.id === chat.userId;
   const isPubliclyShared = chat.isShared === "true" && chat.allowPublicView === "true";
 
-  if (!isOwner && !isPubliclyShared && !session?.user?.id) {
-    // If not owner, not public, and not logged in (to check for collaborator status if we add it here)
-    // Actually, for now, if it's not owner and not public, we need to check if they have a session to be a collaborator
-    const isCollaborator = chat.isShared === "true" && !!session?.user?.id;
-    if (!isCollaborator) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
-    }
-  }
+  const isCollaborator = chat.isShared === "true" && !!session?.user?.id;
+  if (!isOwner && !isPubliclyShared && !isCollaborator) return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
 
   return NextResponse.json({ messages: _messages });
 }

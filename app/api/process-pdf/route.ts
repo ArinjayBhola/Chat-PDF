@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { loadS3IntoPinecode } from "@/lib/pinecone";
 import { db } from "@/lib/db";
-import { chats } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { chats, users } from "@/lib/db/schema";
+import { and, eq, isNull } from "drizzle-orm";
 import { verifySignatureAppRouter } from "@upstash/qstash/dist/nextjs";
 
 async function handler(req: Request) {
@@ -14,6 +14,8 @@ async function handler(req: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
+    const available = await db.select({id:chats.id}).from(chats).innerJoin(users,eq(users.id,chats.userId)).where(and(eq(chats.id,chatId),eq(chats.fileKey,file_key),isNull(users.deletionRequestedAt))).limit(1);
+    if (!available.length) return NextResponse.json({ skipped: true });
     console.log(`[QStash] Starting PDF processing for chat: ${chatId}`);
 
     // Process the PDF

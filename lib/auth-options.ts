@@ -31,6 +31,8 @@ export const authOptions: NextAuthOptions = {
 
         const foundUser = user[0];
 
+        if (foundUser.deletionRequestedAt) throw new Error("Account unavailable");
+
         if (!foundUser.password) {
           throw new Error("Please sign in with Google");
         }
@@ -121,6 +123,7 @@ export const authOptions: NextAuthOptions = {
 
           user.id = newUser[0].id;
         } else {
+          if (existingUser[0].deletionRequestedAt) return false;
           user.id = existingUser[0].id;
 
           // Check if account link exists
@@ -154,9 +157,12 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
       }
+      const accountState = token.id ? await db.select({ id: users.id, deleting: users.deletionRequestedAt }).from(users).where(eq(users.id, token.id)).limit(1) : [];
+      token.revoked = !accountState[0] || !!accountState[0].deleting;
       return token;
     },
     async session({ session, token }) {
+      if (token.revoked) return { expires: session.expires } as typeof session;
       if (session.user) {
         session.user.id = token.id as string;
       }
