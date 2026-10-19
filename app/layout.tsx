@@ -1,3 +1,4 @@
+import ActivityTracker from "@/components/ActivityTracker";
 import { type Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -65,6 +66,7 @@ export default async function RootLayout({
           defaultTheme="light"
           enableSystem>
           <SessionProvider session={session}>
+            <ActivityTracker />
             <PreferencesProvider>
               <ViewerProvider>
                 <Provider>

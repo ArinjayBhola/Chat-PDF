@@ -325,3 +325,23 @@ npx drizzle-kit studio
 - **Formatting**: Consistent code style across project
 - **Component Structure**: Functional components with hooks
 - **File Naming**: PascalCase for components, kebab-case for utilities
+
+
+## Admin dashboard
+
+Set server-only `ADMIN_EMAILS=owner@example.com` (comma-separated for multiple admins). Access is denied by default. Signed-in allowlisted accounts can visit `/admin`. Names and emails are personal data and are available only to admins; passwords, provider credentials, filenames, object keys, URLs, document contents and message text are never selected by the dashboard.
+
+Before deploying this version, run `npx tsx scripts/setup-admin.ts` against the intended database. This additive, repeatable migration must precede the new authentication and upload code. Then run `npx tsx scripts/backfill-file-sizes.ts` to populate existing sizes using S3 HEAD metadata (requires s3:GetObject permission, no bodies are downloaded). These commands use the existing environment configuration. No live database migration is run automatically.
+
+Analytics starts when deployed. Last login means a successful sign-in, not session refresh. Models count completed document chat, comparison and mind map responses attributed to the requesting account, including collaborators. Health probes and automatic summaries are excluded. Account deletion cascades analytics removal. Route time estimates visible, active time, pauses after 60 seconds without input, and groups dynamic routes without IDs or query strings. Separate tabs can overlap; these figures are usage estimates, not billing metrics. Visits are route mounts, and average user time is cumulative active time divided by users with recorded visits. Route averages are per recorded visit. Storage covers registered, retained documents and labels missing size metadata; deleted records, unregistered objects and orphaned storage are not bucket totals. Current counts do not preserve deleted document history. Usernames are not currently collected.
+
+Potential next additions: token usage and cost by model/user, provider failure and latency trends, upload failure rates, daily active users and retention, subscription conversion, storage growth alerts, and an admin access audit trail.
+
+
+Admin monitoring additions: rerun `npx tsx scripts/setup-admin.ts` to apply `0003_admin_monitoring.sql` as well. The dashboard is a separate, server-authorized route with no user navigation entry. Ordinary accounts and anonymous visitors receive 404 before any dashboard metrics are queried. Every authorization attempt writes an audit event; if auditing fails, access fails closed. Audit actor IDs are preserved independently of account deletion for accountability.
+
+Daily activity is deduplicated per account per UTC day; heartbeats record activity even when a route stays open across midnight. Existing visits seed their start day only. Retention uses first recorded active day (not signup date), exact day 1/7/30 returns, and mature denominators. Admin dashboard visits do not count as user activity. Provider error categories cover AI chat/comparison streams, mind map generation, and Gemini health checks; raw provider responses are never stored.
+
+Configure dashboard storage alerts with `ADMIN_STORAGE_LIMIT_GB` (default 10), `ADMIN_STORAGE_WARNING_PERCENT` (default 80), and `ADMIN_LARGE_FILE_MB` (default 100). Alerts are evaluated on dashboard load, with critical status at 100%; no email or scheduled notification is sent. Unknown sizes are explicitly reported.
+
+Run admin policy tests: `node --import tsx --test tests/admin-policy.test.ts`.

@@ -1,3 +1,4 @@
+import { recordModelUsage, recordProviderError } from "@/lib/analytics";
 import { NextResponse } from "next/server";
 import { google } from "@ai-sdk/google";
 import { groq } from "@ai-sdk/groq";
@@ -165,21 +166,25 @@ export async function POST(req: Request) {
   try {
     const r = await generateText({
       model: google("gemini-2.5-flash"),
+      onFinish: async () => { await recordModelUsage(session.user.id, "gemini-2.5-flash", "mindmap"); },
       system: SYSTEM_PROMPT,
       prompt: userPrompt,
       maxRetries: 0,
     });
     raw = r.text;
   } catch (e) {
+    await recordProviderError("google", "gemini-2.5-flash", "mindmap", e);
     console.warn("Gemini failed for mindmap, using Groq fallback", e);
     try {
       const r = await generateText({
         model: groq("llama-3.3-70b-versatile"),
+      onFinish: async () => { await recordModelUsage(session.user.id, "llama-3.3-70b-versatile", "mindmap"); },
         system: SYSTEM_PROMPT,
         prompt: userPrompt,
       });
       raw = r.text;
     } catch (e2) {
+      await recordProviderError("groq", "llama-3.3-70b-versatile", "mindmap", e2);
       console.error("Both providers failed for mindmap", e2);
       return NextResponse.json(
         { error: "AI service unavailable. Please try again." },

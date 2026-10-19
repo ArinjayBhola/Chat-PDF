@@ -1,3 +1,4 @@
+import { recordModelUsage, recordProviderError } from "@/lib/analytics";
 import { getContext } from "@/lib/context";
 import { db } from "@/lib/db";
 import { chats, comparisons, comparisonMessages } from "@/lib/db/schema";
@@ -201,10 +202,12 @@ ${contextBlock}`;
 
   const result = streamText({
     model: google("gemini-2.5-flash"),
+      onError: async ({ error }) => { await recordProviderError("google", "gemini-2.5-flash", "compare", error); },
     messages: [prompt, ...coreMessages],
     maxOutputTokens: 2000,
     experimental_transform: smoothStream(),
     async onFinish({ text }) {
+      await recordModelUsage(session.user.id, "gemini-2.5-flash", "compare");
       if (comparisonId) {
         await db.insert(comparisonMessages).values({
           id: crypto.randomUUID(),

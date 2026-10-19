@@ -1,3 +1,4 @@
+import { getS3Size } from "@/lib/s3-server";
 import { db } from "@/lib/db";
 import { chats } from "@/lib/db/schema";
 import { getS3Url } from "@/lib/s3";
@@ -28,11 +29,14 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { file_key, file_name } = body;
 
+    if (typeof file_key !== "string" || !file_key.startsWith(`uploads/${session.user.id}/`)) return NextResponse.json({ error: "Invalid upload key" }, { status: 400 });
+    const fileSizeBytes = await getS3Size(file_key);
     const chat_id = await db
       .insert(chats)
       .values({
         id: crypto.randomUUID(),
         fileKey: file_key,
+        fileSizeBytes,
         fileName: file_name,
         fileUrl: getS3Url(file_key),
         userId: session.user.id,

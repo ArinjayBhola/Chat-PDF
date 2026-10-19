@@ -147,6 +147,7 @@ export const authOptions: NextAuthOptions = {
           }
         }
       }
+      await db.update(users).set({ lastLoginAt: new Date() }).where(eq(users.id, user.id));
       return true;
     },
     async jwt({ token, user, account }) {

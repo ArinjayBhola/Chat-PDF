@@ -1,3 +1,4 @@
+import { recordModelUsage, recordProviderError } from "@/lib/analytics";
 import { getContext } from "@/lib/context";
 import { db } from "@/lib/db";
 import { chats, messages as _messages } from "@/lib/db/schema";
@@ -34,6 +35,7 @@ async function isGeminiHealthy(): Promise<boolean> {
     geminiHealthyUntil = Date.now() + GEMINI_HEALTH_TTL_MS;
     return true;
   } catch (e) {
+    await recordProviderError("google", "gemini-2.5-flash", "health_probe", e);
     console.warn("[MODEL_STATS] Gemini health probe failed:", e instanceof Error ? e.message : e);
     geminiHealthyUntil = 0;
     return false;
@@ -164,6 +166,7 @@ export async function POST(req: Request) {
 
     const result = streamText({
       model: google("gemini-2.5-flash"),
+      onError: async ({ error }) => { await recordProviderError("google", "gemini-2.5-flash", "chat", error); },
       system: promptContent,
       messages: coreMessages,
       maxRetries: 0,
@@ -171,6 +174,7 @@ export async function POST(req: Request) {
       experimental_transform: smoothStream(),
       async onFinish({ text }) {
         await saveMessageToDb(chatId, text, "system");
+          await recordModelUsage(session!.user.id, "gemini-2.5-flash", "chat");
       },
     });
 
@@ -190,12 +194,14 @@ export async function POST(req: Request) {
     try {
       const result = streamText({
         model: groq("llama-3.3-70b-versatile"),
+      onError: async ({ error }) => { await recordProviderError("groq", "llama-3.3-70b-versatile", "chat", error); },
         system: promptContent,
         messages: coreMessages,
         maxOutputTokens: 1500,
         experimental_transform: smoothStream(),
         async onFinish({ text }) {
           await saveMessageToDb(chatId, text, "system");
+            await recordModelUsage(session!.user.id, "llama-3.3-70b-versatile", "chat");
         },
       });
       console.log("[MODEL_STATS] Groq stream initialized successfully.");

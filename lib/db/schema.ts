@@ -1,4 +1,6 @@
-import { pgTable, text, timestamp, pgEnum, uuid, index } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
+import { users as analyticsUsers } from "./auth-schema";
+import { pgTable, text, timestamp, pgEnum, uuid, index, bigint, integer, date, primaryKey } from "drizzle-orm/pg-core";
 
 // Export auth schema
 export * from "./auth-schema";
@@ -24,6 +26,7 @@ export const chats = pgTable("chats", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   userId: text("user_id").notNull(),
   fileKey: text("file_key").notNull(),
+  fileSizeBytes: bigint("file_size_bytes", { mode: "number" }),
   pdfStatus: text("pdf_status").notNull().default("SUCCESS"), // 'PROCESSING' | 'SUCCESS' | 'FAILED'
   isShared: text("is_shared").notNull().default("false"), // Using text for boolean-like compatibility if needed, or boolean if preferred.
   shareToken: text("share_token").unique(),
@@ -116,3 +119,31 @@ export const userSubscriptions = pgTable("user_subscriptions", {
 }, (table) => ({
   userIdIdx: index("user_subscriptions_user_id_idx").on(table.userId),
 }));
+
+// Analytics contains metadata only; deleting an account removes its usage records.
+export const activityVisits = pgTable("activity_visits", {
+ id: uuid("id").primaryKey(),
+ userId: text("user_id").notNull().references(() => analyticsUsers.id, { onDelete: "cascade" }),
+ route: text("route").notNull(),
+ activeSeconds: integer("active_seconds").notNull().default(0),
+ createdAt: timestamp("created_at").notNull().defaultNow(),
+}, t => ({ userIdx: index("activity_visits_user_idx").on(t.userId) }));
+export const modelUsage = pgTable("model_usage", {
+ id: uuid("id").primaryKey(),
+ userId: text("user_id").notNull().references(() => analyticsUsers.id, { onDelete: "cascade" }),
+ model: text("model").notNull(), feature: text("feature").notNull(),
+ createdAt: timestamp("created_at").notNull().defaultNow(),
+}, t => ({ userIdx: index("model_usage_user_idx").on(t.userId) }));
+
+export const dailyActivity = pgTable("daily_activity", {
+ userId: text("user_id").notNull().references(() => analyticsUsers.id, { onDelete: "cascade" }),
+ day: date("day").notNull().default(sql`(now() AT TIME ZONE 'UTC')::date`),
+}, t => ({ pk: primaryKey({ columns: [t.userId,t.day] }) }));
+export const providerErrors = pgTable("provider_errors", {
+ id: uuid("id").primaryKey(), provider: text("provider").notNull(), model: text("model").notNull(),
+ feature: text("feature").notNull(), category: text("category").notNull(), createdAt: timestamp("created_at").notNull().defaultNow(),
+}, t => ({ createdIdx: index("provider_errors_created_idx").on(t.createdAt) }));
+export const adminAccessLogs = pgTable("admin_access_logs", {
+ id: uuid("id").primaryKey(), actorId: text("actor_id"), outcome: text("outcome").notNull(), action: text("action").notNull(),
+ createdAt: timestamp("created_at").notNull().defaultNow(),
+}, t => ({ createdIdx: index("admin_access_logs_created_idx").on(t.createdAt) }));

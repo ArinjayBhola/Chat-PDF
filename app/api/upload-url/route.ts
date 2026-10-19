@@ -1,3 +1,5 @@
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth-options";
 import { NextResponse } from "next/server";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
@@ -11,6 +13,8 @@ const s3Client = new S3Client({
 });
 
 export async function POST(req: Request) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   try {
     const { file_name, file_type } = await req.json();
 
@@ -18,7 +22,7 @@ export async function POST(req: Request) {
     // match, leaving later spaces/odd chars in the S3 key. Strip everything
     // that isn't safe for a key.
     const safeName = String(file_name).replace(/[^a-zA-Z0-9._-]+/g, "_");
-    const file_key = "uploads/" + Date.now().toString() + "-" + safeName;
+    const file_key = `uploads/${session.user.id}/` + crypto.randomUUID() + "-" + safeName;
 
     const params = {
       Bucket: process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME!,

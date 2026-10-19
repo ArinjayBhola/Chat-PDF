@@ -1,4 +1,4 @@
-import { S3Client, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, HeadObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import fs from "fs";
 import path from "path";
 import os from "os";
@@ -60,3 +60,8 @@ export async function deleteFromS3(file_key: string) {
   }
 }
 
+
+export async function getS3Size(fileKey: string) {
+ const result = await s3Client.send(new HeadObjectCommand({ Bucket: process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME!, Key: fileKey }));
+ return result.ContentLength ?? null;
+}
