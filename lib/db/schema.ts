@@ -147,3 +147,8 @@ export const adminAccessLogs = pgTable("admin_access_logs", {
  id: uuid("id").primaryKey(), actorId: text("actor_id"), outcome: text("outcome").notNull(), action: text("action").notNull(),
  createdAt: timestamp("created_at").notNull().defaultNow(),
 }, t => ({ createdIdx: index("admin_access_logs_created_idx").on(t.createdAt) }));
+
+export const dailyActivityIst = pgTable("daily_activity_ist", {
+ userId: text("user_id").notNull().references(() => analyticsUsers.id, { onDelete: "cascade" }),
+ day: date("day").notNull().default(sql`(now() AT TIME ZONE 'Asia/Kolkata')::date`),
+}, t => ({ pk: primaryKey({ columns: [t.userId,t.day] }) }));

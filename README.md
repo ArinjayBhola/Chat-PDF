@@ -338,10 +338,19 @@ Analytics starts when deployed. Last login means a successful sign-in, not sessi
 Potential next additions: token usage and cost by model/user, provider failure and latency trends, upload failure rates, daily active users and retention, subscription conversion, storage growth alerts, and an admin access audit trail.
 
 
-Admin monitoring additions: rerun `npx tsx scripts/setup-admin.ts` to apply `0003_admin_monitoring.sql` as well. The dashboard is a separate, server-authorized route with no user navigation entry. Ordinary accounts and anonymous visitors receive 404 before any dashboard metrics are queried. Every authorization attempt writes an audit event; if auditing fails, access fails closed. Audit actor IDs are preserved independently of account deletion for accountability.
+Admin monitoring additions: rerun `npx tsx scripts/setup-admin.ts` to apply `0003_admin_monitoring.sql` as well. The dashboard is a separate, server-authorized route with no user navigation entry. Ordinary accounts and anonymous visitors receive 404 before any dashboard metrics are queried. Every page authorization attempt writes an audit event; if auditing fails, access fails closed. Audit actor IDs are preserved independently of account deletion for accountability.
 
-Daily activity is deduplicated per account per UTC day; heartbeats record activity even when a route stays open across midnight. Existing visits seed their start day only. Retention uses first recorded active day (not signup date), exact day 1/7/30 returns, and mature denominators. Admin dashboard visits do not count as user activity. Provider error categories cover AI chat/comparison streams, mind map generation, and Gemini health checks; raw provider responses are never stored.
+Daily activity is deduplicated per account per IST day; heartbeats record activity even when a route stays open across midnight. Existing visits seed their start day only. Retention uses first recorded active day (not signup date), exact day 1/7/30 returns, and mature denominators. Admin dashboard visits do not count as user activity. Provider error categories cover AI chat/comparison streams, mind map generation, and Gemini health checks; raw provider responses are never stored.
 
 Configure dashboard storage alerts with `ADMIN_STORAGE_LIMIT_GB` (default 10), `ADMIN_STORAGE_WARNING_PERCENT` (default 80), and `ADMIN_LARGE_FILE_MB` (default 100). Alerts are evaluated on dashboard load, with critical status at 100%; no email or scheduled notification is sent. Unknown sizes are explicitly reported.
 
 Run admin policy tests: `node --import tsx --test tests/admin-policy.test.ts`.
+
+
+### Admin pages and IST reporting
+
+The admin area now has separate Overview, Users, Documents & storage, Engagement, AI usage & errors, and Access logs pages. Each page independently authorizes and audits its request before querying metrics. Shared navigation includes a Back to app button pointing to `/`. No admin links are added to user navigation.
+
+All admin dates use `dd-mm-yyyy`; timestamps show 24-hour IST (`Asia/Kolkata`). Instants remain stored in UTC. Daily activity and retention use IST calendar days in a separate `daily_activity_ist` table, preserving the previous UTC aggregates. Run `npx tsx scripts/setup-admin.ts` before deploying to apply the additive `0004_admin_ist.sql` migration. Historical IST activity is seeded from visit start timestamps; activity on later days of an older visit cannot be reconstructed. New heartbeats use IST day boundaries.
+
+Date formatting tests cover the UTC-to-IST midnight rollover: `node --import tsx --test tests/admin-format.test.ts tests/admin-policy.test.ts`.
